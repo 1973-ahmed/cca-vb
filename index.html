@@ -274,6 +274,7 @@ button.act:focus-visible{outline:3px solid var(--hi);outline-offset:2px}
 .stt td:first-child{width:2rem;border-radius:4px 0 0 4px}
 .stt td:last-child{border-radius:0 4px 4px 0}
 .stt tr.ldr td{background:#2a56d6}
+#upd-in{width:100%;box-sizing:border-box;padding:.6rem;border:1px solid var(--line);border-radius:10px;font:inherit}#pub-box details summary{cursor:pointer;font-weight:600}#pub-box .chk{display:block;margin:.4rem 0}
 .tag.gsel{display:inline-flex;align-items:center;gap:.35rem}.tag.gsel select{font:inherit;color:inherit;background:#fff;border:1px solid var(--line);border-radius:8px;padding:.2rem .4rem;max-width:11rem}
 .mt .tm.has{background:#fff;padding:3px}.mt .tm img{width:100%;height:100%;object-fit:contain;display:block}.mc img.bd{width:56px;height:56px;object-fit:contain}
 /* --- Page d’accès (inspirée de RefAssist) --- */
@@ -499,7 +500,7 @@ footer{max-width:1100px;margin:auto;padding:0 1.25rem 2rem;color:var(--mut);font
 <div class="charts"><div class="cd"><h3>Arbitres par ville (10 premières)</h3><div id="ch-bar"></div></div><div class="cd"><h3>Répartition par grade</h3><div id="ch-don"></div></div></div>
 </section>
 <section id="p-refs" class="pg" hidden>
-<div class="refs"><nav id="villes" aria-label="Villes"></nav><div><input id="q" type="search" placeholder="Rechercher une ville" aria-label="Rechercher une ville"><div class="ar-top"><button id="ar-open" class="btn" type="button" aria-expanded="false" aria-controls="ar-form">+ Ajouter un arbitre</button></div><div id="ar-form" class="cd" hidden></div><h2 id="titre"></h2><div id="liste"></div></div></div>
+<div class="refs"><nav id="villes" aria-label="Villes"></nav><div><input id="q" type="search" placeholder="Rechercher une ville" aria-label="Rechercher une ville"><div class="ar-top"><button id="ar-open" class="btn" type="button" aria-expanded="false" aria-controls="ar-form">+ Ajouter un arbitre</button></div><p class="help" id="pend-note" hidden></p><div id="ar-form" class="cd" hidden></div><h2 id="titre"></h2><div id="liste"></div></div></div>
 </section>
 <section id="p-prog" class="pg" hidden>
 <div id="prog-a"></div>
@@ -538,6 +539,9 @@ footer{max-width:1100px;margin:auto;padding:0 1.25rem 2rem;color:var(--mut);font
 </section>
 <section id="p-imp" class="pg" hidden>
 <div id="auth-box"></div>
+<div class="cd" id="pub-box"><h3>Publier les modifications</h3><p class="help" id="pub-info"></p><div class="imp"><button id="pub-gh" class="btn" type="button">Publier sur GitHub</button><button id="pub-go" class="btn alt" type="button">Télécharger le fichier à publier</button><button id="pub-done" class="btn alt" type="button">J’ai publié le fichier</button></div><div class="ok" id="pub-ok" role="status"></div><div class="err" id="pub-err" role="alert"></div>
+<details id="gh-set" style="margin-top:.8rem"><summary>Connexion à GitHub (publication en un clic)</summary><div class="ef"><label for="gh-repo">Dépôt (propriétaire/nom)</label><input id="gh-repo" type="text" autocomplete="off"><label for="gh-br">Branche</label><input id="gh-br" type="text" autocomplete="off"><label for="gh-tok">Jeton GitHub</label><input id="gh-tok" type="password" autocomplete="off"><label class="chk"><input id="gh-rem" type="checkbox"> Mémoriser le jeton sur cet appareil</label><label class="chk"><input id="gh-auto" type="checkbox"> Publier automatiquement 20 secondes après chaque modification</label><p class="help">Le jeton est un « fine-grained personal access token » limité à ce seul dépôt, avec le droit « Contents : Read and write ». Sur GitHub : Settings, Developer settings, Personal access tokens, Fine-grained tokens. Il reste sur cet appareil.</p><div class="imp"><button id="gh-save" class="btn" type="button">Enregistrer</button><button id="gh-forget" class="btn alt" type="button">Oublier le jeton</button></div></div></details>
+<h3 style="margin-top:1.2rem">Mise à jour reçue d’un arbitre</h3><p class="help">Collez le message ou le code « VBUPD: … » reçu par e-mail. Seuls le nom, le prénom, la ville, le CIN, le téléphone et l’e-mail sont repris ; le grade, le statut et les matchs ne changent jamais.</p><textarea id="upd-in" rows="3" placeholder="VBUPD:…"></textarea><div class="imp"><button id="upd-check" class="btn alt" type="button">Vérifier</button></div><div id="upd-sum"></div></div>
 <div class="cd"><h3>Importer les données</h3><div class="imp"><label class="btn" for="f">Importer un fichier Excel</label><input id="f" type="file" class="vh"><label class="btn" for="g">Importer les désignations</label><input id="g" type="file" class="vh"><label class="chk"><input id="sortnb" type="checkbox"> Classer par nombre de matchs</label><button id="rm" class="btn" type="button" hidden>Retirer les arbitres importés</button><button id="reload" class="btn alt" type="button">Recharger la liste du site</button></div><p class="help" id="msg">Colonnes : N°, Nom, Prénom, Grade, CIN, GSM, Ville (ou une feuille par ville)</p><p class="help">Matchs : utilisez + et − pour chaque fonction, ou importez un tableau de désignations dont les colonnes s'appellent « 1er arbitre », « 2e arbitre », « Marqueur », « Juge de ligne » (arbitres écrits « Nom Prénom » ou par leur CIN).</p></div>
 <div class="cd"><h3>Page de connexion</h3><div class="imp"><label class="btn" for="bgf">Photo de fond</label><input id="bgf" type="file" accept="image/*" class="vh"><button id="bgr" class="btn" type="button">Fond d'origine</button></div></div>
 </section>
@@ -796,7 +800,7 @@ t.textContent=(sel||("Toutes les villes ("+vs.length+")"))+", "+all+" match"+(al
 ul.innerHTML=vs.length?vs.map(v=>{const sm=g[v].reduce((n,a)=>n+tot(a),0);return `<section class="ville"><h3>${esc(v)}<span>${g[v].length} arbitre${pl(g[v].length)}, ${sm} match${sm>1?"s":""}</span></h3><ul>${g[v].map(a=>{const i=ARBITRES.indexOf(a);return `<li><span class="who"><label class="av-l" title="Ajouter ou changer la photo">${a.photo?`<img class="av" src="${esc(a.photo)}" alt="">`:`<span class="av ph">${esc(((a.prenom||"?")[0]+(a.nom||"")[0]).toUpperCase())}</span>`}<input type="file" accept="image/*" class="vh" data-ph="${i}"></label><span><small>N° ${esc(a.num||"-")}</small><br>${esc(a.nom)} ${esc(a.prenom)}</span></span><span class="contact"><span>CIN : ${esc(a.cin||"-")}</span><span>Ville : ${esc(a.ville)}</span><a href="tel:${esc(a.gsm.replace(/\s/g,""))}">GSM : ${esc(a.gsm||"-")}</a>${a.email?`<a href="mailto:${esc(a.email)}">${esc(a.email)}</a>`:""}</span><label class="tag gsel">Grade : <select data-g="${i}" aria-label="Grade de ${esc(a.nom)} ${esc(a.prenom)}">${gradesList().concat(gradesList().includes(a.niveau)?[]:[a.niveau]).map(g=>`<option${g===a.niveau?" selected":""}>${esc(g)}</option>`).join("")}</select></label><button type="button" class="act${a.actif===false?" off":""}" data-t="${i}" aria-pressed="${a.actif!==false}" title="Cliquer pour changer le statut">● ${a.actif===false?"Inactif":"Actif"}</button><span class="tot">Matchs : ${tot(a)}</span><span class="roles">${ROLES.map(([k,lab])=>`<span class="rl"><small>${lab}</small><span class="st"><button type="button" data-i="${i}" data-k="${k}" data-d="-1" aria-label="Retirer : ${lab}">−</button><b>${a[k]||0}</b><button type="button" data-i="${i}" data-k="${k}" data-d="1" aria-label="Ajouter : ${lab}">+</button></span></span>`).join("")}</span></li>`}).join("")}</ul></section>`}).join(""):'<p class="empty">'+(ARBITRES.length?'Aucun arbitre trouvé.':'Aucun arbitre pour l\'instant : importez votre fichier Excel.')+'</p>';
 drawDash();
 }
-ul.addEventListener("click",e=>{if(!arAdmin())return;const t=e.target.closest("button[data-t]");if(t){const a=ARBITRES[+t.dataset.t];if(a){a.actif=(a.actif===false);save();draw()}return}const b=e.target.closest("button[data-d]");if(!b)return;const a=ARBITRES[+b.dataset.i],k=b.dataset.k;if(!a)return;a[k]=Math.max(0,(a[k]||0)+ +b.dataset.d);save();draw()});
+ul.addEventListener("click",e=>{if(!arAdmin())return;const t=e.target.closest("button[data-t]");if(t){const a=ARBITRES[+t.dataset.t];if(a){a.actif=(a.actif===false);markPend(a);save();draw()}return}const b=e.target.closest("button[data-d]");if(!b)return;const a=ARBITRES[+b.dataset.i],k=b.dataset.k;if(!a)return;a[k]=Math.max(0,(a[k]||0)+ +b.dataset.d);markPend(a);save();draw()});
 document.getElementById("sortnb").addEventListener("change",e=>{SORTNB=e.target.checked;draw()});
 nav.addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;sel=b.dataset.v;drawNav();draw()});
 q.addEventListener("input",()=>{drawNav();draw()});
@@ -968,7 +972,7 @@ async function openAdm(pw){
 if(typeof ADMENC==="undefined"||!ADMENC||!crypto.subtle)return null;
 try{
 const km=await crypto.subtle.importKey("raw",new TextEncoder().encode(norm(pw)),"PBKDF2",false,["deriveKey"]);
-const key=await crypto.subtle.deriveKey({name:"PBKDF2",salt:b64d(ADMENC.salt),iterations:ADMENC.it,hash:"SHA-256"},km,{name:"AES-GCM",length:256},false,["decrypt"]);
+const key=await crypto.subtle.deriveKey({name:"PBKDF2",salt:b64d(ADMENC.salt),iterations:ADMENC.it,hash:"SHA-256"},km,{name:"AES-GCM",length:256},false,["decrypt","encrypt"]);
 const list=await decAdm(key);
 return list?{key,list}:null;
 }catch(_){return null}
@@ -996,7 +1000,7 @@ lpw.value="";await granted();view("admin");return;
 }
 let a=ARBITRES.find(a=>norm(a.cin)&&norm(a.cin)===norm(pw)&&[a.nom,a.prenom+a.nom,a.nom+a.prenom].some(x=>norm(x)===norm(id)));
 if(a&&a.pending){lerr.textContent="Votre inscription est en attente d'autorisation de l'administrateur.";return}
-if(!a){const p=loadProfils().find(x=>norm(x.cin)===norm(pw)&&[x.nom,x.prenom+x.nom,x.nom+x.prenom].some(v=>norm(v)===norm(id)));if(p)a=p}
+if(!a){const p=loadProfils().find(x=>norm(x.cin)===norm(pw)&&[x.nom,x.prenom+x.nom,x.nom+x.prenom].some(v=>norm(v)===norm(id)));if(p){a=p;try{const e=await openEmb(id,pw);if(e)["niveau","actif","num","r1","r2","mq","jl"].forEach(k=>{if(e[k]!==undefined)a[k]=e[k]})}catch(_){}}}
 if(!a){lerr.textContent="Vérification…";a=await openEmb(id,pw);lerr.textContent="";if(a)a=applyProfile(a)}
 if(!a){bad();return}
 lpw.value="";await granted();showMe(fix(a));
@@ -1315,7 +1319,7 @@ const li=ARBITRES.findIndex(a=>norm(a.cin)===norm(o.cin));
 if(li>=0){Object.assign(ARBITRES[li],{nom,prenom,ville,cin,gsm,email});save();drawNav();draw()}
 CURME=upd;showMe(upd);
 if(!L.length){$("me-edit").innerHTML='<p class="help">Aucune modification.</p>';return}
-const body=["Bonjour,","","Je souhaite mettre à jour mes informations d'arbitre :","",...L.map(([k,a,b])=>k+" : "+(a||"(vide)")+" → "+(b||"(vide)")),"","Arbitre : "+o.nom+" "+o.prenom+" (N° "+(o.num||"-")+")","","Cordialement"].join("\n");
+const body=["Bonjour,","","Je souhaite mettre à jour mes informations d'arbitre :","",...L.map(([k,a,b])=>k+" : "+(a||"(vide)")+" → "+(b||"(vide)")),"","Arbitre : "+o.nom+" "+o.prenom+" (N° "+(o.num||"-")+")","","Code de mise à jour (à coller dans la plateforme) :",makeUpd(o,upd),"","Cordialement"].join("\n");
 $("me-edit").innerHTML='<p class="ok">✓ Modifications enregistrées sur cet appareil. Envoyez-les à l\'administrateur pour qu\'il mette à jour la liste.</p><div class="imp"><a class="btn" href="mailto:'+ADMIN_MAIL+'?subject='+encodeURIComponent("Modification de profil - "+o.nom+" "+o.prenom)+'&body='+encodeURIComponent(body)+'">Envoyer mes modifications par e-mail</a></div>';
 });
 /* --- Page d’accès : en-tête et ancres --- */
@@ -1348,12 +1352,184 @@ const id=b.dataset.dm;page("prog");renderDesig();
 const el=document.getElementById("dm-"+id);
 if(el){el.scrollIntoView({block:"center"});el.classList.add("flash");setTimeout(()=>el.classList.remove("flash"),2000)}
 });
+/* --- Publication des modifications de l’administrateur --- */
+const PKEY="pend-v1";
+const pendGet=()=>{let l=[];try{l=JSON.parse(localStorage.getItem(PKEY)||"[]")}catch(_){}return l.map(x=>typeof x==="string"?{k:x}:x).filter(x=>x&&x.k)};
+const pendSet=l=>{try{localStorage.setItem(PKEY,JSON.stringify(l))}catch(_){}};
+let PUBMSG="",PUBBUSY=false,PUBAGAIN=false,PUBTIMER=null,AUTO_MS=20000;
+const ghDefault=()=>{const m=location.hostname.match(/^([^.]+)\.github\.io$/i),seg=location.pathname.split("/").filter(Boolean)[0];return m&&seg&&!/\.html?$/i.test(seg)?m[1]+"/"+seg:""};
+function ghCfg(){let c={};try{c=JSON.parse(localStorage.getItem("gh-cfg")||"{}")}catch(_){}let t="";try{t=localStorage.getItem("gh-tok")||sessionStorage.getItem("gh-tok")||""}catch(_){}return{repo:c.repo||ghDefault(),br:c.br||"main",auto:!!c.auto,rem:!!c.rem,tok:t}}
+function markPend(a,old){
+if(!a||!norm(a.cin))return;
+const k=norm(a.cin),l=pendGet();let e=l.find(x=>x.k===k);
+if(!e){e={k};l.push(e)}
+if(old&&old.cin&&(norm(old.cin)!==k||norm(old.nom)!==norm(a.nom)||norm(old.prenom)!==norm(a.prenom))&&!e.old)e.old={nom:old.nom,prenom:old.prenom,cin:old.cin};
+pendSet(l);pendShow();schedulePub();
+}
+function schedulePub(){
+const c=ghCfg();if(!(c.auto&&c.tok&&c.repo)||!ADMKEY)return;
+clearTimeout(PUBTIMER);PUBTIMER=setTimeout(()=>pubBuild("github"),AUTO_MS);
+}
+function pendShow(){
+const n=pendGet().length,note=document.getElementById("pend-note"),info=document.getElementById("pub-info"),c=ghCfg(),auto=!!(c.auto&&c.tok&&c.repo);
+if(note){
+if(PUBMSG){note.hidden=false;note.textContent=PUBMSG}
+else if(n){note.hidden=false;note.textContent="⚠ Modifications en attente de publication : "+n+" arbitre"+(n>1?"s":"")+". "+(auto?"Publication automatique en préparation.":"Elles ne sont enregistrées que sur cet appareil : publiez-les depuis « Importer et configuration » pour que les arbitres les voient.")}
+else note.hidden=true;
+}
+if(info)info.textContent=n?n+" arbitre"+(n>1?"s":"")+" modifié"+(n>1?"s":"")+" depuis la dernière publication. "+(auto?"La publication sur GitHub est automatique ; vous pouvez aussi la lancer maintenant.":"Cliquez sur « Publier sur GitHub » (ou téléchargez le fichier et remplacez-le dans votre dépôt). Les arbitres ne voient les changements qu’après cette étape."):"Aucune modification en attente. Les changements de profil, de grade, de statut et de matchs faits par l’administrateur apparaissent ici ; les autres appareils ne les voient qu’après publication."
+}
+function jsonConst(src,name){
+const m=src.indexOf("const "+name+"=");if(m<0)return null;
+const s=src.indexOf("{",m);let d=0,str=false,esc=false,i=s;
+for(;i<src.length;i++){const c=src[i];
+if(str){if(esc)esc=false;else if(c==="\\")esc=true;else if(c==='"')str=false;continue}
+if(c==='"'){str=true;continue}
+if(c==="{")d++;else if(c==="}"){d--;if(d===0){i++;break}}
+}
+try{return{start:s,end:i,obj:JSON.parse(src.slice(s,i))}}catch(_){return null}
+}
+const b64e=u=>{let s="";for(let i=0;i<u.length;i+=8192)s+=String.fromCharCode.apply(null,u.subarray(i,i+8192));return btoa(s)};
+const hex=u=>[...u].map(b=>b.toString(16).padStart(2,"0")).join("");
+const exportObj=a=>{const o={...a};delete o.photo;delete o._o;delete o.pending;return o};
+async function aesEnc(key,text){const iv=crypto.getRandomValues(new Uint8Array(12)),ct=new Uint8Array(await crypto.subtle.encrypt({name:"AES-GCM",iv},key,new TextEncoder().encode(text))),raw=new Uint8Array(12+ct.length);raw.set(iv);raw.set(ct,12);return b64e(raw)}
+async function aesDec(key,b64){const raw=b64d(b64);return new TextDecoder().decode(await crypto.subtle.decrypt({name:"AES-GCM",iv:raw.slice(0,12)},key,raw.slice(12)))}
+const ghHead=c=>({Authorization:"Bearer "+c.tok,"X-GitHub-Api-Version":"2022-11-28"});
+const ghUrl=c=>"https://api.github.com/repos/"+c.repo+"/contents/index.html";
+function ghFail(r){
+if(r.status===401||r.status===403)return new Error("Jeton refusé par GitHub : il doit avoir le droit « Contents : Read and write » sur ce dépôt.");
+if(r.status===404)return new Error("Fichier index.html ou dépôt introuvable (vérifiez le nom du dépôt et la branche).");
+return new Error("GitHub a répondu "+r.status+".");
+}
+async function ghSha(c){const r=await fetch(ghUrl(c)+"?ref="+encodeURIComponent(c.br),{headers:{...ghHead(c),Accept:"application/vnd.github+json"},cache:"no-store"});if(!r.ok)throw ghFail(r);return (await r.json()).sha}
+async function ghRead(c){const r=await fetch(ghUrl(c)+"?ref="+encodeURIComponent(c.br),{headers:{...ghHead(c),Accept:"application/vnd.github.raw+json"},cache:"no-store"});if(!r.ok)throw ghFail(r);return await r.text()}
+async function ghPut(c,out,sha){
+const body={message:"Mise à jour des profils ("+new Date().toISOString().slice(0,16).replace("T"," ")+")",content:b64e(new TextEncoder().encode(out)),branch:c.br,sha};
+const r=await fetch(ghUrl(c),{method:"PUT",headers:{...ghHead(c),Accept:"application/vnd.github+json","Content-Type":"application/json"},body:JSON.stringify(body)});
+if(!r.ok){let t={};try{t=await r.json()}catch(_){}throw new Error("Échec de l’envoi à GitHub ("+r.status+")"+(t.message?" : "+t.message:""))}
+}
+async function pubBuild(mode){
+mode=mode==="github"?"github":"download";
+const err=document.getElementById("pub-err"),ok=document.getElementById("pub-ok"),btns=[document.getElementById("pub-go"),document.getElementById("pub-gh")];
+const msg=(t,bad)=>{ok.textContent=bad?"":t;err.textContent=bad?t:"";if(mode==="github"){PUBMSG=bad?"⚠ "+t:t;pendShow()}};
+if(PUBBUSY){PUBAGAIN=true;return}
+if(!arAdmin()||!ADMKEY){msg("Reconnectez-vous en administrateur, avec le mot de passe, pour publier.",true);return}
+if(!window.crypto||!crypto.subtle){msg("Cette fonction demande un navigateur récent.",true);return}
+const c=ghCfg();
+if(mode==="github"&&!(c.tok&&c.repo)){msg("Renseignez le dépôt et le jeton GitHub (bloc « Connexion à GitHub »).",true);return}
+PUBBUSY=true;btns.forEach(b=>b&&(b.disabled=true));
+try{
+msg(mode==="github"?"Publication en cours… lecture du site":"Lecture du site…");
+let src,sha;
+if(mode==="github"){sha=await ghSha(c);src=await ghRead(c)}
+else{try{const r=await fetch(location.href.split("#")[0].split("?")[0],{cache:"no-store"});if(!r.ok)throw 0;src=await r.text()}catch(_){throw new Error("Impossible de relire le site. Ouvrez la version publiée sur GitHub Pages, puis réessayez.")}}
+const pe=jsonConst(src,"EMB"),pa=jsonConst(src,"ADMENC");
+if(!pe||!pa)throw new Error("Données du site introuvables dans la page.");
+const emb=pe.obj,adm=pa.obj,pend=pendGet();
+const idsOf=(nom,prenom)=>[...new Set([nom,(prenom||"")+nom,nom+(prenom||"")].map(norm).filter(Boolean))];
+const derive=async(id,cin)=>{
+const km=await crypto.subtle.importKey("raw",new TextEncoder().encode(id+"|"+cin),"PBKDF2",false,["deriveBits"]);
+const bits=new Uint8Array(await crypto.subtle.deriveBits({name:"PBKDF2",salt:b64d(emb.salt),iterations:emb.it,hash:"SHA-256"},km,512));
+return{tag:hex(bits.slice(0,16)),key:await crypto.subtle.importKey("raw",bits.slice(32),"AES-GCM",false,["encrypt","decrypt"])};
+};
+let n=0;
+for(const e of pend){
+const a=ARBITRES.find(x=>norm(x.cin)===e.k&&!x.pending);if(!a)continue;
+let base=null;const olds=[];
+if(e.old)for(const id of idsOf(e.old.nom,e.old.prenom)){const d=await derive(id,norm(e.old.cin));olds.push(d);const j=emb.rec.findIndex(x=>x[0]===d.tag);if(!base&&j>=0){try{base=JSON.parse(await aesDec(d.key,emb.rec[j][1]))}catch(_){}}}
+const keep=new Set();
+for(const id of idsOf(a.nom,a.prenom)){
+const d=await derive(id,e.k);keep.add(d.tag);
+const i=emb.rec.findIndex(x=>x[0]===d.tag);
+let obj=null;if(i>=0){try{obj=JSON.parse(await aesDec(d.key,emb.rec[i][1]))}catch(_){}}
+obj={...(obj||base||{}),...exportObj(a)};
+const rec=[d.tag,await aesEnc(d.key,JSON.stringify(obj))];
+const chk=JSON.parse(await aesDec(d.key,rec[1]));if(chk.niveau!==a.niveau||chk.nom!==a.nom)throw new Error("Vérification échouée pour "+a.nom+".");
+if(i>=0)emb.rec[i]=rec;else emb.rec.push(rec);
+}
+olds.forEach(d=>{if(!keep.has(d.tag)){const j=emb.rec.findIndex(x=>x[0]===d.tag);if(j>=0)emb.rec.splice(j,1)}});
+n++;msg((mode==="github"?"Publication en cours… ":"")+"Chiffrement des fiches "+n+"/"+pend.length);
+}
+const pub=ARBITRES.filter(a=>!a.pending);
+adm.ct=await aesEnc(ADMKEY,JSON.stringify(pub.map(exportObj)));
+if(JSON.parse(await aesDec(ADMKEY,adm.ct)).length!==pub.length)throw new Error("Vérification de la liste échouée.");
+let out=src;
+[{s:pe.start,e:pe.end,t:JSON.stringify(emb)},{s:pa.start,e:pa.end,t:JSON.stringify(adm)}].sort((x,y)=>y.s-x.s).forEach(p=>{out=out.slice(0,p.s)+p.t+out.slice(p.e)});
+if(mode==="github"){
+await ghPut(c,out,sha);pendSet([]);
+const t=new Date().toLocaleTimeString("fr-FR",{hour:"2-digit",minute:"2-digit"});
+msg("✓ Publié sur GitHub à "+t+" ("+n+" fiche"+(n>1?"s":"")+" mise"+(n>1?"s":"")+" à jour). Les arbitres verront les changements dans 1 à 2 minutes.");
+}else{
+await savePng(new Blob([out],{type:"text/html"}),"index.html");
+msg("✓ Fichier index.html prêt ("+n+" arbitre"+(n>1?"s":"")+" mis à jour). Remplacez-le dans votre dépôt GitHub (Add file, puis Upload files, puis Commit changes), puis cliquez sur « J’ai publié le fichier ».");
+}
+}catch(e){msg((e&&e.message)||"La publication a échoué.",true)}
+finally{PUBBUSY=false;btns.forEach(b=>b&&(b.disabled=false));pendShow();if(PUBAGAIN){PUBAGAIN=false;schedulePub()}}
+}
+/* Connexion à GitHub */
+function ghShow(){const c=ghCfg(),g=id=>document.getElementById(id);g("gh-repo").value=c.repo;g("gh-br").value=c.br;g("gh-auto").checked=c.auto;g("gh-rem").checked=c.rem;g("gh-tok").value="";g("gh-tok").placeholder=c.tok?"Jeton enregistré (laisser vide pour le garder)":"github_pat_…"}
+document.getElementById("gh-save").addEventListener("click",()=>{
+if(!arAdmin())return;
+const g=id=>document.getElementById(id),err=g("pub-err"),repo=g("gh-repo").value.trim(),br=g("gh-br").value.trim()||"main",rem=g("gh-rem").checked,auto=g("gh-auto").checked,tok=g("gh-tok").value.trim()||ghCfg().tok;
+err.textContent="";g("pub-ok").textContent="";
+if(!/^[\w.-]+\/[\w.-]+$/.test(repo)){err.textContent="Dépôt invalide : indiquez propriétaire/nom (exemple : 1973-ahmed/cca-vb).";return}
+try{localStorage.setItem("gh-cfg",JSON.stringify({repo,br,auto,rem}));localStorage.removeItem("gh-tok");sessionStorage.removeItem("gh-tok");if(tok)(rem?localStorage:sessionStorage).setItem("gh-tok",tok)}catch(_){}
+ghShow();pendShow();g("pub-ok").textContent=tok?"✓ Connexion GitHub enregistrée"+(auto?" ; publication automatique activée.":"."):"Enregistré, mais aucun jeton n’est renseigné.";
+if(auto&&tok&&pendGet().length)schedulePub();
+});
+document.getElementById("gh-forget").addEventListener("click",()=>{if(!arAdmin())return;try{localStorage.removeItem("gh-tok");sessionStorage.removeItem("gh-tok");const c=ghCfg();localStorage.setItem("gh-cfg",JSON.stringify({repo:c.repo,br:c.br,auto:false,rem:false}))}catch(_){}clearTimeout(PUBTIMER);ghShow();pendShow();document.getElementById("pub-ok").textContent="Jeton oublié sur cet appareil."});
+document.getElementById("pub-gh").addEventListener("click",()=>{clearTimeout(PUBTIMER);pubBuild("github")});
+document.getElementById("pub-go").addEventListener("click",()=>pubBuild("download"));
+document.getElementById("pub-done").addEventListener("click",()=>{if(!arAdmin())return;pendSet([]);PUBMSG="";pendShow();document.getElementById("pub-err").textContent="";document.getElementById("pub-ok").textContent="Liste des modifications en attente vidée."});
+/* Mise à jour envoyée par un arbitre */
+function makeUpd(o,u){return "VBUPD:"+btoa(unescape(encodeURIComponent(JSON.stringify({v:1,o:norm(o.cin),p:o._o||"",nom:u.nom,prenom:u.prenom,ville:u.ville,cin:u.cin,gsm:u.gsm,email:u.email}))))+"~"}
+function updParse(t){
+const m=String(t).match(/VBUPD:([A-Za-z0-9+\/=_\-\s]+?)~/);if(!m)throw new Error("Code de mise à jour introuvable : il commence par VBUPD: et se termine par ~.");
+let u;try{u=JSON.parse(decodeURIComponent(escape(atob(m[1].replace(/\s+/g,"").replace(/-/g,"+").replace(/_/g,"/")))))}catch(_){throw new Error("Code de mise à jour illisible.")}
+if(!u||u.v!==1||typeof u.o!=="string")throw new Error("Code de mise à jour non reconnu.");
+const s=k=>String(u[k]==null?"":u[k]).trim().slice(0,80);
+const r={o:norm(u.o),p:norm(u.p||""),nom:s("nom"),prenom:s("prenom"),ville:s("ville"),cin:s("cin").replace(/\s/g,"").toUpperCase(),gsm:s("gsm"),email:s("email")};
+if(!r.nom||!r.prenom||!r.ville)throw new Error("Nom, prénom ou ville manquant dans le code.");
+if(r.cin&&!/^[A-Z]{1,2}\d{4,8}$/.test(r.cin))throw new Error("CIN invalide dans le code.");
+if(r.gsm&&!/^\+?[\d\s.\-]{9,16}$/.test(r.gsm))throw new Error("Numéro de téléphone invalide dans le code.");
+if(r.email&&!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(r.email))throw new Error("Adresse e-mail invalide dans le code.");
+return r;
+}
+let UPD=null;
+document.getElementById("upd-check").addEventListener("click",()=>{
+if(!arAdmin())return;
+const box=document.getElementById("upd-sum");UPD=null;box.innerHTML="";
+try{
+const r=updParse(document.getElementById("upd-in").value);
+const a=ARBITRES.find(x=>norm(x.cin)&&[r.o,r.p].filter(Boolean).includes(norm(x.cin)));
+if(!a)throw new Error("Arbitre introuvable dans votre liste (CIN d’origine non reconnu).");
+const ncin=r.cin||a.cin;
+if(norm(ncin)!==norm(a.cin)&&ARBITRES.some(x=>x!==a&&norm(x.cin)===norm(ncin)))throw new Error("Ce CIN est déjà utilisé par un autre arbitre.");
+const L=[["Nom",a.nom,r.nom],["Prénom",a.prenom,r.prenom],["Ville",a.ville,r.ville],["CIN",a.cin,ncin],["GSM",a.gsm||"",r.gsm],["E-mail",a.email||"",r.email]].filter(x=>x[1]!==x[2]);
+if(!L.length){box.innerHTML='<p class="help">Aucune différence avec la fiche actuelle.</p>';return}
+UPD={a,r,ncin};
+box.innerHTML='<p><b>'+esc(a.nom)+' '+esc(a.prenom)+'</b> (N° '+esc(a.num||"-")+', '+esc(a.niveau)+')</p><ul class="rl2">'+L.map(([k,x,y])=>'<li>'+esc(k)+' : '+esc(x||"(vide)")+' → '+esc(y||"(vide)")+'</li>').join("")+'</ul><div class="imp"><button class="btn" type="button" data-upd="ok">Confirmer et appliquer</button><button class="btn alt" type="button" data-upd="no">Annuler</button></div>';
+}catch(e){box.innerHTML='<div class="err">'+esc(e.message||"Code invalide.")+'</div>'}
+});
+document.getElementById("upd-sum").addEventListener("click",e=>{
+const b=e.target.closest&&e.target.closest("button[data-upd]");if(!b||!arAdmin())return;
+const box=document.getElementById("upd-sum");
+if(b.dataset.upd==="no"||!UPD){UPD=null;box.innerHTML="";return}
+const {a,r,ncin}=UPD;UPD=null;
+const old={nom:a.nom,prenom:a.prenom,cin:a.cin};
+Object.assign(a,{nom:r.nom,prenom:r.prenom,ville:r.ville,cin:ncin,gsm:r.gsm?phoneName(r.gsm):"",email:r.email});
+save();drawNav();draw();markPend(a,old);
+document.getElementById("upd-in").value="";
+const c=ghCfg();
+box.innerHTML='<p class="ok">✓ Mise à jour appliquée à '+esc(a.nom)+' '+esc(a.prenom)+'. '+(c.auto&&c.tok?"Publication automatique dans quelques secondes.":"Publiez les modifications pour que l’arbitre les voie partout.")+'</p>';
+});
+ghShow();pendShow();
 /* --- Admin : modifier le grade d’un arbitre --- */
 function gradesList(){const gr=[...new Set([...Object.values(GRADE_FIX),...ARBITRES.map(a=>a.niveau).filter(x=>x&&x!=="—")])];if(!gr.includes("Stagiaire"))gr.unshift("Stagiaire");return gr}
 ul.addEventListener("change",e=>{
 const t=e.target;if(!t||t.dataset.g===undefined||!arAdmin())return;
 const a=ARBITRES[+t.dataset.g];if(!a)return;
-a.niveau=gradeName(t.value);save();drawNav();draw();
+a.niveau=gradeName(t.value);markPend(a);save();drawNav();draw();
 });
 /* --- Admin : ajouter un arbitre --- */
 function arForm(){
@@ -1388,7 +1564,7 @@ if(cin&&(ARBITRES.some(a=>norm(a.cin)===norm(cin))||loadProfils().some(p=>norm(p
 if(ARBITRES.some(a=>norm(a.nom+a.prenom)===norm(nom+prenom)&&norm(a.ville)===norm(ville))){err("Cet arbitre existe déjà dans cette ville.");return}
 const num=String(1+Math.max(0,...ARBITRES.filter(a=>a.ville===ville).map(a=>parseFloat(a.num)||0)));
 ARBITRES.push({num,nom,prenom,ville,niveau,cin,gsm:gsm?phoneName(gsm):"",email,actif:true,r1:0,r2:0,mq:0,jl:0});
-save();sel=ville;q.value="";drawNav();draw();
+markPend(ARBITRES[ARBITRES.length-1]);save();sel=ville;q.value="";drawNav();draw();
 f.innerHTML='<p class="ok">✓ '+esc(nom)+" "+esc(prenom)+" a été ajouté à "+esc(ville)+" (grade : "+esc(niveau)+", N° "+esc(num)+').</p><div class="imp"><button class="btn" type="button" data-ar="again">Ajouter un autre arbitre</button><button class="btn alt" type="button" data-ar="cancel">Fermer</button></div>';
 });
 /* --- Export de l’affiche des résultats et du classement (image PNG) --- */
