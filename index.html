@@ -79,6 +79,7 @@ a.btn{text-decoration:none;box-sizing:border-box}
 button.btn.alt{background:transparent;color:var(--acc);border:2px solid var(--acc);margin-top:.7rem}
 .ok{color:var(--acc);font-size:.9rem;min-height:1.2rem;margin-top:.6rem}
 select.f{width:100%;padding:.7rem .9rem;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--fg);font:inherit}
+.calbox h4{margin:1rem 0 .3rem;color:var(--acc)}.calw{overflow-x:auto}.calbox table{width:100%;border-collapse:collapse;font-size:.9rem}.calbox th,.calbox td{padding:.4rem .5rem;text-align:left;border-bottom:1px solid rgba(128,128,128,.25);vertical-align:top}.calbox th{font-size:.78rem;text-transform:uppercase;opacity:.75}.calbox td:nth-child(1),.calbox td:nth-child(2){white-space:nowrap}
 .who{display:flex;align-items:center;gap:.7rem}
 .av{width:46px;height:46px;border-radius:50%;object-fit:cover;border:2px solid var(--hi)}
 .av.big{width:92px;height:92px;margin-bottom:.5rem}
@@ -341,7 +342,7 @@ button.act:focus-visible{outline:3px solid var(--hi);outline-offset:2px}
 .mc-t{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:.5rem;margin:.8rem 0 .6rem}
 .mc-tm{display:flex;flex-direction:column;align-items:center;gap:.35rem;font-weight:700;font-size:.8rem;text-transform:uppercase}
 .mc .bd{width:48px;height:56px}
-.mc-vs{font-weight:800;font-size:1.15rem;color:var(--mut)}.mc-vs b{color:inherit;font-size:1.3rem}
+.mc-ss{text-align:center;font-size:.82rem;font-weight:600;color:var(--mut);margin:.3rem 0 .1rem;overflow-wrap:anywhere}.mc-vs{font-weight:800;font-size:1.15rem;color:var(--mut)}.mc-vs b{color:inherit;font-size:1.3rem}
 .mc-v{color:var(--mut);font-size:.8rem;display:flex;align-items:center;justify-content:center;gap:.35rem}
 .mc-n{font-size:.78rem;margin-top:.4rem;color:var(--mut)}.mc-n.ok{color:var(--acc);font-weight:600}
 .mc-b{margin-top:.8rem;background:var(--card,#fff);border:1px solid var(--acc);color:var(--acc);border-radius:6px;padding:.5rem .9rem;font:inherit;font-weight:700;font-size:.72rem;letter-spacing:.04em;cursor:pointer}
@@ -422,6 +423,7 @@ footer{max-width:1100px;margin:auto;padding:0 1.25rem 2rem;color:var(--mut);font
 <div class="sb-brand"><span class="mark"><img class="lg" alt="CCA - VB"></span><span><b>CCA - VB</b><small>e-Ref Assist</small></span></div>
 <span class="pill">Volley-ball · Saison 2026</span>
 <div class="sb-h">Menu</div>
+<button class="mi" type="button" data-m="cal" aria-pressed="false"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="4" width="17" height="16" rx="2"/><path d="M3.5 9h17M9 9v11M15 9v11M3.5 14.5h17"/></svg>Calendrier</button>
 <button class="mi" type="button" data-m="arbitres" aria-pressed="true"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.5 2.7-6 6-6s6 2.5 6 6"/><circle cx="17" cy="9" r="2.4"/><path d="M17 14c2.6 0 4.5 2 4.5 5"/></svg>Arbitres</button>
 <button class="mi" type="button" data-m="programmes" aria-pressed="false"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>Programmes</button>
 <button class="mi" type="button" data-m="res" aria-pressed="false"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 4h8v5a4 4 0 0 1-8 0z"/><path d="M8 6H5a2 2 0 0 0 2 4M16 6h3a2 2 0 0 1-2 4M12 13v4M9 20h6"/></svg>Résultats et classements</button>
@@ -441,6 +443,9 @@ footer{max-width:1100px;margin:auto;padding:0 1.25rem 2rem;color:var(--mut);font
 <section id="m-arbitres" class="pg">
 <div class="cd"><h3>Ma fiche</h3><div id="me-h"></div><dl class="me-info" id="me-info"></dl><div class="imp" id="me-actions" style="margin-top:.8rem"><button class="btn" type="button" id="me-editb">Modifier mes informations</button></div><div id="me-edit"></div></div>
 <div class="refs"><div><input id="dq" type="search" placeholder="Rechercher une ville" aria-label="Rechercher une ville"><nav id="dir-nav" aria-label="Villes"></nav></div><div class="cd"><h3 id="dir-t"></h3><ul id="dir-l"></ul></div></div>
+</section>
+<section id="m-cal" class="pg" hidden>
+<div id="cal-m"></div>
 </section>
 <section id="m-programmes" class="pg" hidden>
 <div id="prog-m"></div>
@@ -479,6 +484,7 @@ footer{max-width:1100px;margin:auto;padding:0 1.25rem 2rem;color:var(--mut);font
 <div class="sb-brand"><span class="mark"><img class="lg" alt="FRMVB"></span><span><b>CCA - VB</b><small>e-Ref Assist</small></span></div>
 <span class="pill">Volley-ball · Saison 2026</span>
 <div class="sb-h">Tableau de bord</div>
+<button class="mi" type="button" data-p="cal" aria-pressed="false"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="4" width="17" height="16" rx="2"/><path d="M3.5 9h17M9 9v11M15 9v11M3.5 14.5h17"/></svg>Calendrier</button>
 <button class="mi" type="button" data-p="home" aria-pressed="true"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.5"/></svg>Vue d'ensemble</button>
 <button class="mi" type="button" data-p="refs" aria-pressed="false"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.5 2.7-6 6-6s6 2.5 6 6"/><circle cx="17" cy="9" r="2.4"/><path d="M17 14c2.6 0 4.5 2 4.5 5"/></svg>Arbitres par ville</button>
 <button class="mi" type="button" data-p="prog" aria-pressed="false"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>Programmes</button>
@@ -507,6 +513,9 @@ footer{max-width:1100px;margin:auto;padding:0 1.25rem 2rem;color:var(--mut);font
 <section id="p-refs" class="pg" hidden>
 <div class="refs"><nav id="villes" aria-label="Villes"></nav><div><input id="q" type="search" placeholder="Rechercher une ville" aria-label="Rechercher une ville"><div class="ar-top"><button id="ar-open" class="btn" type="button" aria-expanded="false" aria-controls="ar-form">+ Ajouter un arbitre</button></div><p class="help" id="pend-note" hidden></p><div id="ar-form" class="cd" hidden></div><h2 id="titre"></h2><div id="liste"></div></div></div>
 </section>
+<section id="p-cal" class="pg" hidden>
+<div id="cal-a"></div>
+</section>
 <section id="p-prog" class="pg" hidden>
 <div id="wk-box"><button id="wk-open" class="btn" type="button" aria-expanded="false" aria-controls="wk-form">+ Ajouter une semaine (Week)</button><div id="wk-form" class="cd" hidden></div></div>
 <div id="prog-a"></div>
@@ -514,6 +523,7 @@ footer{max-width:1100px;margin:auto;padding:0 1.25rem 2rem;color:var(--mut);font
 </section>
 <section id="p-res" class="pg" hidden>
 <div id="res-a"></div>
+<div id="resimp-a"></div>
 <div id="resin-a"></div>
 </section>
 <section id="p-nom" class="pg" hidden>
@@ -593,6 +603,39 @@ let ADMKEY=null;
 const DSLOTS=[["r1","1er arbitre","r1"],["r2","2e arbitre","r2"],["mq","Marqueur","mq"],["jl1","Juge de ligne 1","jl"],["jl2","Juge de ligne 2","jl"],["jl3","Juge de ligne 3","jl"],["jl4","Juge de ligne 4","jl"]];
 const slotsFor=P=>DSLOTS.filter(([s])=>!/^jl[34]$/.test(s)||P.cls!=="dames");
 let EDIDX=-1;
+/* --- Calendrier des matchs (6 compétitions) --- */
+const CALS=[];
+let CALL=(()=>{try{return JSON.parse(localStorage.getItem("cal-v1")||"{}")}catch(_){return{}}})();
+function saveCal(){try{localStorage.setItem("cal-v1",JSON.stringify(CALL))}catch(_){}}
+const calRows=lg=>CALL[lg]||CALS.filter(r=>r[0]===lg);
+let CALSEL="",CALED=false;
+const calLg=()=>COMPS.some(c=>c.lg===CALSEL)?CALSEL:curComp();
+function calHtml(){
+const lg=calLg(),c=COMPS.find(x=>x.lg===lg),rows=calRows(lg),adm=isAdmin();
+const chips=`<div class="wkbar compbar" role="group" aria-label="Choisir le calendrier">${COMPS.map(x=>`<button type="button" class="wkchip${x.lg===lg?" on":""}" data-ccal="${x.lg}" aria-pressed="${x.lg===lg}">${esc(x.titre)}</button>`).join("")}</div>`;
+let body;
+if(CALED&&adm){
+body=`<p class="help">Une ligne par match, colonnes séparées par « ; » ou par une tabulation (collage depuis Excel) :<br><b>Journée ; Date ; Heure ; Équipe A ; Équipe B ; Lieu</b></p><textarea class="calta" rows="12" style="width:100%" aria-label="Calendrier ${esc(c.titre)}">${esc(rows.map(r=>r.slice(1).join(" ; ")).join("\n"))}</textarea><div class="err calerr" role="alert"></div><div class="imp"><button class="btn" type="button" data-cale="save">Enregistrer</button><button class="btn alt" type="button" data-cale="cancel">Annuler</button></div>`;
+}else if(rows.length){
+const g=[];rows.forEach(r=>{let x=g.find(y=>y.j===r[1]);if(!x){x={j:r[1],l:[]};g.push(x)}x.l.push(r)});
+body=g.map(x=>`<h4>${esc(x.j)}</h4><div class="calw"><table><thead><tr><th>Date</th><th>Heure</th><th>Rencontre</th><th>Lieu</th></tr></thead><tbody>${x.l.map(r=>`<tr><td>${esc(r[2])}</td><td>${esc(r[3])}</td><td>${esc(r[4])} <b>VS</b> ${esc(r[5])}</td><td>${esc(r[6]||"")}</td></tr>`).join("")}</tbody></table></div>`).join("");
+}else body=`<p class="help">Le calendrier ${esc(c.titre)} n’est pas encore publié.${adm?" Utilisez « Modifier le calendrier » pour le saisir.":""}</p>`;
+const dl=!(CALED&&adm)?`<div class="imp" style="margin:.2rem 0 .6rem"><button class="btn" type="button" data-cald="pdf">Télécharger le PDF</button><button class="btn alt" type="button" data-cald="csv">Télécharger (Excel)</button><span class="pmsg help"></span></div>`:"";
+return `<div class="cd calbox"><div class="sec-h"><h3>Calendrier des matchs</h3>${adm&&!CALED?`<button class="btn alt" type="button" data-cale="edit">Modifier le calendrier</button>`:""}</div>${chips}${dl}${body}</div>`;
+}
+document.addEventListener("click",e=>{
+const ch=e.target.closest&&e.target.closest("button[data-ccal]");
+if(ch){CALSEL=ch.dataset.ccal;CALED=false;refreshProg();return}
+const b=e.target.closest&&e.target.closest("button[data-cale]");if(!b||!arAdmin())return;
+const k=b.dataset.cale;
+if(k==="edit"){CALED=true;refreshProg();return}
+if(k==="cancel"){CALED=false;refreshProg();return}
+const box=b.closest(".calbox"),ta=box.querySelector(".calta"),er=box.querySelector(".calerr"),lg=calLg(),rows=[],L=ta.value.split(/\r?\n/);
+for(let i=0;i<L.length;i++){const t=L[i].trim();if(!t)continue;const f=t.split(/\t|;/).map(x=>x.trim());
+if(f.length<5||!f[0]||!f[3]||!f[4]){er.textContent="Ligne "+(i+1)+" : il faut au moins Journée ; Date ; Heure ; Équipe A ; Équipe B.";return}
+rows.push([lg,f[0],f[1],f[2],f[3],f[4],f.slice(5).join(" ")])}
+CALL[lg]=rows;saveCal();CALED=false;pendProg();refreshProg();
+});
 let DESIG=(()=>{let d={};try{d=JSON.parse(localStorage.getItem("desig-v1")||"{}")}catch(_){}const o={};Object.keys(d).forEach(k=>{o[/^\d+$/.test(k)?"h"+k:k]=d[k]});return o})();
 /* État des frais et des PDF (déclaré tôt : utilisé dès le chargement) */
 let FEES=(()=>{try{return JSON.parse(localStorage.getItem("fees-v1")||"{}")}catch(_){return{}}})();
@@ -734,7 +777,7 @@ const key=P.id+m,k=(DESIG[key]||{})[s],cur=k?findP(k):null,ck=key+"|"+s,city=DCI
 return `<div class="dr"><span>${esc(l)}</span><select class="f" data-p="${P.id}" data-m="${m}" data-s="${s}" data-w="c" aria-label="Ville pour ${esc(l)}"><option value="">Ville…</option>${vil.map(v=>`<option${v===city?" selected":""}>${esc(v)}</option>`).join("")}</select><select class="f" data-p="${P.id}" data-m="${m}" data-s="${s}" data-w="p" aria-label="Arbitre pour ${esc(l)}"><option value="">Arbitre…</option>${k&&String(k).startsWith("txt:")?`<option value="${esc(k)}" selected>${esc(String(k).slice(4))} (à rattacher)</option>`:""}${people.map(x=>`<option value="${esc(pkey(x))}"${k===pkey(x)?" selected":""}>${esc(pname(x))}</option>`).join("")}</select><input class="fee" type="number" min="0" step="10" inputmode="numeric" placeholder="Frais DH" value="${feeOf(key,s)||""}" data-fee="${key}" data-s="${s}" aria-label="Frais pour ${esc(l)}"></div>`}).join("")}<p class="dtot" data-tot="${P.id+m}">${totText(P,m)}</p></div>`).join("")}`).join("")}<div class="imp" style="margin-top:1rem"><button class="btn" type="button" data-x="txt">Afficher le texte des désignations</button></div><div id="ds-txt"></div></div>`;
 }
 function renderDesig(){const e=document.getElementById("desig-a");if(e)e.innerHTML=desigHtml()}
-function refreshProg(){const h=progHtml(),a=document.getElementById("prog-a"),m=document.getElementById("prog-m");if(a)a.innerHTML=h;if(m)m.innerHTML=h}
+function refreshProg(){const h=progHtml(),a=document.getElementById("prog-a"),m=document.getElementById("prog-m");if(a)a.innerHTML=h;if(m)m.innerHTML=h;const c=calHtml(),ca=document.getElementById("cal-a"),cm=document.getElementById("cal-m");if(ca)ca.innerHTML=c;if(cm)cm.innerHTML=c}
 function assign(pid,m,s,key){
 const err=document.getElementById("ds-err"),dk=pid+m,d=DESIG[dk]=DESIG[dk]||{},role=x=>DSLOTS.find(r=>r[0]===x)[2];
 if(err)err.textContent="";
@@ -1183,18 +1226,18 @@ async function initDir(a){DIRD=await loadDir(a);dsel=a.ville;$("dq").value="";dr
 $("dir-nav").addEventListener("click",e=>{const b=e.target.closest("button[data-c]");if(!b)return;dsel=b.dataset.c;drawDir()});
 $("dq").addEventListener("input",drawDir);
 function mpage(p){
-if(p==="recus")setTimeout(renderRecus,0);
-["arbitres","programmes","res","nominations","recus","stat","regles","nouv","case","notes"].forEach(k=>{$("m-"+k).hidden=k!==p});
+if(p==="recus")setTimeout(renderRecus,0);if(p==="cal")setTimeout(refreshProg,0);
+["cal","arbitres","programmes","res","nominations","recus","stat","regles","nouv","case","notes"].forEach(k=>{$("m-"+k).hidden=k!==p});
 document.querySelectorAll(".mi[data-m]").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.m===p)));
-const T={arbitres:["Arbitres","Votre fiche et les arbitres par ville"],programmes:["Programmes","Programmes des rencontres"],res:["Résultats et classements","Résultats des matchs et classements"],nominations:["Nominations","Vos nominations par fonction"],recus:["Reçus d'arbitrage","Vos reçus d'arbitrage"],stat:["Stat","Chiffres clés du suivi des arbitres"],regles:["Règles officielles 2025-2028","Règles officielles de volleyball de la FIVB"],nouv:["Nouvelles règles 2026","Règles testées par la FIVB en 2026"],case:["Casebook","Practical cases with official rulings"],notes:["Notes","Vos notes personnelles"]};
+const T={cal:["Calendrier des matchs","Calendriers des six compétitions"],arbitres:["Arbitres","Votre fiche et les arbitres par ville"],programmes:["Programmes","Programmes des rencontres"],res:["Résultats et classements","Résultats des matchs et classements"],nominations:["Nominations","Vos nominations par fonction"],recus:["Reçus d'arbitrage","Vos reçus d'arbitrage"],stat:["Stat","Chiffres clés du suivi des arbitres"],regles:["Règles officielles 2025-2028","Règles officielles de volleyball de la FIVB"],nouv:["Nouvelles règles 2026","Règles testées par la FIVB en 2026"],case:["Casebook","Practical cases with official rulings"],notes:["Notes","Vos notes personnelles"]};
 $("me-pt").textContent=T[p][0];$("me-ps").textContent=T[p][1];window.scrollTo(0,0);
 }
 document.querySelectorAll(".mi[data-m]").forEach(b=>b.addEventListener("click",()=>mpage(b.dataset.m)));
 function page(p){
-["home","refs","prog","res","nom","rec","stat","regles","nouv","case","notes","imp"].forEach(k=>{$("p-"+k).hidden=k!==p});
+["home","cal","refs","prog","res","nom","rec","stat","regles","nouv","case","notes","imp"].forEach(k=>{$("p-"+k).hidden=k!==p});
 document.querySelectorAll(".mi[data-p]").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.p===p)));
-const T={home:["Vue d'ensemble","Suivi des arbitres — FRMVB"],refs:["Arbitres par ville","Choisissez une ville ou recherchez-la"],prog:["Programmes","Programmes des rencontres"],res:["Résultats et classements","Résultats des matchs et classements"],nom:["Nominations","Désignations de chaque arbitre par fonction"],rec:["Reçus d'arbitrage","Reçus d'arbitrage des rencontres"],stat:["Statistiques","Chiffres clés des désignations"],regles:["Règles officielles 2025-2028","Règles officielles de volleyball de la FIVB"],nouv:["Nouvelles règles 2026","Règles testées par la FIVB en 2026"],case:["Casebook","Practical cases with official rulings"],notes:["Notes","Vos notes personnelles"],imp:["Importer et configuration","Fichier Excel, autorisations, désignations, photo de fond"]};
-$("pg-t").textContent=T[p][0];$("pg-s").textContent=T[p][1];if(p==="imp")$("auth-box").innerHTML=renderAuth();if(p==="home")drawHome();if(p==="rec")renderRecus();window.scrollTo(0,0);
+const T={home:["Vue d'ensemble","Suivi des arbitres — FRMVB"],cal:["Calendrier des matchs","Calendriers des six compétitions"],refs:["Arbitres par ville","Choisissez une ville ou recherchez-la"],prog:["Programmes","Programmes des rencontres"],res:["Résultats et classements","Résultats des matchs et classements"],nom:["Nominations","Désignations de chaque arbitre par fonction"],rec:["Reçus d'arbitrage","Reçus d'arbitrage des rencontres"],stat:["Statistiques","Chiffres clés des désignations"],regles:["Règles officielles 2025-2028","Règles officielles de volleyball de la FIVB"],nouv:["Nouvelles règles 2026","Règles testées par la FIVB en 2026"],case:["Casebook","Practical cases with official rulings"],notes:["Notes","Vos notes personnelles"],imp:["Importer et configuration","Fichier Excel, autorisations, désignations, photo de fond"]};
+$("pg-t").textContent=T[p][0];$("pg-s").textContent=T[p][1];if(p==="imp")$("auth-box").innerHTML=renderAuth();if(p==="home")drawHome();if(p==="cal")refreshProg();if(p==="rec")renderRecus();if(p==="res"&&arAdmin()&&localStorage.getItem("res-url"))rimpSync(true);window.scrollTo(0,0);
 }
 document.querySelectorAll(".mi[data-p]").forEach(b=>b.addEventListener("click",()=>page(b.dataset.p)));
 document.getElementById("me-h").addEventListener("change",e=>{
@@ -1227,7 +1270,7 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape")document.getElementB
 document.getElementById("nouv-a").innerHTML=document.getElementById("nouv-m").innerHTML=nouvHtml();
 document.getElementById("rules-a").innerHTML=document.getElementById("rules-m").innerHTML=rulesHtml();
 refreshRes();
-document.getElementById("resin-a").innerHTML=resInHtml();
+document.getElementById("resin-a").innerHTML=resInHtml();resImpRender();
 document.getElementById("resin-a").addEventListener("change",e=>{
 const t=e.target;if(!t||!t.dataset||!t.dataset.k)return;
 if(t.dataset.s!==undefined){
@@ -1242,7 +1285,7 @@ if(!Number.isInteger(a)||!Number.isInteger(b)||a<0||b<0||a===b){bad="Set "+(j+1)
 S.push([a,b]);
 }
 if(S.length)SETS[k]=S;else delete SETS[k];
-saveSets();
+saveSets();pendProg();
 const wx=S.filter(s=>s[0]>s[1]).length,wy=S.filter(s=>s[1]>s[0]).length;
 const ri=wrap.parentNode.querySelector(".ri"),[ia,ib]=ri.querySelectorAll("input"),r=getRes(k);
 if(S.length&&validScore(wx,wy)){RESULTS[k]=[wx,wy];ia.value=wx;ib.value=wy;saveRes()}
@@ -1259,7 +1302,7 @@ const a=+va,b=+vb;
 if(!validScore(a,b)){err.textContent="Score invalide : le vainqueur doit avoir 3 sets et l'autre 0, 1 ou 2.";const r=getRes(k);ia.value=r?r[0]:"";ib.value=r?r[1]:"";return}
 RESULTS[k]=[a,b];
 }
-saveRes();refreshRes();
+saveRes();pendProg();refreshRes();
 });
 document.getElementById("resin-a").addEventListener("click",e=>{
 const b=e.target.closest&&e.target.closest("button[data-x]");if(!b)return;
@@ -1416,8 +1459,8 @@ const hue=n=>{let h=0;for(const c of String(n))h=(h*31+c.charCodeAt(0))%360;retu
 const shield=n=>{if(tl(n))return `<img class="bd" src="${tl(n)}" alt="">`;const t=String(n).replace(/[^A-Za-zÀ-ÿ0-9]/g,"").slice(0,3).toUpperCase();return `<svg class="bd" viewBox="0 0 48 56" aria-hidden="true"><path d="M24 2 44 9v19c0 14-10 23-20 26C14 51 4 42 4 28V9z" fill="hsl(${hue(n)} 55% 36%)" stroke="#fff" stroke-width="2.5"/><text x="24" y="33" text-anchor="middle" font-size="${t.length>2?13:16}" font-weight="800" fill="#fff">${esc(t)}</text></svg>`};
 const pin=`<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s7-6.2 7-11a7 7 0 0 0-14 0c0 4.8 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>`;
 const cards=PROGS.filter(inWeek).flatMap(P=>P.matchs.map(([h,a,b,v],i)=>{
-const k=P.id+i,r=getRes(k),d=DESIG[k]||{},SL=slotsFor(P),n=SL.filter(([s])=>d[s]).length,t=String(h||"").replace(":","h");
-return `<article class="mc"><div class="mc-c">${esc(P.titre)}</div><div class="mc-d">${esc(P.date)}${t?" à "+esc(t):""}</div><div class="mc-s">${esc(P.sous)} · Match ${mno(P,i)}</div><div class="mc-t"><div class="mc-tm">${shield(a)}<span>${esc(a)}</span></div><div class="mc-vs">${r?`<b>${r[0]}-${r[1]}</b>`:"VS"}</div><div class="mc-tm">${shield(b)}<span>${esc(b)}</span></div></div><div class="mc-v">${pin}<span>${esc(v||"")}</span></div><div class="mc-n${n===SL.length?" ok":""}">Arbitres désignés : ${n}/${SL.length}</div><button class="mc-b" type="button" data-dm="${k}">VOIR LE DÉTAIL DU MATCH ›</button></article>`;
+const k=P.id+i,r=getRes(k),sv=r?getSets(k):null,fo=sv&&sv.length?forfeit(sv):0,ssH=sv&&sv.length?`<div class="mc-ss">${fo?"Forfait de "+esc(fo===1?b:a)+" · ":""}${sv.map(x=>x[0]+"-"+x[1]).join(" · ")}</div>`:"",d=DESIG[k]||{},SL=slotsFor(P),n=SL.filter(([s])=>d[s]).length,t=String(h||"").replace(":","h");
+return `<article class="mc"><div class="mc-c">${esc(P.titre)}</div><div class="mc-d">${esc(P.date)}${t?" à "+esc(t):""}</div><div class="mc-s">${esc(P.sous)} · Match ${mno(P,i)}</div><div class="mc-t"><div class="mc-tm">${shield(a)}<span>${esc(a)}</span></div><div class="mc-vs">${r?`<b>${r[0]}-${r[1]}</b>`:"VS"}</div><div class="mc-tm">${shield(b)}<span>${esc(b)}</span></div></div>${ssH}<div class="mc-v">${pin}<span>${esc(v||"")}</span></div><div class="mc-n${n===SL.length?" ok":""}">Arbitres désignés : ${n}/${SL.length}</div><button class="mc-b" type="button" data-dm="${k}">VOIR LE DÉTAIL DU MATCH ›</button></article>`;
 }));
 box.innerHTML=`<div class="sec-h"><h3>Programme des rencontres</h3><button class="lnk" type="button" data-go="prog">Voir tout le programme →</button></div>${weekBar()}<div class="mg">${cards.join("")}</div>`;
 }
@@ -1543,7 +1586,7 @@ adm.ct=await aesEnc(ADMKEY,JSON.stringify(pub.map(exportObj)));
 if(JSON.parse(await aesDec(ADMKEY,adm.ct)).length!==pub.length)throw new Error("Vérification de la liste échouée.");
 if(pend.some(x=>x.prog))PROGS.forEach(P=>P.matchs.forEach((mt,m)=>{const d=DESIG[P.id+m];if(!d)return;const e=mt[4]=mt[4]||{};const nm=v=>{if(!v)return"";if(String(v).startsWith("txt:"))return String(v).slice(4);const x=findP(v);return x?pname(x)+" ("+x.ville+")":""};["r1","r2","mq"].forEach(k=>{const n=nm(d[k]);if(n)e[k]=n});const jl=(e.jl||[]).slice();["jl1","jl2","jl3","jl4"].forEach((k,i)=>{const n=nm(d[k]);if(n)jl[i]=n});for(let i=0;i<jl.length;i++)if(!jl[i])jl[i]="";if(jl.length)e.jl=jl}));
 let out=src;
-[{s:pe.start,e:pe.end,t:JSON.stringify(emb)},{s:pa.start,e:pa.end,t:JSON.stringify(adm)}].concat(pend.some(x=>x.prog)&&arrConst(src,"PROGS")?[(r=>({s:r.start,e:r.end,t:JSON.stringify(PROGS)}))(arrConst(src,"PROGS"))]:[]).concat(pend.some(x=>x.prog)&&arrConst(src,"RECUS")?[(r=>({s:r.start,e:r.end,t:JSON.stringify(allRecus())}))(arrConst(src,"RECUS"))]:[]).sort((x,y)=>y.s-x.s).forEach(p=>{out=out.slice(0,p.s)+p.t+out.slice(p.e)});
+[{s:pe.start,e:pe.end,t:JSON.stringify(emb)},{s:pa.start,e:pa.end,t:JSON.stringify(adm)}].concat(pend.some(x=>x.prog)&&arrConst(src,"PROGS")?[(r=>({s:r.start,e:r.end,t:JSON.stringify(PROGS)}))(arrConst(src,"PROGS"))]:[]).concat(pend.some(x=>x.prog)&&arrConst(src,"RECUS")?[(r=>({s:r.start,e:r.end,t:JSON.stringify(allRecus())}))(arrConst(src,"RECUS"))]:[]).concat(pend.some(x=>x.prog)&&jsonConst(src,"RES_EMB")?[(r=>({s:r.start,e:r.end,t:JSON.stringify(Object.assign({},RES_EMB,RESULTS))}))(jsonConst(src,"RES_EMB"))]:[]).concat(pend.some(x=>x.prog)&&jsonConst(src,"SETS_EMB")?[(r=>({s:r.start,e:r.end,t:JSON.stringify(Object.assign({},SETS_EMB,SETS))}))(jsonConst(src,"SETS_EMB"))]:[]).concat(pend.some(x=>x.prog)&&arrConst(src,"CALS")?[(r=>({s:r.start,e:r.end,t:JSON.stringify(COMPS.flatMap(c=>calRows(c.lg)))}))(arrConst(src,"CALS"))]:[]).sort((x,y)=>y.s-x.s).forEach(p=>{out=out.slice(0,p.s)+p.t+out.slice(p.e)});
 if(mode==="github"){
 await ghPut(c,out,sha);pendSet([]);
 const t=new Date().toLocaleTimeString("fr-FR",{hour:"2-digit",minute:"2-digit"});
@@ -2043,6 +2086,124 @@ const u=URL.createObjectURL(blob),a=document.createElement("a");
 a.href=u;a.download=name;document.body.appendChild(a);a.click();a.remove();
 setTimeout(()=>URL.revokeObjectURL(u),4000);
 }
+/* --- Résultats : import depuis la feuille Google (formulaire des résultats) --- */
+function csvRows(t,sep){const R=[];let r=[],c="",q=false;for(let i=0;i<t.length;i++){const ch=t[i];
+if(q){if(ch==='"'){if(t[i+1]==='"'){c+='"';i++}else q=false}else c+=ch}
+else if(ch==='"')q=true;
+else if(ch===sep){r.push(c);c=""}
+else if(ch==="\n"){r.push(c);R.push(r);r=[];c=""}
+else if(ch!=="\r")c+=ch}
+if(c!==""||r.length){r.push(c);R.push(r)}return R}
+const rimpLg=t=>{const n=norm(t),g=/dame/.test(n)?"d":/homme|messieurs/.test(n)?"h":"";if(!g)return"";
+const pf=/excellence/.test(n)?"":/^(1|premiere)/.test(n)?"1":/^(2|deuxieme|seconde)/.test(n)?"2":null;return pf===null?"":pf+g};
+const rimpDate=f=>{const m=String(f||"").match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/);return m?m[1].padStart(2,"0")+"/"+m[2].padStart(2,"0")+"/"+m[3]:""};
+const rimpTeams=t=>{const s=String(t||"").trim();let p=s.split(/\s+vs\.?\s+|\s*#\s*|\s+-\s+/i);if(p.length<2)p=s.split(/\s*\/\s*/);return p.length>=2?[norm(p[0]),norm(p[p.length-1])]:null};
+const rimpTm=(x,t)=>{x=norm(x);return !!(t&&x&&(x===t||(t.length>=2&&x.includes(t))||(x.length>=2&&t.includes(x))))};
+const rimpPair=v=>{const m=String(v==null?"":v).match(/(\d+)\D+(\d+)/);return m?[+m[1],+m[2]]:null};
+function rimpApply(rows){
+const R={n:0,ok:0,warn:[],bad:[]},items=[];
+rows.forEach(c=>{
+const m=String(c[0]||"").trim().match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})(?:\s+(\d{1,2}):(\d{2})(?::(\d{2}))?)?/);if(!m||c.length<8)return;
+items.push({c,ts:new Date(+m[3],+m[2]-1,+m[1],+(m[4]||0),+(m[5]||0),+(m[6]||0)).getTime()})});
+items.sort((a,b)=>a.ts-b.ts);
+items.forEach(({c})=>{
+R.n++;
+const lab=(c[3]||"?").trim()+" · "+(c[12]||c[0]||"").trim().slice(0,10),lg=rimpLg(c[2]),D=rimpDate(c[12])||rimpDate(c[0]),T=rimpTeams(c[3]),no=parseInt(c[11],10);
+if(!lg){R.bad.push(lab+" : compétition non reconnue");return}
+const cands=[];PROGS.forEach(P=>{if(lgOf(P)!==lg||dateNum(P.date).txt!==D)return;P.matchs.forEach(([h,a,b],i)=>cands.push({P,i,a,b}))});
+let hit=null,sw=false;
+if(T){for(const k of cands){if(rimpTm(k.a,T[0])&&rimpTm(k.b,T[1])){hit=k;break}if(rimpTm(k.a,T[1])&&rimpTm(k.b,T[0])){hit=k;sw=true;break}}}
+else if(no)hit=cands.find(k=>mno(k.P,k.i)===no)||null;
+if(!hit&&T){const dn=t=>{const m=String(t).split("/");return(+m[2]||0)*10000+(+m[1]||0)*100+(+m[0]||0)},all=[];
+PROGS.forEach(P=>{if(lgOf(P)!==lg)return;P.matchs.forEach(([h,x,y],i)=>{const f=rimpTm(x,T[0])&&rimpTm(y,T[1]),r=rimpTm(x,T[1])&&rimpTm(y,T[0]);if(f||r)all.push({P,i,a:x,b:y,sw:!f,d:dn(dateNum(P.date).txt)})})});
+const ok=all.filter(k=>!D||k.d<=dn(D)).sort((u,v)=>v.d-u.d);
+const pick=all.length===1?all[0]:ok[0]||null;
+if(pick){hit=pick;sw=pick.sw;R.warn.push(lab+" : date du formulaire différente du programme ("+dateNum(pick.P.date).txt+"), rattaché par les équipes")}}
+if(!hit){R.bad.push(lab+" : "+(cands.length?"équipes non reconnues":"aucun match au programme à cette date"));return}
+let S=[];for(let j=5;j<=9;j++){const q=rimpPair(c[j]);if(q&&q[0]!==q[1]&&(q[0]||q[1]))S.push(q)}
+let sc=rimpPair(c[4]);const wx=S.filter(q=>q[0]>q[1]).length,wy=S.filter(q=>q[1]>q[0]).length;
+if(!(sc&&validScore(sc[0],sc[1]))){if(S.length&&validScore(wx,wy))sc=[wx,wy];else{R.bad.push(lab+" : score illisible");return}}
+else if(S.length&&(wx!==sc[0]||wy!==sc[1]))R.warn.push(lab+" : sets saisis ("+wx+"-"+wy+") différents du score ("+sc[0]+"-"+sc[1]+")");
+if(sw){sc=[sc[1],sc[0]];S=S.map(q=>[q[1],q[0]])}
+const k=hit.P.id+hit.i;RESULTS[k]=sc;if(S.length)SETS[k]=S;else delete SETS[k];R.ok++;
+});
+if(R.ok){saveRes();saveSets();pendProg();weekRefresh()}
+return R}
+function resImpRender(){const e=document.getElementById("resimp-a");if(!e)return;let u="";try{u=localStorage.getItem("res-url")||""}catch(_){}
+e.innerHTML=`<div class="cd"><h3>Importer les résultats depuis la feuille Google</h3><p class="help" style="margin-top:0">Source : réponses du formulaire des résultats. Chaque ligne est rattachée au match du programme (compétition, date, équipes), le classement est recalculé, puis les résultats sont publiés avec le site.</p><label for="rimp-url">Lien CSV publié de la feuille (Fichier, Partager, Publier sur le web, CSV)</label><input id="rimp-url" type="url" placeholder="https://docs.google.com/spreadsheets/d/e/…/pub?…output=csv" value="${esc(u)}"><div class="imp"><button class="btn" type="button" data-rimp="url">Enregistrer le lien et synchroniser</button></div><label for="rimp-paste">Ou collez ici les lignes copiées depuis la feuille</label><textarea id="rimp-paste" rows="5" style="width:100%" placeholder="Sélectionnez les lignes dans Google Sheets, copiez (Ctrl+C), puis collez ici (Ctrl+V)"></textarea><div class="imp"><button class="btn alt" type="button" data-rimp="paste">Importer les lignes collées</button></div><div class="rimp-msg" role="status" aria-live="polite"></div></div>`}
+function rimpSay(R,pre){const e=document.querySelector("#resimp-a .rimp-msg");if(!e)return;
+const t=new Date().toLocaleTimeString("fr-FR",{hour:"2-digit",minute:"2-digit"});
+e.innerHTML=`<p class="${R.ok?"ok":"help"}">${esc(pre||"")}${R.ok?"✓ ":""}${R.ok} résultat${R.ok>1?"s":""} appliqué${R.ok>1?"s":""} sur ${R.n} ligne${R.n>1?"s":""} lue${R.n>1?"s":""} (${t}).</p>`+(R.warn.length?`<p class="help"><b>À vérifier :</b><br>${R.warn.map(esc).join("<br>")}</p>`:"")+(R.bad.length?`<p class="help"><b>Non rattachées :</b><br>${R.bad.map(esc).join("<br>")}</p>`:"")}
+let RIMPBUSY=false;
+async function rimpSync(auto){
+const e=document.querySelector("#resimp-a .rimp-msg");let u="";try{u=localStorage.getItem("res-url")||""}catch(_){}
+if(!u||RIMPBUSY||!arAdmin())return;RIMPBUSY=true;
+try{if(e)e.innerHTML='<p class="help">Lecture de la feuille…</p>';
+const r=await fetch(u,{cache:"no-store"});if(!r.ok)throw 0;
+const R=rimpApply(csvRows(await r.text(),","));rimpSay(R,auto?"Synchronisation automatique : ":"")}
+catch(_){if(e)e.innerHTML='<p class="err">Lecture impossible. Vérifiez que la feuille est publiée sur le web au format CSV et que le lien est complet.</p>'}
+finally{RIMPBUSY=false}}
+document.addEventListener("click",e=>{
+const b=e.target.closest&&e.target.closest("button[data-rimp]");if(!b||!arAdmin())return;
+if(b.dataset.rimp==="url"){const v=(document.getElementById("rimp-url").value||"").trim();
+try{if(v)localStorage.setItem("res-url",v);else localStorage.removeItem("res-url")}catch(_){}
+if(!v){const m=document.querySelector("#resimp-a .rimp-msg");if(m)m.innerHTML='<p class="help">Lien supprimé.</p>';return}
+rimpSync(false);return}
+const t=document.getElementById("rimp-paste").value;
+if(!t.trim()){const m=document.querySelector("#resimp-a .rimp-msg");if(m)m.innerHTML='<p class="err">Collez d’abord des lignes.</p>';return}
+rimpSay(rimpApply(csvRows(t,"\t")),"")});
+/* --- Calendrier : téléchargement PDF / Excel --- */
+const calSlug=t=>String(t).normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^A-Za-z0-9]+/g,"_").replace(/^_|_$/g,"");
+function calCsv(lg){
+const c0=COMPS.find(x=>x.lg===lg),q=v=>{v=String(v==null?"":v);return /[;"\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v};
+const L=[["Compétition","Journée","Date","Heure","Équipe A","Équipe B","Lieu"]].concat(calRows(lg).map(r=>[c0.titre].concat(r.slice(1))));
+return new Blob(["\ufeff"+L.map(r=>r.map(q).join(";")).join("\r\n")],{type:"text/csv;charset=utf-8"});
+}
+async function calPdf(lg){
+const c0=COMPS.find(x=>x.lg===lg),rows=calRows(lg);if(!rows.length)return null;
+const dm=c0.cls==="dames",TH=dm?{main:"#5b1a4e",dark:"#3a0f33",tint:"#f4eaf2"}:{main:"#1f5fa8",dark:"#14284b",tint:"#e8f0fa"};
+const logo=await imgOf(LOGO);
+try{await document.fonts.load("700 12px Lato");await document.fonts.load("400 12px Lato")}catch(_){}
+const F=(w,z)=>w+" "+z+"px Lato, Arial, sans-serif",S=2.5,W=595.28,H=841.89,M=36,RH=22,cvs=[],ctx=[];
+const g=[];rows.forEach(r=>{let x=g.find(y=>y.j===r[1]);if(!x){x={j:r[1],l:[]};g.push(x)}x.l.push(r)});
+let c,y=0;
+const fit=(t,w)=>{t=String(t||"");if(c.measureText(t).width<=w)return t;while(t.length>1&&c.measureText(t+"…").width>w)t=t.slice(0,-1);return t+"…"};
+const newPage=()=>{const cv=document.createElement("canvas");cv.width=Math.round(W*S);cv.height=Math.round(H*S);c=cv.getContext("2d");c.scale(S,S);
+c.fillStyle="#fff";c.fillRect(0,0,W,H);c.fillStyle=TH.dark;c.fillRect(0,0,W,64);
+if(logo){try{c.drawImage(logo,M,10,44,44)}catch(_){}}
+c.fillStyle="#fff";c.textBaseline="middle";c.textAlign="left";c.font=F("700",18);c.fillText("Calendrier des matchs · "+c0.titre,M+54,26);
+c.font=F("400",11);c.fillText("FRMVB · CCA - VB · Saison 2026",M+54,46);
+y=84;cvs.push(cv);ctx.push(c)};
+const X=[M,M+84,M+132],XW=[80,44,0],LW=110,RW=W-2*M-132-LW;
+const band=(t)=>{c.fillStyle=TH.main;c.fillRect(M,y,W-2*M,24);c.fillStyle="#fff";c.textAlign="left";c.font=F("700",12);c.fillText(t,M+8,y+12);y+=24;
+c.fillStyle=TH.tint;c.fillRect(M,y,W-2*M,18);c.fillStyle=TH.dark;c.font=F("700",9);c.fillText("DATE",X[0]+8,y+9);c.fillText("HEURE",X[1]+4,y+9);c.fillText("RENCONTRE",X[2]+4,y+9);c.fillText("LIEU",X[2]+RW+4,y+9);y+=18};
+newPage();
+g.forEach(gr=>{
+if(y+24+18+RH>H-40)newPage();
+band(gr.j);
+gr.l.forEach((r,i)=>{
+if(y+RH>H-40){newPage();band(gr.j+" (suite)")}
+if(i%2){c.fillStyle="#f6f7f9";c.fillRect(M,y,W-2*M,RH)}
+c.fillStyle="#1a1a1a";c.textAlign="left";c.font=F("400",10.5);
+c.fillText(fit(r[2],XW[0]-8),X[0]+8,y+RH/2);c.fillText(fit(r[3],XW[1]-4),X[1]+4,y+RH/2);
+c.font=F("700",10.5);c.fillText(fit(r[4]+"  VS  "+r[5],RW-8),X[2]+4,y+RH/2);
+c.font=F("400",10);c.fillText(fit(r[6]||"",LW-8),X[2]+RW+4,y+RH/2);
+c.strokeStyle="#d9dde3";c.lineWidth=.5;c.beginPath();c.moveTo(M,y+RH);c.lineTo(W-M,y+RH);c.stroke();
+y+=RH});
+y+=14});
+ctx.forEach((k,i)=>{k.fillStyle="#777";k.font=F("400",9);k.textAlign="center";k.textBaseline="middle";k.fillText("Page "+(i+1)+" / "+ctx.length,W/2,H-20)});
+return pdfFromCanvases(cvs,W,H);
+}
+document.addEventListener("click",async e=>{
+const b=e.target.closest&&e.target.closest("button[data-cald]");if(!b)return;
+const lg=calLg(),c0=COMPS.find(x=>x.lg===lg),msg=b.parentNode.querySelector(".pmsg"),say=t=>{if(msg)msg.textContent=t},nm="Calendrier_"+calSlug(c0.titre);
+b.disabled=true;
+try{
+if(b.dataset.cald==="pdf"){say("Préparation du PDF…");const bl=await calPdf(lg);if(!bl){say("Aucun calendrier saisi pour "+c0.titre+" : rien à télécharger pour le moment.");return}await savePng(bl,nm+".pdf");say("✓ PDF téléchargé.")}
+else{await savePng(calCsv(lg),nm+".csv");say(calRows(lg).length?"✓ Fichier Excel (CSV) téléchargé.":"Aucun match saisi : modèle vide téléchargé (en-têtes seulement).")}
+}catch(_){say("Le téléchargement a échoué. Réessayez.")}
+finally{b.disabled=false}
+});
 document.addEventListener("click",async e=>{
 const b=e.target.closest&&e.target.closest("button[data-pa]");if(!b)return;
 const L=b.dataset.l,msg=b.parentNode.querySelector(".pmsg"),say=t=>{if(msg)msg.textContent=t};
