@@ -592,6 +592,7 @@ let ADMIN_PUB=null;
 let ADMKEY=null;
 const DSLOTS=[["r1","1er arbitre","r1"],["r2","2e arbitre","r2"],["mq","Marqueur","mq"],["jl1","Juge de ligne 1","jl"],["jl2","Juge de ligne 2","jl"],["jl3","Juge de ligne 3","jl"],["jl4","Juge de ligne 4","jl"]];
 const slotsFor=P=>DSLOTS.filter(([s])=>!/^jl[34]$/.test(s)||P.cls!=="dames");
+let EDIDX=-1;
 let DESIG=(()=>{let d={};try{d=JSON.parse(localStorage.getItem("desig-v1")||"{}")}catch(_){}const o={};Object.keys(d).forEach(k=>{o[/^\d+$/.test(k)?"h"+k:k]=d[k]});return o})();
 /* État des frais et des PDF (déclaré tôt : utilisé dès le chargement) */
 let FEES=(()=>{try{return JSON.parse(localStorage.getItem("fees-v1")||"{}")}catch(_){return{}}})();
@@ -835,16 +836,44 @@ if(sel&&!vs.includes(sel))sel="";
 const f=norm(q.value),shown=vs.filter(v=>norm(v).includes(f));
 nav.innerHTML=[["Toutes les villes","",ARBITRES.filter(a=>shown.includes(a.ville)).length],...shown.map(v=>[v,v,ARBITRES.filter(a=>a.ville===v).length])].map(([n,v,c])=>`<button data-v="${esc(v)}" aria-pressed="${v===sel}">${esc(n)}<b>${c}</b></button>`).join("");
 }
+function adminEditForm(a){
+const f=(id,l,v,t)=>`<label for="${id}">${l}</label><input id="${id}" type="${t||"text"}" value="${esc(v||"")}">`;
+const gl=gradesList().concat(gradesList().includes(a.niveau)?[]:[a.niveau]);
+return `<div class="ef" style="flex:1 1 100%;width:100%;margin-top:.6rem">${f("ae-num","N°",a.num)}${f("ae-nom","Nom",a.nom)}${f("ae-prenom","Prénom",a.prenom)}<label for="ae-ville">Ville</label><select id="ae-ville" class="f">${cityList(a).map(c=>`<option${c===a.ville?" selected":""}>${esc(c)}</option>`).join("")}<option value="__o">Autre ville…</option></select><input id="ae-vo" type="text" placeholder="Nom de la ville" hidden style="margin-top:.5rem">${f("ae-cin","CIN",a.cin)}${f("ae-gsm","Téléphone (GSM)",a.gsm,"tel")}${f("ae-email","E-mail",a.email,"email")}<label for="ae-niveau">Grade</label><select id="ae-niveau" class="f">${gl.map(g=>`<option${g===a.niveau?" selected":""}>${esc(g)}</option>`).join("")}</select><div class="err" id="ae-err" role="alert"></div><div class="imp"><button class="btn" type="button" data-ae="save">Enregistrer</button><button class="btn alt" type="button" data-ae="cancel">Annuler</button></div></div>`;
+}
+document.addEventListener("change",e=>{const t=e.target;if(t&&t.id==="ae-ville"){const o=document.getElementById("ae-vo");if(o)o.hidden=t.value!=="__o"}});
 function draw(){
 const s=q.value.trim().toLowerCase();
 const l=ARBITRES.filter(a=>(!sel||a.ville===sel)&&norm(a.ville).includes(norm(q.value))).sort((a,b)=>fr(a.ville,b.ville)||(SORTNB?tot(b)-tot(a):0)||(parseFloat(a.num)||1e9)-(parseFloat(b.num)||1e9)||fr(a.nom,b.nom));
 const g={};l.forEach(a=>(g[a.ville]=g[a.ville]||[]).push(a));
 const vs=Object.keys(g),all=l.reduce((n,a)=>n+tot(a),0),pl=n=>n>1?"s":"";
 t.textContent=(sel||("Toutes les villes ("+vs.length+")"))+", "+all+" match"+(all>1?"s":"")+" au total";
-ul.innerHTML=vs.length?vs.map(v=>{const sm=g[v].reduce((n,a)=>n+tot(a),0);return `<section class="ville"><h3>${esc(v)}<span>${g[v].length} arbitre${pl(g[v].length)}, ${sm} match${sm>1?"s":""}</span></h3><ul>${g[v].map(a=>{const i=ARBITRES.indexOf(a);return `<li><span class="who"><label class="av-l" title="Ajouter ou changer la photo">${a.photo?`<img class="av" src="${esc(a.photo)}" alt="">`:`<span class="av ph">${esc(((a.prenom||"?")[0]+(a.nom||"")[0]).toUpperCase())}</span>`}<input type="file" accept="image/*" class="vh" data-ph="${i}"></label><span><small>N° ${esc(a.num||"-")}</small><br>${esc(a.nom)} ${esc(a.prenom)}</span></span><span class="contact"><span>CIN : ${esc(a.cin||"-")}</span><span>Ville : ${esc(a.ville)}</span><a href="tel:${esc(a.gsm.replace(/\s/g,""))}">GSM : ${esc(a.gsm||"-")}</a>${a.email?`<a href="mailto:${esc(a.email)}">${esc(a.email)}</a>`:""}</span><label class="tag gsel">Grade : <select data-g="${i}" aria-label="Grade de ${esc(a.nom)} ${esc(a.prenom)}">${gradesList().concat(gradesList().includes(a.niveau)?[]:[a.niveau]).map(g=>`<option${g===a.niveau?" selected":""}>${esc(g)}</option>`).join("")}</select></label><button type="button" class="act${a.actif===false?" off":""}" data-t="${i}" aria-pressed="${a.actif!==false}" title="Cliquer pour changer le statut">● ${a.actif===false?"Inactif":"Actif"}</button><span class="tot">Matchs : ${tot(a)}</span><span class="roles">${ROLES.map(([k,lab])=>`<span class="rl"><small>${lab}</small><span class="st"><button type="button" data-i="${i}" data-k="${k}" data-d="-1" aria-label="Retirer : ${lab}">−</button><b>${a[k]||0}</b><button type="button" data-i="${i}" data-k="${k}" data-d="1" aria-label="Ajouter : ${lab}">+</button></span></span>`).join("")}</span></li>`}).join("")}</ul></section>`}).join(""):'<p class="empty">'+(ARBITRES.length?'Aucun arbitre trouvé.':'Aucun arbitre pour l\'instant : importez votre fichier Excel.')+'</p>';
+ul.innerHTML=vs.length?vs.map(v=>{const sm=g[v].reduce((n,a)=>n+tot(a),0);return `<section class="ville"><h3>${esc(v)}<span>${g[v].length} arbitre${pl(g[v].length)}, ${sm} match${sm>1?"s":""}</span></h3><ul>${g[v].map(a=>{const i=ARBITRES.indexOf(a);return `<li><span class="who"><label class="av-l" title="Ajouter ou changer la photo">${a.photo?`<img class="av" src="${esc(a.photo)}" alt="">`:`<span class="av ph">${esc(((a.prenom||"?")[0]+(a.nom||"")[0]).toUpperCase())}</span>`}<input type="file" accept="image/*" class="vh" data-ph="${i}"></label><span><small>N° ${esc(a.num||"-")}</small><br>${esc(a.nom)} ${esc(a.prenom)}</span></span><span class="contact"><span>CIN : ${esc(a.cin||"-")}</span><span>Ville : ${esc(a.ville)}</span><a href="tel:${esc(a.gsm.replace(/\s/g,""))}">GSM : ${esc(a.gsm||"-")}</a>${a.email?`<a href="mailto:${esc(a.email)}">${esc(a.email)}</a>`:""}</span><label class="tag gsel">Grade : <select data-g="${i}" aria-label="Grade de ${esc(a.nom)} ${esc(a.prenom)}">${gradesList().concat(gradesList().includes(a.niveau)?[]:[a.niveau]).map(g=>`<option${g===a.niveau?" selected":""}>${esc(g)}</option>`).join("")}</select></label><button type="button" class="act${a.actif===false?" off":""}" data-t="${i}" aria-pressed="${a.actif!==false}" title="Cliquer pour changer le statut">● ${a.actif===false?"Inactif":"Actif"}</button><button type="button" class="btn alt" style="padding:.3rem .85rem;font-size:.8rem" data-ed="${i}">Modifier</button><span class="tot">Matchs : ${tot(a)}</span><span class="roles">${ROLES.map(([k,lab])=>`<span class="rl"><small>${lab}</small><span class="st"><button type="button" data-i="${i}" data-k="${k}" data-d="-1" aria-label="Retirer : ${lab}">−</button><b>${a[k]||0}</b><button type="button" data-i="${i}" data-k="${k}" data-d="1" aria-label="Ajouter : ${lab}">+</button></span></span>`).join("")}</span>${i===EDIDX?adminEditForm(a):""}</li>`}).join("")}</ul></section>`}).join(""):'<p class="empty">'+(ARBITRES.length?'Aucun arbitre trouvé.':'Aucun arbitre pour l\'instant : importez votre fichier Excel.')+'</p>';
 drawDash();
 }
-ul.addEventListener("click",e=>{if(!arAdmin())return;const t=e.target.closest("button[data-t]");if(t){const a=ARBITRES[+t.dataset.t];if(a){a.actif=(a.actif===false);markPend(a);save();draw()}return}const b=e.target.closest("button[data-d]");if(!b)return;const a=ARBITRES[+b.dataset.i],k=b.dataset.k;if(!a)return;a[k]=Math.max(0,(a[k]||0)+ +b.dataset.d);markPend(a);save();draw()});
+ul.addEventListener("click",e=>{if(!arAdmin())return;
+const ed=e.target.closest("button[data-ed]");if(ed){EDIDX=+ed.dataset.ed;draw();return}
+const ae=e.target.closest("button[data-ae]");if(ae){
+if(ae.dataset.ae==="cancel"){EDIDX=-1;draw();return}
+const a=ARBITRES[EDIDX];if(!a)return;
+const li=ae.closest("li"),q=id=>li.querySelector("#"+id),v=id=>q(id).value.trim(),err=m=>{q("ae-err").textContent=m};
+const nom=v("ae-nom"),prenom=v("ae-prenom"),cin=v("ae-cin").replace(/\s/g,"").toUpperCase(),gsm=v("ae-gsm"),email=v("ae-email"),num=v("ae-num"),niveau=gradeName(v("ae-niveau"));
+const ville=(q("ae-ville").value==="__o"?v("ae-vo"):q("ae-ville").value).trim();
+if(!nom||!prenom||!ville){err("Le nom, le prénom et la ville sont obligatoires.");return}
+if(cin!==(a.cin||"")){
+if(!/^[A-Z]{1,2}\d{4,8}$/.test(cin)){err("CIN invalide (exemple : AB123456).");return}
+if(ARBITRES.some(x=>x!==a&&norm(x.cin)===norm(cin))){err("Ce CIN est déjà utilisé.");return}
+}
+if(gsm!==(a.gsm||"")&&gsm&&!/^\+?[\d\s.\-]{9,16}$/.test(gsm)){err("Numéro de téléphone invalide.");return}
+if(email!==(a.email||"")&&email&&!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){err("Adresse e-mail invalide.");return}
+const old={nom:a.nom,prenom:a.prenom,cin:a.cin},oK=pkey(a),oM=norm(pname(a)+a.ville);
+Object.assign(a,{nom,prenom,ville,cin,gsm,email,niveau});if(num)a.num=num;
+const nK=pkey(a);
+if(nK!==oK){let ch=false;Object.keys(DESIG).forEach(k=>{const d=DESIG[k];Object.keys(d).forEach(sl=>{if(d[sl]===oK){d[sl]=nK;ch=true}})});if(ch)saveDesig()}
+const nF=pname(a)+" ("+a.ville+")";
+if(norm(pname(a)+a.ville)!==oM){let ch=false;const rp=n=>{if(n&&norm(n)===oM){ch=true;return nF}return n};PROGS.forEach(P=>P.matchs.forEach(mt=>{const d=mt[4];if(!d)return;["r1","r2","mq"].forEach(sl=>{if(d[sl])d[sl]=rp(d[sl])});if(d.jl)d.jl=d.jl.map(rp)}));if(ch)pendProg()}
+EDIDX=-1;save();drawNav();draw();markPend(a,old);return}
+const t=e.target.closest("button[data-t]");if(t){const a=ARBITRES[+t.dataset.t];if(a){a.actif=(a.actif===false);markPend(a);save();draw()}return}const b=e.target.closest("button[data-d]");if(!b)return;const a=ARBITRES[+b.dataset.i],k=b.dataset.k;if(!a)return;a[k]=Math.max(0,(a[k]||0)+ +b.dataset.d);markPend(a);save();draw()});
 document.getElementById("sortnb").addEventListener("change",e=>{SORTNB=e.target.checked;draw()});
 nav.addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;sel=b.dataset.v;drawNav();draw()});
 q.addEventListener("input",()=>{drawNav();draw()});
