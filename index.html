@@ -603,6 +603,7 @@ let ADMKEY=null;
 const DSLOTS=[["r1","1er arbitre","r1"],["r2","2e arbitre","r2"],["mq","Marqueur","mq"],["jl1","Juge de ligne 1","jl"],["jl2","Juge de ligne 2","jl"],["jl3","Juge de ligne 3","jl"],["jl4","Juge de ligne 4","jl"]];
 const slotsFor=P=>DSLOTS.filter(([s])=>!/^jl[34]$/.test(s)||P.cls!=="dames");
 let EDIDX=-1;
+const RES_SHEET="https://docs.google.com/spreadsheets/d/1fa_faaj3G4SgDabrlfFR_7LLP3hjqThizqnCdg9Vdhc/edit?resourcekey=&gid=607559903";
 /* --- Calendrier des matchs (6 compétitions) --- */
 const CALS=[];
 let CALL=(()=>{try{return JSON.parse(localStorage.getItem("cal-v1")||"{}")}catch(_){return{}}})();
@@ -1226,7 +1227,7 @@ async function initDir(a){DIRD=await loadDir(a);dsel=a.ville;$("dq").value="";dr
 $("dir-nav").addEventListener("click",e=>{const b=e.target.closest("button[data-c]");if(!b)return;dsel=b.dataset.c;drawDir()});
 $("dq").addEventListener("input",drawDir);
 function mpage(p){
-if(p==="recus")setTimeout(renderRecus,0);if(p==="cal")setTimeout(refreshProg,0);
+if(p==="recus")setTimeout(renderRecus,0);if(p==="cal")setTimeout(refreshProg,0);if(p==="res")resLive();
 ["cal","arbitres","programmes","res","nominations","recus","stat","regles","nouv","case","notes"].forEach(k=>{$("m-"+k).hidden=k!==p});
 document.querySelectorAll(".mi[data-m]").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.m===p)));
 const T={cal:["Calendrier des matchs","Calendriers des six compétitions"],arbitres:["Arbitres","Votre fiche et les arbitres par ville"],programmes:["Programmes","Programmes des rencontres"],res:["Résultats et classements","Résultats des matchs et classements"],nominations:["Nominations","Vos nominations par fonction"],recus:["Reçus d'arbitrage","Vos reçus d'arbitrage"],stat:["Stat","Chiffres clés du suivi des arbitres"],regles:["Règles officielles 2025-2028","Règles officielles de volleyball de la FIVB"],nouv:["Nouvelles règles 2026","Règles testées par la FIVB en 2026"],case:["Casebook","Practical cases with official rulings"],notes:["Notes","Vos notes personnelles"]};
@@ -1237,7 +1238,7 @@ function page(p){
 ["home","cal","refs","prog","res","nom","rec","stat","regles","nouv","case","notes","imp"].forEach(k=>{$("p-"+k).hidden=k!==p});
 document.querySelectorAll(".mi[data-p]").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.p===p)));
 const T={home:["Vue d'ensemble","Suivi des arbitres — FRMVB"],cal:["Calendrier des matchs","Calendriers des six compétitions"],refs:["Arbitres par ville","Choisissez une ville ou recherchez-la"],prog:["Programmes","Programmes des rencontres"],res:["Résultats et classements","Résultats des matchs et classements"],nom:["Nominations","Désignations de chaque arbitre par fonction"],rec:["Reçus d'arbitrage","Reçus d'arbitrage des rencontres"],stat:["Statistiques","Chiffres clés des désignations"],regles:["Règles officielles 2025-2028","Règles officielles de volleyball de la FIVB"],nouv:["Nouvelles règles 2026","Règles testées par la FIVB en 2026"],case:["Casebook","Practical cases with official rulings"],notes:["Notes","Vos notes personnelles"],imp:["Importer et configuration","Fichier Excel, autorisations, désignations, photo de fond"]};
-$("pg-t").textContent=T[p][0];$("pg-s").textContent=T[p][1];if(p==="imp")$("auth-box").innerHTML=renderAuth();if(p==="home")drawHome();if(p==="cal")refreshProg();if(p==="rec")renderRecus();if(p==="res"&&arAdmin()&&localStorage.getItem("res-url"))rimpSync(true);window.scrollTo(0,0);
+$("pg-t").textContent=T[p][0];$("pg-s").textContent=T[p][1];if(p==="imp")$("auth-box").innerHTML=renderAuth();if(p==="home")drawHome();if(p==="cal")refreshProg();if(p==="rec")renderRecus();if(p==="res"){if(arAdmin())rimpSync(true);resLive()}window.scrollTo(0,0);
 }
 document.querySelectorAll(".mi[data-p]").forEach(b=>b.addEventListener("click",()=>page(b.dataset.p)));
 document.getElementById("me-h").addEventListener("change",e=>{
@@ -1270,7 +1271,7 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape")document.getElementB
 document.getElementById("nouv-a").innerHTML=document.getElementById("nouv-m").innerHTML=nouvHtml();
 document.getElementById("rules-a").innerHTML=document.getElementById("rules-m").innerHTML=rulesHtml();
 refreshRes();
-document.getElementById("resin-a").innerHTML=resInHtml();resImpRender();
+document.getElementById("resin-a").innerHTML=resInHtml();resImpRender();setTimeout(resLive,300);setInterval(resLive,120000);
 document.getElementById("resin-a").addEventListener("change",e=>{
 const t=e.target;if(!t||!t.dataset||!t.dataset.k)return;
 if(t.dataset.s!==undefined){
@@ -2112,7 +2113,7 @@ const rimpDate=f=>{const m=String(f||"").match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/);
 const rimpTeams=t=>{const s=String(t||"").trim();let p=s.split(/\s+vs\.?\s+|\s*#\s*|\s+-\s+/i);if(p.length<2)p=s.split(/\s*\/\s*/);return p.length>=2?[norm(p[0]),norm(p[p.length-1])]:null};
 const rimpTm=(x,t)=>{x=norm(x);return !!(t&&x&&(x===t||(t.length>=2&&x.includes(t))||(x.length>=2&&t.includes(x))))};
 const rimpPair=v=>{const m=String(v==null?"":v).match(/(\d+)\D+(\d+)/);return m?[+m[1],+m[2]]:null};
-function rimpApply(rows){
+function rimpApply(rows,live){
 const R={n:0,ok:0,warn:[],bad:[]},items=[];
 rows.forEach(c=>{
 const m=String(c[0]||"").trim().match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})(?:\s+(\d{1,2}):(\d{2})(?::(\d{2}))?)?/);if(!m||c.length<8)return;
@@ -2137,23 +2138,36 @@ let sc=rimpPair(c[4]);const wx=S.filter(q=>q[0]>q[1]).length,wy=S.filter(q=>q[1]
 if(!(sc&&validScore(sc[0],sc[1]))){if(S.length&&validScore(wx,wy))sc=[wx,wy];else{R.bad.push(lab+" : score illisible");return}}
 else if(S.length&&(wx!==sc[0]||wy!==sc[1]))R.warn.push(lab+" : sets saisis ("+wx+"-"+wy+") différents du score ("+sc[0]+"-"+sc[1]+")");
 if(sw){sc=[sc[1],sc[0]];S=S.map(q=>[q[1],q[0]])}
-const k=hit.P.id+hit.i;RESULTS[k]=sc;if(S.length)SETS[k]=S;else delete SETS[k];R.ok++;
+const k=hit.P.id+hit.i;if(live){RES_EMB[k]=sc;if(S.length)SETS_EMB[k]=S;else delete SETS_EMB[k]}else{RESULTS[k]=sc;if(S.length)SETS[k]=S;else delete SETS[k]}R.ok++;
 });
-if(R.ok){saveRes();saveSets();pendProg();weekRefresh()}
+if(R.ok){if(live){refreshProg();refreshRes();drawHome()}else{saveRes();saveSets();pendProg();weekRefresh()}}
 return R}
 function resImpRender(){const e=document.getElementById("resimp-a");if(!e)return;let u="";try{u=localStorage.getItem("res-url")||""}catch(_){}
-e.innerHTML=`<div class="cd"><h3>Importer les résultats depuis la feuille Google</h3><p class="help" style="margin-top:0">Source : réponses du formulaire des résultats. Chaque ligne est rattachée au match du programme (compétition, date, équipes), le classement est recalculé, puis les résultats sont publiés avec le site.</p><label for="rimp-url">Lien CSV publié de la feuille (Fichier, Partager, Publier sur le web, CSV)</label><input id="rimp-url" type="url" placeholder="https://docs.google.com/spreadsheets/d/e/…/pub?…output=csv" value="${esc(u)}"><div class="imp"><button class="btn" type="button" data-rimp="url">Enregistrer le lien et synchroniser</button></div><label for="rimp-paste">Ou collez ici les lignes copiées depuis la feuille</label><textarea id="rimp-paste" rows="5" style="width:100%" placeholder="Sélectionnez les lignes dans Google Sheets, copiez (Ctrl+C), puis collez ici (Ctrl+V)"></textarea><div class="imp"><button class="btn alt" type="button" data-rimp="paste">Importer les lignes collées</button></div><div class="rimp-msg" role="status" aria-live="polite"></div></div>`}
+e.innerHTML=`<div class="cd"><h3>Importer les résultats depuis la feuille Google</h3><p class="help" style="margin-top:0">Source : réponses du formulaire des résultats. Chaque ligne est rattachée au match du programme (compétition, date, équipes), le classement est recalculé, puis les résultats sont publiés avec le site.</p><label for="rimp-url">Lien de la feuille Google (partagée en « Toute personne disposant du lien : Lecteur »)</label><input id="rimp-url" type="url" placeholder="https://docs.google.com/spreadsheets/d/…" value="${esc(u||RES_SHEET)}"><div class="imp"><button class="btn" type="button" data-rimp="url">Synchroniser maintenant</button></div><p class="help">Les résultats se mettent aussi à jour automatiquement pour tous les visiteurs, à l’ouverture du site et toutes les 2 minutes.</p><label for="rimp-paste">Ou collez ici les lignes copiées depuis la feuille</label><textarea id="rimp-paste" rows="5" style="width:100%" placeholder="Sélectionnez les lignes dans Google Sheets, copiez (Ctrl+C), puis collez ici (Ctrl+V)"></textarea><div class="imp"><button class="btn alt" type="button" data-rimp="paste">Importer les lignes collées</button></div><div class="rimp-msg" role="status" aria-live="polite"></div></div>`}
 function rimpSay(R,pre){const e=document.querySelector("#resimp-a .rimp-msg");if(!e)return;
 const t=new Date().toLocaleTimeString("fr-FR",{hour:"2-digit",minute:"2-digit"});
 e.innerHTML=`<p class="${R.ok?"ok":"help"}">${esc(pre||"")}${R.ok?"✓ ":""}${R.ok} résultat${R.ok>1?"s":""} appliqué${R.ok>1?"s":""} sur ${R.n} ligne${R.n>1?"s":""} lue${R.n>1?"s":""} (${t}).</p>`+(R.warn.length?`<p class="help"><b>À vérifier :</b><br>${R.warn.map(esc).join("<br>")}</p>`:"")+(R.bad.length?`<p class="help"><b>Non rattachées :</b><br>${R.bad.map(esc).join("<br>")}</p>`:"")}
+function sheetCsvUrls(u){u=String(u||"").trim();if(!u)return[];
+if(/output=csv|tqx=out:csv/.test(u))return[u];
+const m=u.match(/\/spreadsheets\/d\/([\w-]+)/);if(!m)return[u];
+const g=(u.match(/[#&?]gid=(\d+)/)||[])[1];
+return["https://docs.google.com/spreadsheets/d/"+m[1]+"/gviz/tq?tqx=out:csv"+(g?"&gid="+g:"")]}
+async function sheetRows(u){
+for(const x of sheetCsvUrls(u)){try{const r=await fetch(x,{cache:"no-store"});if(!r.ok)continue;const t=await r.text();if(/\d{1,2}\/\d{1,2}\/\d{4}/.test(t))return csvRows(t,",")}catch(_){}}
+throw new Error("lecture impossible")}
+const resUrl=()=>{let u="";try{u=localStorage.getItem("res-url")||""}catch(_){}return u||RES_SHEET};
+let RLBUSY=false;
+async function resLive(){
+if(RLBUSY)return;RLBUSY=true;
+try{rimpApply(await sheetRows(resUrl()),true)}catch(_){}
+finally{RLBUSY=false}}
 let RIMPBUSY=false;
 async function rimpSync(auto){
-const e=document.querySelector("#resimp-a .rimp-msg");let u="";try{u=localStorage.getItem("res-url")||""}catch(_){}
-if(!u||RIMPBUSY||!arAdmin())return;RIMPBUSY=true;
+const e=document.querySelector("#resimp-a .rimp-msg");
+if(RIMPBUSY||!arAdmin())return;RIMPBUSY=true;
 try{if(e)e.innerHTML='<p class="help">Lecture de la feuille…</p>';
-const r=await fetch(u,{cache:"no-store"});if(!r.ok)throw 0;
-const R=rimpApply(csvRows(await r.text(),","));rimpSay(R,auto?"Synchronisation automatique : ":"")}
-catch(_){if(e)e.innerHTML='<p class="err">Lecture impossible. Vérifiez que la feuille est publiée sur le web au format CSV et que le lien est complet.</p>'}
+const R=rimpApply(await sheetRows(resUrl()));rimpSay(R,auto?"Synchronisation automatique : ":"")}
+catch(_){if(e)e.innerHTML='<p class="err">Lecture impossible. Dans Google Sheets, partagez la feuille en « Toute personne disposant du lien : Lecteur » (Partager, Accès général), ou publiez-la sur le web au format CSV, puis réessayez.</p>'}
 finally{RIMPBUSY=false}}
 document.addEventListener("click",e=>{
 const b=e.target.closest&&e.target.closest("button[data-rimp]");if(!b||!arAdmin())return;
