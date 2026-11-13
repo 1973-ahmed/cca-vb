@@ -511,7 +511,7 @@ footer{max-width:1100px;margin:auto;padding:0 1.25rem 2rem;color:var(--mut);font
 <div class="charts"><div class="cd"><h3>Arbitres par ville (10 premières)</h3><div id="ch-bar"></div></div><div class="cd"><h3>Répartition par grade</h3><div id="ch-don"></div></div></div>
 </section>
 <section id="p-refs" class="pg" hidden>
-<div class="refs"><nav id="villes" aria-label="Villes"></nav><div><input id="q" type="search" placeholder="Rechercher une ville" aria-label="Rechercher une ville"><div class="ar-top"><button id="ar-open" class="btn" type="button" aria-expanded="false" aria-controls="ar-form">+ Ajouter un arbitre</button></div><p class="help" id="pend-note" hidden></p><div id="ar-form" class="cd" hidden></div><h2 id="titre"></h2><div id="liste"></div></div></div>
+<div class="refs"><nav id="villes" aria-label="Villes"></nav><div><input id="q" type="search" placeholder="Rechercher une ville ou un arbitre" aria-label="Rechercher une ville ou un arbitre"><div class="ar-top"><button id="ar-open" class="btn" type="button" aria-expanded="false" aria-controls="ar-form">+ Ajouter un arbitre</button><button id="ar-pdf" class="btn alt" type="button">Liste PDF · internationaux et nationaux</button><span class="help" id="ar-pdf-msg" role="status" aria-live="polite" style="margin-left:.6rem"></span></div><p class="help" id="pend-note" hidden></p><div id="ar-form" class="cd" hidden></div><h2 id="titre"></h2><div id="liste"></div></div></div>
 </section>
 <section id="p-cal" class="pg" hidden>
 <div id="cal-a"></div>
@@ -874,11 +874,12 @@ else l.splice(+b.dataset.i,1);
 saveNotes(k,l);host.innerHTML=notesHtml(k,id);
 });
 }
+const matchQ=a=>{const f=norm(q.value);return !f||norm(a.ville).includes(f)||norm(a.nom+a.prenom).includes(f)||norm(a.prenom+a.nom).includes(f)};
 function drawNav(){
 const vs=[...new Set(ARBITRES.map(a=>a.ville))].sort(fr);
 if(sel&&!vs.includes(sel))sel="";
-const f=norm(q.value),shown=vs.filter(v=>norm(v).includes(f));
-nav.innerHTML=[["Toutes les villes","",ARBITRES.filter(a=>shown.includes(a.ville)).length],...shown.map(v=>[v,v,ARBITRES.filter(a=>a.ville===v).length])].map(([n,v,c])=>`<button data-v="${esc(v)}" aria-pressed="${v===sel}">${esc(n)}<b>${c}</b></button>`).join("");
+const shown=vs.filter(v=>ARBITRES.some(a=>a.ville===v&&matchQ(a)));
+nav.innerHTML=[["Toutes les villes","",ARBITRES.filter(matchQ).length],...shown.map(v=>[v,v,ARBITRES.filter(a=>a.ville===v&&matchQ(a)).length])].map(([n,v,c])=>`<button data-v="${esc(v)}" aria-pressed="${v===sel}">${esc(n)}<b>${c}</b></button>`).join("");
 }
 function adminEditForm(a){
 const f=(id,l,v,t)=>`<label for="${id}">${l}</label><input id="${id}" type="${t||"text"}" value="${esc(v||"")}">`;
@@ -888,7 +889,7 @@ return `<div class="ef" style="flex:1 1 100%;width:100%;margin-top:.6rem">${f("a
 document.addEventListener("change",e=>{const t=e.target;if(t&&t.id==="ae-ville"){const o=document.getElementById("ae-vo");if(o)o.hidden=t.value!=="__o"}});
 function draw(){
 const s=q.value.trim().toLowerCase();
-const l=ARBITRES.filter(a=>(!sel||a.ville===sel)&&norm(a.ville).includes(norm(q.value))).sort((a,b)=>fr(a.ville,b.ville)||(SORTNB?tot(b)-tot(a):0)||(parseFloat(a.num)||1e9)-(parseFloat(b.num)||1e9)||fr(a.nom,b.nom));
+const l=ARBITRES.filter(a=>(!sel||a.ville===sel)&&matchQ(a)).sort((a,b)=>fr(a.ville,b.ville)||(SORTNB?tot(b)-tot(a):0)||(parseFloat(a.num)||1e9)-(parseFloat(b.num)||1e9)||fr(a.nom,b.nom));
 const g={};l.forEach(a=>(g[a.ville]=g[a.ville]||[]).push(a));
 const vs=Object.keys(g),all=l.reduce((n,a)=>n+tot(a),0),pl=n=>n>1?"s":"";
 t.textContent=(sel||("Toutes les villes ("+vs.length+")"))+", "+all+" match"+(all>1?"s":"")+" au total";
@@ -920,7 +921,7 @@ EDIDX=-1;save();drawNav();draw();markPend(a,old);return}
 const t=e.target.closest("button[data-t]");if(t){const a=ARBITRES[+t.dataset.t];if(a){a.actif=(a.actif===false);markPend(a);save();draw()}return}const b=e.target.closest("button[data-d]");if(!b)return;const a=ARBITRES[+b.dataset.i],k=b.dataset.k;if(!a)return;a[k]=Math.max(0,(a[k]||0)+ +b.dataset.d);markPend(a);save();draw()});
 document.getElementById("sortnb").addEventListener("change",e=>{SORTNB=e.target.checked;draw()});
 nav.addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;sel=b.dataset.v;drawNav();draw()});
-q.addEventListener("input",()=>{drawNav();draw()});
+q.addEventListener("input",()=>{if(q.value.trim())sel="";drawNav();draw()});
 const norm=s=>String(s||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/[^a-z0-9]/g,"");
 function col(row,exact,fuzzy,not){
 const ks=Object.keys(row);
@@ -979,6 +980,7 @@ rm.hidden=false;
 IMP=true;save();
 }
 document.getElementById("f").addEventListener("change",e=>{
+if(!arAdmin()){e.target.value="";return}
 const file=e.target.files[0];if(!file)return;
 const msg=document.getElementById("msg");
 if(typeof XLSX==="undefined"){msg.textContent="Le lecteur Excel n'a pas pu se charger. Vérifiez votre connexion et rechargez la page.";e.target.value="";return}
@@ -1014,6 +1016,7 @@ if(!hits)ARBITRES.forEach((a,i)=>ROLES.forEach(([k],j)=>a[k]=old[i][j]));
 return {rows,hits,ok,refs:ARBITRES.filter(a=>tot(a)>0).length};
 }
 document.getElementById("g").addEventListener("change",e=>{
+if(!arAdmin()){e.target.value="";return}
 const file=e.target.files[0];if(!file)return;
 const msg=document.getElementById("msg");
 if(typeof XLSX==="undefined"){msg.textContent="Le lecteur Excel n'a pas pu se charger. Rechargez la page.";e.target.value="";return}
@@ -1131,6 +1134,7 @@ document.getElementById("out").addEventListener("click",out);
 document.getElementById("me-out").addEventListener("click",out);
 document.getElementById("bgr").addEventListener("click",()=>{try{localStorage.removeItem("bg-vb")}catch(_){}applyBg()});
 document.getElementById("bgf").addEventListener("change",e=>{
+if(!arAdmin()){e.target.value="";return}
 const f=e.target.files[0];if(!f)return;
 const rd=new FileReader();
 rd.onload=ev=>{
@@ -2178,6 +2182,68 @@ rimpSync(false);return}
 const t=document.getElementById("rimp-paste").value;
 if(!t.trim()){const m=document.querySelector("#resimp-a .rimp-msg");if(m)m.innerHTML='<p class="err">Collez d’abord des lignes.</p>';return}
 rimpSay(rimpApply(csvRows(t,"\t")),"")});
+/* --- Liste PDF des arbitres internationaux et nationaux (informations personnelles) --- */
+async function arListPdf(){
+const kind=a=>{const n=norm(a.niveau);return /international|^inter|^intl/.test(n)?0:/national|^nat/.test(n)?1:-1},rows=ARBITRES.filter(a=>kind(a)>=0);
+arListPdf.info={n:rows.length,ina:rows.filter(a=>a.actif===false).length};
+if(!rows.length)return null;
+const rk=kind,cmp=(x,y)=>String(x||"").localeCompare(String(y||""),"fr",{sensitivity:"base"});
+rows.sort((x,y)=>rk(x)-rk(y)||cmp(x.nom,y.nom)||cmp(x.prenom,y.prenom));
+const logo=await imgOf(LOGO);
+try{await document.fonts.load("700 12px Lato");await document.fonts.load("400 12px Lato")}catch(_){}
+const F=(w,z)=>w+" "+z+"px Lato, Arial, sans-serif",GR="#0f6b3b",RD="#c8102e",S=2.5,W=595.28,H=841.89,M=36,RH=20,cvs=[],ctx=[];
+const CW=[24,112,64,64,50,70,139],CX=[];{let x=M;CW.forEach(w=>{CX.push(x);x+=w})}
+const TT="Liste des arbitres internationaux et nationaux";
+let c,y=0;
+const fit=(t,w)=>{t=String(t||"—");if(c.measureText(t).width<=w)return t;while(t.length>1&&c.measureText(t+"…").width>w)t=t.slice(0,-1);return t+"…"};
+const logoAt=(x,y0,h)=>{if(!logo)return;try{c.drawImage(logo,x,y0,h*logo.width/logo.height,h)}catch(_){}};
+const newPage=()=>{const first=!cvs.length,cv=document.createElement("canvas");cv.width=Math.round(W*S);cv.height=Math.round(H*S);c=cv.getContext("2d");c.scale(S,S);
+c.fillStyle="#fff";c.fillRect(0,0,W,H);c.textBaseline="middle";c.textAlign="center";
+if(first){
+logoAt(M+8,28,82);
+c.fillStyle="#555";c.font=F("400",9.5);c.fillText("ROYAUME DU MAROC",W/2+22,40);
+c.fillStyle="#1a1a1a";c.font=F("700",21);c.fillText("Fédération Royale Marocaine",W/2+22,64);c.fillText("de Volley-Ball",W/2+22,88);
+c.fillStyle=GR;c.font=F("400",10.5);c.fillText("Commission Centrale d’arbitrage et Direction d’arbitrage",W/2+22,110);
+c.fillStyle=RD;c.fillRect(M,126,W-2*M,2.5);c.fillStyle=GR;c.fillRect(M,131,W-2*M,1);
+let z=22;c.font=F("700",z);while(c.measureText(TT).width>W-2*M&&z>12){z--;c.font=F("700",z)}
+c.fillStyle="#1a1a1a";c.fillText(TT,W/2,170);
+c.fillStyle="#5a6b7b";c.font=F("400",11);c.fillText("Informations personnelles · "+rows.length+" arbitres"+(arListPdf.info.ina?" (dont "+arListPdf.info.ina+" inactif"+(arListPdf.info.ina>1?"s":"")+", en gris)":""),W/2,194);
+c.font=F("400",8.5);c.fillText("Document confidentiel · usage interne de la commission d’arbitrage",W/2,208);
+y=224;
+}else{
+logoAt(M,14,38);c.textAlign="left";c.fillStyle="#1a1a1a";c.font=F("700",12);c.fillText("Fédération Royale Marocaine de Volley-Ball",M+34,34);
+c.fillStyle=RD;c.fillRect(M,58,W-2*M,2.5);y=74;
+}
+c.fillStyle=GR;c.fillRect(M,y,W-2*M,26);c.fillStyle="#fff";c.font=F("700",8.5);
+["N°","Nom et prénom","Grade","Ville","CIN","GSM","E-mail"].forEach((t,i)=>{if(i===0){c.textAlign="center";c.fillText(t,CX[i]+CW[i]/2,y+13)}else{c.textAlign="left";c.fillText(t,CX[i]+4,y+13)}});
+y+=26;cvs.push(cv);ctx.push(c)};
+const band=t=>{c.fillStyle="#e3efe7";c.fillRect(M,y,W-2*M,18);c.fillStyle=GR;c.font=F("700",9);c.textAlign="left";c.fillText(t,M+6,y+9);y+=18};
+newPage();
+let n=0,cur=-1,alt=0;
+const cnt=[rows.filter(a=>rk(a)===0).length,rows.filter(a=>rk(a)===1).length],lab=["INTERNATIONAUX","NATIONAUX"];
+rows.forEach(a=>{
+const g=rk(a);
+if(g!==cur){if(y+18+RH>H-52)newPage();band(lab[g]+" ("+cnt[g]+")");cur=g;alt=0}
+if(y+RH>H-52){newPage();band(lab[g]+" (suite)");alt=0}
+n++;
+if(alt++%2){c.fillStyle="#f4f6f4";c.fillRect(M,y,W-2*M,RH)}
+c.fillStyle="#1a1a1a";c.textAlign="center";c.font=F("700",8.5);c.fillText(String(n),CX[0]+CW[0]/2,y+RH/2);
+c.textAlign="left";
+const T=[(a.nom+" "+(a.prenom||"")).trim(),g===0?"International":"National",a.ville,a.cin,a.gsm,a.email];
+T.forEach((t,i)=>{c.font=F(i===0?"700":"400",8.5);c.fillStyle=a.actif===false?"#8a8f8a":(i===1&&g===0?GR:"#1a1a1a");c.fillText(fit(t,CW[i+1]-8),CX[i+1]+4,y+RH/2)});
+c.strokeStyle="#dfe3df";c.lineWidth=.5;c.beginPath();c.moveTo(M,y+RH);c.lineTo(W-M,y+RH);c.stroke();
+y+=RH});
+c.strokeStyle=GR;c.lineWidth=1;c.beginPath();c.moveTo(M,y);c.lineTo(W-M,y);c.stroke();
+ctx.forEach((k,i)=>{k.strokeStyle="#d9dde3";k.lineWidth=.5;k.beginPath();k.moveTo(M,H-40);k.lineTo(W-M,H-40);k.stroke();
+k.fillStyle="#777";k.font=F("400",8.5);k.textBaseline="middle";k.textAlign="left";k.fillText("FRMVB · "+TT,M,H-26);k.textAlign="right";k.fillText("Page "+(i+1)+" / "+ctx.length,W-M,H-26)});
+return pdfFromCanvases(cvs,W,H);
+}
+document.getElementById("ar-pdf").addEventListener("click",async()=>{
+const m=document.getElementById("ar-pdf-msg"),b=document.getElementById("ar-pdf");b.disabled=true;m.textContent="Préparation du PDF…";
+try{const bl=await arListPdf();if(!bl){m.textContent="Aucun arbitre de grade International ou National dans la liste.";return}
+await savePng(bl,"Liste_arbitres_internationaux_nationaux.pdf");const i=arListPdf.info;m.textContent="✓ PDF téléchargé : "+i.n+" arbitres"+(i.ina?" (dont "+i.ina+" inactif"+(i.ina>1?"s":"")+")":"")+". Si un arbitre manque, vérifiez son grade dans la liste."}
+catch(_){m.textContent="La génération du PDF a échoué. Réessayez."}
+finally{b.disabled=false}});
 /* --- Calendrier : téléchargement PDF / Excel --- */
 const calSlug=t=>String(t).normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^A-Za-z0-9]+/g,"_").replace(/^_|_$/g,"");
 function calCsv(lg){
