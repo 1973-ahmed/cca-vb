@@ -609,6 +609,41 @@ const CALS=[];
 let CALL=(()=>{try{return JSON.parse(localStorage.getItem("cal-v1")||"{}")}catch(_){return{}}})();
 function saveCal(){try{localStorage.setItem("cal-v1",JSON.stringify(CALL))}catch(_){}}
 const calRows=lg=>CALL[lg]||CALS.filter(r=>r[0]===lg);
+/* --- Documents du calendrier (calendrier annuel, etc.) : ajout réservé à l'admin --- */
+const CDOCS=[];
+let CDOCS_X=(()=>{try{return JSON.parse(localStorage.getItem("cdocs-v1")||"[]")}catch(_){return[]}})();
+let CDOCS_DEL=(()=>{try{return JSON.parse(localStorage.getItem("cdocs-del-v1")||"[]")}catch(_){return[]}})();
+function saveCdocs(){try{localStorage.setItem("cdocs-v1",JSON.stringify(CDOCS_X));localStorage.setItem("cdocs-del-v1",JSON.stringify(CDOCS_DEL));return true}catch(_){return false}}
+const allCdocs=()=>{const ids=new Set(CDOCS.map(r=>r.id));return CDOCS.concat(CDOCS_X.filter(r=>!ids.has(r.id))).filter(r=>!CDOCS_DEL.includes(r.id))};
+let CDMSG="";
+const cdSize=n=>n>=1048576?(n/1048576).toFixed(1).replace(".",",")+" Mo":Math.max(1,Math.round(n/1024))+" Ko";
+function calDocsHtml(){
+const l=allCdocs().slice().sort((a,b)=>(b.ts||0)-(a.ts||0)),adm=isAdmin(),tot=l.reduce((x,r)=>x+(r.n||0),0);
+const rows=l.map(r=>`<div class="rcr"><div><b>${esc(r.t)}</b><span class="help">${esc(r.d)} · ${esc(r.f)} · ${esc(cdSize(r.n||0))}</span></div><div class="rca"><button class="btn" type="button" data-cdoc="${esc(r.id)}">Télécharger</button>${adm?`<button class="btn alt" type="button" data-cddel="${esc(r.id)}">Supprimer</button>`:""}</div></div>`).join("");
+return `<div class="cd calbox"><h3>Documents du calendrier</h3>${rows||'<p class="help">Aucun document pour le moment.</p>'}${adm?`<div class="imp"><label class="btn">Ajouter un document<input id="cd-in" class="vh" type="file" accept=".pdf,.xlsx,.xls,.csv,.docx,.doc,.png,.jpg,.jpeg,application/pdf,image/*" multiple></label></div><div class="help" role="status">${esc(CDMSG)}</div><p class="help">PDF, Excel, Word ou image · 2 Mo maximum par fichier. Total publié : ${esc(cdSize(tot))}${tot>6291456?" — attention, le site devient lourd : supprimez les anciens documents.":"."}</p>`:""}</div>`}
+document.addEventListener("click",async e=>{
+const b=e.target.closest&&e.target.closest("button[data-cdoc]");
+if(b){const r=allCdocs().find(x=>x.id===b.dataset.cdoc);if(r){try{await savePng(dataToBlob(r.u),r.f)}catch(_){}}return}
+const x=e.target.closest&&e.target.closest("button[data-cddel]");
+if(x&&isAdmin()){
+if(!x.dataset.armed){x.dataset.armed="1";x.textContent="Confirmer";setTimeout(()=>{if(x.isConnected){delete x.dataset.armed;x.textContent="Supprimer"}},4000);return}
+const id=x.dataset.cddel;CDOCS_X=CDOCS_X.filter(r=>r.id!==id);if(!CDOCS_DEL.includes(id))CDOCS_DEL.push(id);saveCdocs();pendProg();CDMSG="Document supprimé.";refreshProg()}
+});
+document.addEventListener("change",async e=>{
+const t=e.target;if(!t||t.id!=="cd-in"||!t.files||!isAdmin())return;
+const files=[...t.files];t.value="";let n=0;const bad=[];
+for(const f of files){
+if(!/\.(pdf|xlsx|xls|csv|docx|doc|png|jpe?g)$/i.test(f.name)){bad.push(f.name+" (format non accepté)");continue}
+if(f.size>2000000){bad.push(f.name+" (plus de 2 Mo)");continue}
+let u=await new Promise(r=>{const fr=new FileReader();fr.onload=()=>r(fr.result);fr.onerror=()=>r(null);fr.readAsDataURL(f)});
+if(!u){bad.push(f.name);continue}
+u=u.replace(/^data:;base64,/,"data:application/octet-stream;base64,");
+const id="c"+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+CDOCS_X.push({id,t:f.name.replace(/\.[^.]+$/,"").replace(/_+/g," ").trim()||f.name,d:new Date().toLocaleDateString("fr-FR"),ts:Date.now(),f:f.name,n:f.size,u});
+if(!saveCdocs()){CDOCS_X.pop();bad.push(f.name+" (mémoire du navigateur pleine)");continue}
+n++}
+if(n)pendProg();
+CDMSG=(n?"✓ "+n+" document"+(n>1?"s":"")+" ajouté"+(n>1?"s":"")+". ":"")+(bad.length?"Refusé : "+bad.join(", ")+".":"");refreshProg()});
 let CALSEL="",CALED=false;
 const calLg=()=>COMPS.some(c=>c.lg===CALSEL)?CALSEL:curComp();
 function calHtml(){
@@ -622,7 +657,7 @@ const g=[];rows.forEach(r=>{let x=g.find(y=>y.j===r[1]);if(!x){x={j:r[1],l:[]};g
 body=g.map(x=>`<h4>${esc(x.j)}</h4><div class="calw"><table><thead><tr><th>Date</th><th>Heure</th><th>Rencontre</th><th>Lieu</th></tr></thead><tbody>${x.l.map(r=>`<tr><td>${esc(r[2])}</td><td>${esc(r[3])}</td><td>${esc(r[4])} <b>VS</b> ${esc(r[5])}</td><td>${esc(r[6]||"")}</td></tr>`).join("")}</tbody></table></div>`).join("");
 }else body=`<p class="help">Le calendrier ${esc(c.titre)} n’est pas encore publié.${adm?" Utilisez « Modifier le calendrier » pour le saisir.":""}</p>`;
 const dl=!(CALED&&adm)?`<div class="imp" style="margin:.2rem 0 .6rem"><button class="btn" type="button" data-cald="pdf">Télécharger le PDF</button><button class="btn alt" type="button" data-cald="csv">Télécharger (Excel)</button><span class="pmsg help"></span></div>`:"";
-return `<div class="cd calbox"><div class="sec-h"><h3>Calendrier des matchs</h3>${adm&&!CALED?`<button class="btn alt" type="button" data-cale="edit">Modifier le calendrier</button>`:""}</div>${chips}${dl}${body}</div>`;
+return `<div class="cd calbox"><div class="sec-h"><h3>Calendrier des matchs</h3>${adm&&!CALED?`<button class="btn alt" type="button" data-cale="edit">Modifier le calendrier</button>`:""}</div>${chips}${dl}${body}</div>${calDocsHtml()}`;
 }
 document.addEventListener("click",e=>{
 const ch=e.target.closest&&e.target.closest("button[data-ccal]");
@@ -1591,7 +1626,7 @@ adm.ct=await aesEnc(ADMKEY,JSON.stringify(pub.map(exportObj)));
 if(JSON.parse(await aesDec(ADMKEY,adm.ct)).length!==pub.length)throw new Error("Vérification de la liste échouée.");
 if(pend.some(x=>x.prog))PROGS.forEach(P=>P.matchs.forEach((mt,m)=>{const d=DESIG[P.id+m];if(!d)return;const e=mt[4]=mt[4]||{};const nm=v=>{if(!v)return"";if(String(v).startsWith("txt:"))return String(v).slice(4);const x=findP(v);return x?pname(x)+" ("+x.ville+")":""};["r1","r2","mq"].forEach(k=>{const n=nm(d[k]);if(n)e[k]=n});const jl=(e.jl||[]).slice();["jl1","jl2","jl3","jl4"].forEach((k,i)=>{const n=nm(d[k]);if(n)jl[i]=n});for(let i=0;i<jl.length;i++)if(!jl[i])jl[i]="";if(jl.length)e.jl=jl}));
 let out=src;
-[{s:pe.start,e:pe.end,t:JSON.stringify(emb)},{s:pa.start,e:pa.end,t:JSON.stringify(adm)}].concat(pend.some(x=>x.prog)&&arrConst(src,"PROGS")?[(r=>({s:r.start,e:r.end,t:JSON.stringify(PROGS)}))(arrConst(src,"PROGS"))]:[]).concat(pend.some(x=>x.prog)&&arrConst(src,"RECUS")?[(r=>({s:r.start,e:r.end,t:JSON.stringify(allRecus())}))(arrConst(src,"RECUS"))]:[]).concat(pend.some(x=>x.prog)&&jsonConst(src,"RES_EMB")?[(r=>({s:r.start,e:r.end,t:JSON.stringify(Object.assign({},RES_EMB,RESULTS))}))(jsonConst(src,"RES_EMB"))]:[]).concat(pend.some(x=>x.prog)&&jsonConst(src,"SETS_EMB")?[(r=>({s:r.start,e:r.end,t:JSON.stringify(Object.assign({},SETS_EMB,SETS))}))(jsonConst(src,"SETS_EMB"))]:[]).concat(pend.some(x=>x.prog)&&arrConst(src,"CALS")?[(r=>({s:r.start,e:r.end,t:JSON.stringify(COMPS.flatMap(c=>calRows(c.lg)))}))(arrConst(src,"CALS"))]:[]).sort((x,y)=>y.s-x.s).forEach(p=>{out=out.slice(0,p.s)+p.t+out.slice(p.e)});
+[{s:pe.start,e:pe.end,t:JSON.stringify(emb)},{s:pa.start,e:pa.end,t:JSON.stringify(adm)}].concat(pend.some(x=>x.prog)&&arrConst(src,"PROGS")?[(r=>({s:r.start,e:r.end,t:JSON.stringify(PROGS)}))(arrConst(src,"PROGS"))]:[]).concat(pend.some(x=>x.prog)&&arrConst(src,"RECUS")?[(r=>({s:r.start,e:r.end,t:JSON.stringify(allRecus())}))(arrConst(src,"RECUS"))]:[]).concat(pend.some(x=>x.prog)&&jsonConst(src,"RES_EMB")?[(r=>({s:r.start,e:r.end,t:JSON.stringify(Object.assign({},RES_EMB,RESULTS))}))(jsonConst(src,"RES_EMB"))]:[]).concat(pend.some(x=>x.prog)&&jsonConst(src,"SETS_EMB")?[(r=>({s:r.start,e:r.end,t:JSON.stringify(Object.assign({},SETS_EMB,SETS))}))(jsonConst(src,"SETS_EMB"))]:[]).concat(pend.some(x=>x.prog)&&arrConst(src,"CDOCS")?[(r=>({s:r.start,e:r.end,t:JSON.stringify(allCdocs())}))(arrConst(src,"CDOCS"))]:[]).concat(pend.some(x=>x.prog)&&arrConst(src,"CALS")?[(r=>({s:r.start,e:r.end,t:JSON.stringify(COMPS.flatMap(c=>calRows(c.lg)))}))(arrConst(src,"CALS"))]:[]).sort((x,y)=>y.s-x.s).forEach(p=>{out=out.slice(0,p.s)+p.t+out.slice(p.e)});
 if(mode==="github"){
 await ghPut(c,out,sha);pendSet([]);
 const t=new Date().toLocaleTimeString("fr-FR",{hour:"2-digit",minute:"2-digit"});
