@@ -188,7 +188,7 @@ body.pub{--bg:#0a1730;--fg:#e8eef9;--mut:#8fa3c4;--card:#112347;--line:#223a66;-
 .sch h2{font-style:italic;text-transform:uppercase;font-size:clamp(1.5rem,5vw,2.2rem);font-weight:800;margin:0}
 .sch .wk{font-size:.8rem;letter-spacing:.14em;text-transform:uppercase;font-weight:600;margin:.35rem 0 1.1rem;color:#e8dcff}
 .sch .dt{font-weight:600;margin:-.4rem 0 .6rem;font-size:1rem}
-.sch .t{font-weight:600;margin:1rem 0 .35rem;font-size:.95rem}
+.sch .t{font-weight:600;margin:1rem 0 .35rem;font-size:.95rem}.sch.two{max-width:980px}.sch.two .cols{display:grid;grid-template-columns:1fr 1fr;gap:0 2.2rem;align-items:start}.sch.two .col{min-width:0}@media(max-width:760px){.sch.two .cols{grid-template-columns:1fr}}
 .mt{display:grid;grid-template-columns:46px 1fr 46px 1fr 46px;height:46px;border-radius:4px;overflow:hidden}
 .mt .tm{display:grid;place-items:center;font-weight:800;font-size:.9rem;color:#fff}
 .mt .tA{background:#c1272d}.mt .tB{background:#0a6b3d}
@@ -386,8 +386,6 @@ footer{max-width:1100px;margin:auto;padding:0 1.25rem 2rem;color:var(--mut);font
 <div id="actbox" hidden><label class="l" for="acode">Code d'autorisation reçu de l'administrateur</label><input id="acode" type="text" autocomplete="off"><button class="btn" id="act-go" type="button">Activer mon compte</button><div class="ok" id="act-msg" role="status"></div></div>
 <div class="err" id="lerr" role="alert"></div>
 <button class="btn go" id="lgo" type="button">Se connecter</button>
-<button class="btn alt" id="togreg" type="button">Pas encore inscrit ? S'inscrire</button>
-<button class="btn alt" id="togcin" type="button">Mon CIN n'est pas enregistré</button>
 <div class="status"><i></i>Fiches chiffrées · Accès réservé aux arbitres</div>
 <div class="hint">Administrateur : identifiant « admin » et mot de passe administrateur.</div>
 </div>
@@ -603,6 +601,10 @@ let ADMKEY=null;
 const DSLOTS=[["r1","1er arbitre","r1"],["r2","2e arbitre","r2"],["mq","Marqueur","mq"],["jl1","Juge de ligne 1","jl"],["jl2","Juge de ligne 2","jl"],["jl3","Juge de ligne 3","jl"],["jl4","Juge de ligne 4","jl"]];
 const slotsFor=P=>DSLOTS.filter(([s])=>!/^jl[34]$/.test(s)||P.cls!=="dames");
 let EDIDX=-1;
+const dnOk=v=>{const m=String(v||"").match(/^(\d{4})-(\d{2})-(\d{2})$/);if(!m)return false;const d=new Date(+m[1],+m[2]-1,+m[3]);if(d.getFullYear()!==+m[1]||d.getMonth()!==+m[2]-1||d.getDate()!==+m[3])return false;const t=new Date();return d<=t&&t.getFullYear()-d.getFullYear()<=100};
+const dnFr=v=>{const m=String(v||"").match(/^(\d{4})-(\d{2})-(\d{2})$/);return m?m[3]+"/"+m[2]+"/"+m[1]:""};
+const ageOf=v=>{const m=String(v||"").match(/^(\d{4})-(\d{2})-(\d{2})$/);if(!m)return null;const t=new Date();let a=t.getFullYear()-(+m[1]);if(t.getMonth()+1<+m[2]||(t.getMonth()+1===+m[2]&&t.getDate()<+m[3]))a--;return a>=0?a:null};
+const ageTxt=v=>{const a=ageOf(v);return a==null?"":a+" an"+(a>1?"s":"")};
 const RES_SHEET="https://docs.google.com/spreadsheets/d/1fa_faaj3G4SgDabrlfFR_7LLP3hjqThizqnCdg9Vdhc/edit?resourcekey=&gid=607559903";
 /* --- Calendrier des matchs (6 compétitions) --- */
 const CALS=[];
@@ -841,7 +843,7 @@ const t=l=>o.push(P.titre+" · Match "+(i+1)+" · "+x+" contre "+y+" · "+l+" ·
 return o;
 }
 function progHtml(){
-const card=P=>`<div class="sch ${P.cls}"><h2>${esc(P.titre)}</h2><div class="wk">${esc(P.sous)}</div><div class="dt">${esc(P.date)}</div>${P.matchs.map(([h,a,b,lieu],i)=>{const r=getRes(P.id+i),sv=r?getSets(P.id+i):null;return `<div class="t">Match ${mno(P,i)} · ${esc(h)}</div><div class="mt">${tcell(a,"tA")}<span class="nm">${esc(a)}</span><span class="vs">${r?r[0]+"-"+r[1]:"VS"}</span><span class="nm">${esc(b)}</span>${tcell(b,"tB")}</div>${sv&&sv.length?`<div class="ss">${forfeit(sv)?"FORFAIT de "+esc(forfeit(sv)===1?b:a)+" · ":""}${sv.map(x=>x[0]+"-"+x[1]).join(" · ")}</div>`:""}<div class="lieu">${esc(lieu)}</div>${dsLine(P.id,i)}`}).join("")}${isAdmin()?`<div class="pact"><button class="btn" type="button" data-rcw="${P.id}">Reçus de la semaine (PDF)</button></div><div class="help rcmsg" role="status" style="color:#e8dcff"></div>`:""}${!PROTECTED.includes(P.id)&&isAdmin()?`<button class="btn alt wkdel" type="button" data-wkdel="${P.id}">Supprimer cette semaine</button>`:""}<span class="mark"><img src="${LOGO}" alt="FRMVB"></span></div>`;
+const card=P=>`<div class="sch ${P.cls}${P.matchs.length>=6?" two":""}"><h2>${esc(P.titre)}</h2><div class="wk">${esc(P.sous)}</div><div class="dt">${esc(P.date)}</div>${((L)=>P.matchs.length>=6?'<div class="cols"><div class="col">'+L.slice(0,Math.ceil(L.length/2)).join("")+'</div><div class="col">'+L.slice(Math.ceil(L.length/2)).join("")+'</div></div>':L.join(""))(P.matchs.map(([h,a,b,lieu],i)=>{const r=getRes(P.id+i),sv=r?getSets(P.id+i):null;return `<div class="t">Match ${mno(P,i)} · ${esc(h)}</div><div class="mt">${tcell(a,"tA")}<span class="nm">${esc(a)}</span><span class="vs">${r?r[0]+"-"+r[1]:"VS"}</span><span class="nm">${esc(b)}</span>${tcell(b,"tB")}</div>${sv&&sv.length?`<div class="ss">${forfeit(sv)?"FORFAIT de "+esc(forfeit(sv)===1?b:a)+" · ":""}${sv.map(x=>x[0]+"-"+x[1]).join(" · ")}</div>`:""}<div class="lieu">${esc(lieu)}</div>${dsLine(P.id,i)}`}))}${isAdmin()?`<div class="pact"><button class="btn" type="button" data-rcw="${P.id}">Reçus de la semaine (PDF)</button></div><div class="help rcmsg" role="status" style="color:#e8dcff"></div>`:""}${!PROTECTED.includes(P.id)&&isAdmin()?`<button class="btn alt wkdel" type="button" data-wkdel="${P.id}">Supprimer cette semaine</button>`:""}<span class="mark"><img src="${LOGO}" alt="FRMVB"></span></div>`;
 const list=PROGS.filter(inComp).map(card).join("");
 return compBar()+weekBar()+(list||`<div class="cd"><p class="help">Aucun programme pour ${COMPS.find(c=>c.lg===curComp()).titre} cette semaine.${isAdmin()?" Utilisez « + Ajouter une semaine (Week) » pour le créer.":""}</p></div>`)+`<p class="help ctr">Demandes de changement d'horaire ou de lieu (clubs et associations) : <a href="https://forms.gle/1ApVMr3RakeiN5cY9" target="_blank" rel="noopener">formulaire</a>. Les résultats sont à envoyer dans le groupe WhatsApp « Arbitrage Volleyball », avec le <a href="https://forms.gle/QxgCp6JsbVrWNuqm6" target="_blank" rel="noopener">formulaire des résultats</a>.</p>`;
 }
@@ -919,7 +921,7 @@ nav.innerHTML=[["Toutes les villes","",ARBITRES.filter(matchQ).length],...shown.
 function adminEditForm(a){
 const f=(id,l,v,t)=>`<label for="${id}">${l}</label><input id="${id}" type="${t||"text"}" value="${esc(v||"")}">`;
 const gl=gradesList().concat(gradesList().includes(a.niveau)?[]:[a.niveau]);
-return `<div class="ef" style="flex:1 1 100%;width:100%;margin-top:.6rem">${f("ae-num","N°",a.num)}${f("ae-nom","Nom",a.nom)}${f("ae-prenom","Prénom",a.prenom)}<label for="ae-ville">Ville</label><select id="ae-ville" class="f">${cityList(a).map(c=>`<option${c===a.ville?" selected":""}>${esc(c)}</option>`).join("")}<option value="__o">Autre ville…</option></select><input id="ae-vo" type="text" placeholder="Nom de la ville" hidden style="margin-top:.5rem">${f("ae-cin","CIN",a.cin)}${f("ae-gsm","Téléphone (GSM)",a.gsm,"tel")}${f("ae-email","E-mail",a.email,"email")}<label for="ae-niveau">Grade</label><select id="ae-niveau" class="f">${gl.map(g=>`<option${g===a.niveau?" selected":""}>${esc(g)}</option>`).join("")}</select><div class="err" id="ae-err" role="alert"></div><div class="imp"><button class="btn" type="button" data-ae="save">Enregistrer</button><button class="btn alt" type="button" data-ae="cancel">Annuler</button></div></div>`;
+return `<div class="ef" style="flex:1 1 100%;width:100%;margin-top:.6rem">${f("ae-num","N°",a.num)}${f("ae-nom","Nom",a.nom)}${f("ae-prenom","Prénom",a.prenom)}<label for="ae-ville">Ville</label><select id="ae-ville" class="f">${cityList(a).map(c=>`<option${c===a.ville?" selected":""}>${esc(c)}</option>`).join("")}<option value="__o">Autre ville…</option></select><input id="ae-vo" type="text" placeholder="Nom de la ville" hidden style="margin-top:.5rem">${f("ae-cin","CIN",a.cin)}${f("ae-dn","Date de naissance",a.dn,"date")}${f("ae-gsm","Téléphone (GSM)",a.gsm,"tel")}${f("ae-email","E-mail",a.email,"email")}<label for="ae-niveau">Grade</label><select id="ae-niveau" class="f">${gl.map(g=>`<option${g===a.niveau?" selected":""}>${esc(g)}</option>`).join("")}</select><div class="err" id="ae-err" role="alert"></div><div class="imp"><button class="btn" type="button" data-ae="save">Enregistrer</button><button class="btn alt" type="button" data-ae="cancel">Annuler</button></div></div>`;
 }
 document.addEventListener("change",e=>{const t=e.target;if(t&&t.id==="ae-ville"){const o=document.getElementById("ae-vo");if(o)o.hidden=t.value!=="__o"}});
 function draw(){
@@ -928,7 +930,7 @@ const l=ARBITRES.filter(a=>(!sel||a.ville===sel)&&matchQ(a)).sort((a,b)=>fr(a.vi
 const g={};l.forEach(a=>(g[a.ville]=g[a.ville]||[]).push(a));
 const vs=Object.keys(g),all=l.reduce((n,a)=>n+tot(a),0),pl=n=>n>1?"s":"";
 t.textContent=(sel||("Toutes les villes ("+vs.length+")"))+", "+all+" match"+(all>1?"s":"")+" au total";
-ul.innerHTML=vs.length?vs.map(v=>{const sm=g[v].reduce((n,a)=>n+tot(a),0);return `<section class="ville"><h3>${esc(v)}<span>${g[v].length} arbitre${pl(g[v].length)}, ${sm} match${sm>1?"s":""}</span></h3><ul>${g[v].map(a=>{const i=ARBITRES.indexOf(a);return `<li><span class="who"><label class="av-l" title="Ajouter ou changer la photo">${a.photo?`<img class="av" src="${esc(a.photo)}" alt="">`:`<span class="av ph">${esc(((a.prenom||"?")[0]+(a.nom||"")[0]).toUpperCase())}</span>`}<input type="file" accept="image/*" class="vh" data-ph="${i}"></label><span><small>N° ${esc(a.num||"-")}</small><br>${esc(a.nom)} ${esc(a.prenom)}</span></span><span class="contact"><span>CIN : ${esc(a.cin||"-")}</span><span>Ville : ${esc(a.ville)}</span><a href="tel:${esc(a.gsm.replace(/\s/g,""))}">GSM : ${esc(a.gsm||"-")}</a>${a.email?`<a href="mailto:${esc(a.email)}">${esc(a.email)}</a>`:""}</span><label class="tag gsel">Grade : <select data-g="${i}" aria-label="Grade de ${esc(a.nom)} ${esc(a.prenom)}">${gradesList().concat(gradesList().includes(a.niveau)?[]:[a.niveau]).map(g=>`<option${g===a.niveau?" selected":""}>${esc(g)}</option>`).join("")}</select></label><button type="button" class="act${a.actif===false?" off":""}" data-t="${i}" aria-pressed="${a.actif!==false}" title="Cliquer pour changer le statut">● ${a.actif===false?"Inactif":"Actif"}</button><button type="button" class="btn alt" style="padding:.3rem .85rem;font-size:.8rem" data-ed="${i}">Modifier</button><span class="tot">Matchs : ${tot(a)}</span><span class="roles">${ROLES.map(([k,lab])=>`<span class="rl"><small>${lab}</small><span class="st"><button type="button" data-i="${i}" data-k="${k}" data-d="-1" aria-label="Retirer : ${lab}">−</button><b>${a[k]||0}</b><button type="button" data-i="${i}" data-k="${k}" data-d="1" aria-label="Ajouter : ${lab}">+</button></span></span>`).join("")}</span>${i===EDIDX?adminEditForm(a):""}</li>`}).join("")}</ul></section>`}).join(""):'<p class="empty">'+(ARBITRES.length?'Aucun arbitre trouvé.':'Aucun arbitre pour l\'instant : importez votre fichier Excel.')+'</p>';
+ul.innerHTML=vs.length?vs.map(v=>{const sm=g[v].reduce((n,a)=>n+tot(a),0);return `<section class="ville"><h3>${esc(v)}<span>${g[v].length} arbitre${pl(g[v].length)}, ${sm} match${sm>1?"s":""}</span></h3><ul>${g[v].map(a=>{const i=ARBITRES.indexOf(a);return `<li><span class="who"><label class="av-l" title="Ajouter ou changer la photo">${a.photo?`<img class="av" src="${esc(a.photo)}" alt="">`:`<span class="av ph">${esc(((a.prenom||"?")[0]+(a.nom||"")[0]).toUpperCase())}</span>`}<input type="file" accept="image/*" class="vh" data-ph="${i}"></label><span><small>N° ${esc(a.num||"-")}</small><br>${esc(a.nom)} ${esc(a.prenom)}</span></span><span class="contact"><span>CIN : ${esc(a.cin||"-")}</span><span>Ville : ${esc(a.ville)}</span>${a.dn&&ageOf(a.dn)!=null?`<span>Né(e) le ${esc(dnFr(a.dn))} · ${esc(ageTxt(a.dn))}</span>`:""}<a href="tel:${esc(a.gsm.replace(/\s/g,""))}">GSM : ${esc(a.gsm||"-")}</a>${a.email?`<a href="mailto:${esc(a.email)}">${esc(a.email)}</a>`:""}</span><label class="tag gsel">Grade : <select data-g="${i}" aria-label="Grade de ${esc(a.nom)} ${esc(a.prenom)}">${gradesList().concat(gradesList().includes(a.niveau)?[]:[a.niveau]).map(g=>`<option${g===a.niveau?" selected":""}>${esc(g)}</option>`).join("")}</select></label><button type="button" class="act${a.actif===false?" off":""}" data-t="${i}" aria-pressed="${a.actif!==false}" title="Cliquer pour changer le statut">● ${a.actif===false?"Inactif":"Actif"}</button><button type="button" class="btn alt" style="padding:.3rem .85rem;font-size:.8rem" data-ed="${i}">Modifier</button><span class="tot">Matchs : ${tot(a)}</span><span class="roles">${ROLES.map(([k,lab])=>`<span class="rl"><small>${lab}</small><span class="st"><button type="button" data-i="${i}" data-k="${k}" data-d="-1" aria-label="Retirer : ${lab}">−</button><b>${a[k]||0}</b><button type="button" data-i="${i}" data-k="${k}" data-d="1" aria-label="Ajouter : ${lab}">+</button></span></span>`).join("")}</span>${i===EDIDX?adminEditForm(a):""}</li>`}).join("")}</ul></section>`}).join(""):'<p class="empty">'+(ARBITRES.length?'Aucun arbitre trouvé.':'Aucun arbitre pour l\'instant : importez votre fichier Excel.')+'</p>';
 drawDash();
 }
 ul.addEventListener("click",e=>{if(!arAdmin())return;
@@ -937,7 +939,7 @@ const ae=e.target.closest("button[data-ae]");if(ae){
 if(ae.dataset.ae==="cancel"){EDIDX=-1;draw();return}
 const a=ARBITRES[EDIDX];if(!a)return;
 const li=ae.closest("li"),q=id=>li.querySelector("#"+id),v=id=>q(id).value.trim(),err=m=>{q("ae-err").textContent=m};
-const nom=v("ae-nom"),prenom=v("ae-prenom"),cin=v("ae-cin").replace(/\s/g,"").toUpperCase(),gsm=v("ae-gsm"),email=v("ae-email"),num=v("ae-num"),niveau=gradeName(v("ae-niveau"));
+const nom=v("ae-nom"),prenom=v("ae-prenom"),cin=v("ae-cin").replace(/\s/g,"").toUpperCase(),dn=v("ae-dn"),gsm=v("ae-gsm"),email=v("ae-email"),num=v("ae-num"),niveau=gradeName(v("ae-niveau"));
 const ville=(q("ae-ville").value==="__o"?v("ae-vo"):q("ae-ville").value).trim();
 if(!nom||!prenom||!ville){err("Le nom, le prénom et la ville sont obligatoires.");return}
 if(cin!==(a.cin||"")){
@@ -946,8 +948,9 @@ if(ARBITRES.some(x=>x!==a&&norm(x.cin)===norm(cin))){err("Ce CIN est déjà util
 }
 if(gsm!==(a.gsm||"")&&gsm&&!/^\+?[\d\s.\-]{9,16}$/.test(gsm)){err("Numéro de téléphone invalide.");return}
 if(email!==(a.email||"")&&email&&!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){err("Adresse e-mail invalide.");return}
+if(dn&&!dnOk(dn)){err("Date de naissance invalide.");return}
 const old={nom:a.nom,prenom:a.prenom,cin:a.cin},oK=pkey(a),oM=norm(pname(a)+a.ville);
-Object.assign(a,{nom,prenom,ville,cin,gsm,email,niveau});if(num)a.num=num;
+Object.assign(a,{nom,prenom,ville,cin,dn,gsm,email,niveau});if(num)a.num=num;
 const nK=pkey(a);
 if(nK!==oK){let ch=false;Object.keys(DESIG).forEach(k=>{const d=DESIG[k];Object.keys(d).forEach(sl=>{if(d[sl]===oK){d[sl]=nK;ch=true}})});if(ch)saveDesig()}
 const nF=pname(a)+" ("+a.ville+")";
@@ -1096,7 +1099,7 @@ g("me-edit").innerHTML="";g("me-actions").hidden=false;
 document.getElementById("notes-m").innerHTML=notesHtml("notes-"+(a._o||norm(a.cin)),"nm");
 if(!a.photo){try{a.photo=localStorage.getItem("ph-"+(a._o||norm(a.cin)))||""}catch(_){}}
 g("me-h").innerHTML=`<div class="pbox"><span class="pic">${a.photo?`<img src="${esc(a.photo)}" alt="Ma photo">`:`<span class="ph">${esc(((a.prenom||"?")[0]+(a.nom||"")[0]).toUpperCase())}</span>`}</span><div><div class="hello">Bonjour ${esc(a.prenom)} ${esc(a.nom)}</div><div class="st-row"><span class="act${a.actif===false?" off":""}">● ${a.actif===false?"Inactif":"Actif"}</span></div><label class="btn" for="me-ph">${a.photo?"Changer ma photo":"Ajouter ma photo"}</label><input id="me-ph" type="file" accept="image/*" class="vh"><p class="help">Photo JPG ou PNG, enregistrée sur cet appareil.</p></div></div>`;
-const rows=[["N°",a.num||"-"],["Ville",a.ville],["Grade",a.niveau],["CIN",a.cin],["GSM",a.gsm||"-"],["E-mail",a.email||"-"]];
+const rows=[["N°",a.num||"-"],["Ville",a.ville],["Grade",a.niveau],["CIN",a.cin],["Date de naissance",dnFr(a.dn)||"-"],["Âge",ageTxt(a.dn)||"-"],["GSM",a.gsm||"-"],["E-mail",a.email||"-"]];
 g("me-info").innerHTML=rows.map(([k,v])=>`<dt>${k}</dt><dd>${esc(v)}</dd>`).join("");
 const cls=["k2","k3","k4","k2"];
 g("me-kpis").innerHTML=[["k1","Matchs désignés",t,"Toutes fonctions"],...ROLES.map(([k,l],i)=>[cls[i],l,a[k]||0,t?Math.round(100*(a[k]||0)/t)+" % du total":"Aucune désignation"])].map(([c,l,v,s])=>`<div class="kpi ${c}"><small>${esc(l)}</small><b>${v}</b><span>${esc(s)}</span></div>`).join("");
@@ -1215,8 +1218,8 @@ $("rph").addEventListener("change",e=>{
 const f=e.target.files[0];if(!f)return;
 shrink(f,240,d=>{regPhoto=d;$("rprev").src=d;$("rprev").hidden=false});
 });
-$("togreg").addEventListener("click",()=>openReg());
-$("togcin").addEventListener("click",()=>openReg("cin"));
+
+
 $("rback").addEventListener("click",()=>view("login"));
 function register(){
 const err=m=>{$("rerr").textContent=m};
@@ -1452,7 +1455,7 @@ return p?{...a,nom:p.nom,prenom:p.prenom,ville:p.ville,cin:p.cin,gsm:p.gsm,email
 function cityList(a){return [...new Set([...((EMB&&EMB.cities)||[]),...ARBITRES.map(x=>x.ville),...DIRD.map(d=>d[0]),a.ville])].filter(Boolean).sort(fr)}
 function editForm(a){
 const f=(id,l,v,t)=>`<label for="${id}">${l}</label><input id="${id}" type="${t||"text"}" value="${esc(v||"")}">`;
-return `<div class="ef">${f("ef-nom","Nom",a.nom)}${f("ef-prenom","Prénom",a.prenom)}<label for="ef-ville">Ville</label><select id="ef-ville" class="f">${cityList(a).map(c=>`<option${c===a.ville?" selected":""}>${esc(c)}</option>`).join("")}<option value="__o">Autre ville…</option></select><input id="ef-vo" type="text" placeholder="Nom de votre ville" hidden style="margin-top:.5rem">${f("ef-cin","CIN",a.cin)}${f("ef-gsm","Téléphone (GSM)",a.gsm,"tel")}${f("ef-email","E-mail",a.email,"email")}<p class="help">Le N° (${esc(a.num||"-")}), le grade (« ${esc(a.niveau)} »), le statut (« ${a.actif===false?"Inactif":"Actif"} ») et le nombre de matchs par fonction sont gérés par l'administrateur et ne peuvent pas être modifiés.</p><div class="err" id="ef-err" role="alert"></div><div class="imp"><button class="btn" type="button" data-e="save">Enregistrer</button><button class="btn alt" type="button" data-e="cancel">Annuler</button></div></div>`;
+return `<div class="ef">${f("ef-nom","Nom",a.nom)}${f("ef-prenom","Prénom",a.prenom)}<label for="ef-ville">Ville</label><select id="ef-ville" class="f">${cityList(a).map(c=>`<option${c===a.ville?" selected":""}>${esc(c)}</option>`).join("")}<option value="__o">Autre ville…</option></select><input id="ef-vo" type="text" placeholder="Nom de votre ville" hidden style="margin-top:.5rem">${f("ef-cin","CIN",a.cin)}${f("ef-dn","Date de naissance",a.dn,"date")}${f("ef-gsm","Téléphone (GSM)",a.gsm,"tel")}${f("ef-email","E-mail",a.email,"email")}<p class="help">Le N° (${esc(a.num||"-")}), le grade (« ${esc(a.niveau)} »), le statut (« ${a.actif===false?"Inactif":"Actif"} ») et le nombre de matchs par fonction sont gérés par l'administrateur et ne peuvent pas être modifiés.</p><div class="err" id="ef-err" role="alert"></div><div class="imp"><button class="btn" type="button" data-e="save">Enregistrer</button><button class="btn alt" type="button" data-e="cancel">Annuler</button></div></div>`;
 }
 
 document.getElementById("me-editb").addEventListener("click",()=>{if(!CURME)return;$("me-edit").innerHTML=editForm(CURME);$("me-actions").hidden=true});
@@ -1461,7 +1464,7 @@ document.getElementById("me-edit").addEventListener("click",e=>{
 const b=e.target.closest&&e.target.closest("button[data-e]");if(!b||!CURME)return;
 if(b.dataset.e==="cancel"){$("me-edit").innerHTML="";$("me-actions").hidden=false;return}
 const err=m=>{$("ef-err").textContent=m},g=id=>$(id).value.trim(),o=CURME;
-const nom=g("ef-nom"),prenom=g("ef-prenom"),cin=g("ef-cin").replace(/\s/g,"").toUpperCase(),gsm=g("ef-gsm"),email=g("ef-email");
+const nom=g("ef-nom"),prenom=g("ef-prenom"),cin=g("ef-cin").replace(/\s/g,"").toUpperCase(),gsm=g("ef-gsm"),email=g("ef-email"),dn=g("ef-dn");
 const ville=($("ef-ville").value==="__o"?g("ef-vo"):$("ef-ville").value).trim();
 if(!nom||!prenom||!ville){err("Le nom, le prénom et la ville sont obligatoires.");return}
 if(cin!==o.cin){
@@ -1471,11 +1474,12 @@ if(ARBITRES.some(a=>norm(a.cin)===norm(cin)&&norm(a.cin)!==norm(o.cin))||loadPro
 }
 if(gsm!==o.gsm&&!/^\+?[\d\s.\-]{9,16}$/.test(gsm)){err("Numéro de téléphone invalide.");return}
 if(email!==(o.email||"")&&email&&!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){err("Adresse e-mail invalide.");return}
-const upd={...o,nom,prenom,ville,cin,gsm,email,_o:o._o||norm(o.cin)};
-const L=[["Nom",o.nom,nom],["Prénom",o.prenom,prenom],["Ville",o.ville,ville],["CIN",o.cin,cin],["GSM",o.gsm||"",gsm],["E-mail",o.email||"",email]].filter(x=>x[1]!==x[2]);
+if(dn&&!dnOk(dn)){err("Date de naissance invalide.");return}
+const upd={...o,nom,prenom,ville,cin,dn,gsm,email,_o:o._o||norm(o.cin)};
+const L=[["Nom",o.nom,nom],["Prénom",o.prenom,prenom],["Ville",o.ville,ville],["CIN",o.cin,cin],["Date de naissance",dnFr(o.dn),dnFr(dn)],["GSM",o.gsm||"",gsm],["E-mail",o.email||"",email]].filter(x=>x[1]!==x[2]);
 const ps=loadProfils().filter(p=>p._o!==upd._o);ps.push(upd);saveProfils(ps);
 const li=ARBITRES.findIndex(a=>norm(a.cin)===norm(o.cin));
-if(li>=0){Object.assign(ARBITRES[li],{nom,prenom,ville,cin,gsm,email});save();drawNav();draw()}
+if(li>=0){Object.assign(ARBITRES[li],{nom,prenom,ville,cin,dn,gsm,email});save();drawNav();draw()}
 CURME=upd;showMe(upd);
 if(!L.length){$("me-edit").innerHTML='<p class="help">Aucune modification.</p>';return}
 const body=["Bonjour,","","Je souhaite mettre à jour mes informations d'arbitre :","",...L.map(([k,a,b])=>k+" : "+(a||"(vide)")+" → "+(b||"(vide)")),"","Arbitre : "+o.nom+" "+o.prenom+" (N° "+(o.num||"-")+")","","Code de mise à jour (à coller dans la plateforme) :",makeUpd(o,upd),"","Cordialement"].join("\n");
@@ -1654,15 +1658,16 @@ document.getElementById("pub-gh").addEventListener("click",()=>{clearTimeout(PUB
 document.getElementById("pub-go").addEventListener("click",()=>pubBuild("download"));
 document.getElementById("pub-done").addEventListener("click",()=>{if(!arAdmin())return;pendSet([]);PUBMSG="";pendShow();document.getElementById("pub-err").textContent="";document.getElementById("pub-ok").textContent="Liste des modifications en attente vidée."});
 /* Mise à jour envoyée par un arbitre */
-function makeUpd(o,u){return "VBUPD:"+btoa(unescape(encodeURIComponent(JSON.stringify({v:1,o:norm(o.cin),p:o._o||"",nom:u.nom,prenom:u.prenom,ville:u.ville,cin:u.cin,gsm:u.gsm,email:u.email}))))+"~"}
+function makeUpd(o,u){return "VBUPD:"+btoa(unescape(encodeURIComponent(JSON.stringify({v:1,o:norm(o.cin),p:o._o||"",nom:u.nom,prenom:u.prenom,ville:u.ville,cin:u.cin,dn:u.dn||"",gsm:u.gsm,email:u.email}))))+"~"}
 function updParse(t){
 const m=String(t).match(/VBUPD:([A-Za-z0-9+\/=_\-\s]+?)~/);if(!m)throw new Error("Code de mise à jour introuvable : il commence par VBUPD: et se termine par ~.");
 let u;try{u=JSON.parse(decodeURIComponent(escape(atob(m[1].replace(/\s+/g,"").replace(/-/g,"+").replace(/_/g,"/")))))}catch(_){throw new Error("Code de mise à jour illisible.")}
 if(!u||u.v!==1||typeof u.o!=="string")throw new Error("Code de mise à jour non reconnu.");
 const s=k=>String(u[k]==null?"":u[k]).trim().slice(0,80);
-const r={o:norm(u.o),p:norm(u.p||""),nom:s("nom"),prenom:s("prenom"),ville:s("ville"),cin:s("cin").replace(/\s/g,"").toUpperCase(),gsm:s("gsm"),email:s("email")};
+const r={o:norm(u.o),p:norm(u.p||""),nom:s("nom"),prenom:s("prenom"),ville:s("ville"),cin:s("cin").replace(/\s/g,"").toUpperCase(),gsm:s("gsm"),email:s("email"),dn:u.dn==null?undefined:s("dn")};
 if(!r.nom||!r.prenom||!r.ville)throw new Error("Nom, prénom ou ville manquant dans le code.");
 if(r.cin&&!/^[A-Z]{1,2}\d{4,8}$/.test(r.cin))throw new Error("CIN invalide dans le code.");
+if(r.dn&&!dnOk(r.dn))throw new Error("Date de naissance invalide dans le code.");
 if(r.gsm&&!/^\+?[\d\s.\-]{9,16}$/.test(r.gsm))throw new Error("Numéro de téléphone invalide dans le code.");
 if(r.email&&!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(r.email))throw new Error("Adresse e-mail invalide dans le code.");
 return r;
@@ -1682,7 +1687,7 @@ const r=updParse(code),a=ARBITRES.find(x=>norm(x.cin)&&[r.o,r.p].filter(Boolean)
 if(!a)throw new Error("Arbitre introuvable dans votre liste (CIN d’origine non reconnu).");
 const ncin=r.cin||a.cin;
 if(norm(ncin)!==norm(a.cin)&&ARBITRES.some(x=>x!==a&&norm(x.cin)===norm(ncin)))throw new Error("Ce CIN est déjà utilisé par un autre arbitre.");
-const L=[["Nom",a.nom,r.nom],["Prénom",a.prenom,r.prenom],["Ville",a.ville,r.ville],["CIN",a.cin,ncin],["GSM",a.gsm||"",r.gsm],["E-mail",a.email||"",r.email]].filter(x=>x[1]!==x[2]);
+const L=[["Nom",a.nom,r.nom],["Prénom",a.prenom,r.prenom],["Ville",a.ville,r.ville],["CIN",a.cin,ncin],...(r.dn===undefined?[]:[["Date de naissance",dnFr(a.dn),dnFr(r.dn)]]),["GSM",a.gsm||"",r.gsm],["E-mail",a.email||"",r.email]].filter(x=>x[1]!==x[2]);
 if(!L.length){errs.push(a.nom+" "+a.prenom+" : aucune différence avec la fiche actuelle.");return}
 byA.set(a,{a,r,ncin,L})}catch(e){errs.push((codes.length>1?"Code "+(n+1)+" : ":"")+(e.message||"code invalide."))}});
 UPDS=[...byA.values()];updRender(errs)}
@@ -1690,7 +1695,7 @@ function updApply(u){
 const {a,r,ncin}=u;
 if(norm(ncin)!==norm(a.cin)&&ARBITRES.some(x=>x!==a&&norm(x.cin)===norm(ncin)))return false;
 const old={nom:a.nom,prenom:a.prenom,cin:a.cin},oK=pkey(a),oM=norm(pname(a)+a.ville);
-Object.assign(a,{nom:r.nom,prenom:r.prenom,ville:r.ville,cin:ncin,gsm:r.gsm?phoneName(r.gsm):"",email:r.email});
+Object.assign(a,{nom:r.nom,prenom:r.prenom,ville:r.ville,cin:ncin,gsm:r.gsm?phoneName(r.gsm):"",email:r.email});if(r.dn!==undefined)a.dn=r.dn;
 const nK=pkey(a);
 if(nK!==oK){let ch=false;Object.keys(DESIG).forEach(k=>{const d=DESIG[k];Object.keys(d).forEach(sl=>{if(d[sl]===oK){d[sl]=nK;ch=true}})});if(ch)saveDesig()}
 if(norm(pname(a)+a.ville)!==oM){const nF=pname(a)+" ("+a.ville+")";let ch=false;const rp=n=>{if(n&&norm(n)===oM){ch=true;return nF}return n};PROGS.forEach(P=>P.matchs.forEach(mt=>{const d=mt[4];if(!d)return;["r1","r2","mq"].forEach(sl=>{if(d[sl])d[sl]=rp(d[sl])});if(d.jl)d.jl=d.jl.map(rp)}));if(ch)pendProg()}
@@ -1921,7 +1926,7 @@ function wkForm(L){
 const lg=COMPS;L=L||curComp();
 const ps=PROGS.filter(P=>lgOf(P)===L),last=ps[ps.length-1],n=ps.length?Math.max(...ps.map(weekNum))+1:1;
 const teams=[...new Set(PROGS.flatMap(P=>P.matchs.flatMap(m=>[m[1],m[2]])))].sort(),venues=[...new Set(ps.flatMap(P=>P.matchs.map(m=>m[3])))].filter(Boolean).sort();
-const nm=last?last.matchs.length:5,hh=last&&last.matchs[0]?last.matchs[0][0]:"17:00";
+const nm=last?last.matchs.length:(L==="1h"||L==="1d"?8:5),hh=last&&last.matchs[0]?last.matchs[0][0]:"17:00";
 return `<h3>Ajouter une semaine</h3><div class="ef"><label for="wk-l">Compétition</label><select id="wk-l" class="f">${lg.map(x=>`<option value="${x.lg}"${x.lg===L?" selected":""}>${esc(x.titre)}</option>`).join("")}</select><label for="wk-n">Semaine (Week)</label><input id="wk-n" type="number" min="1" max="60" value="${n}"><label for="wk-d">Date</label><input id="wk-d" type="date"><div id="wk-rows">${Array.from({length:nm},(_,i)=>wkRow(i,hh)).join("")}</div><datalist id="wk-t">${teams.map(t=>`<option value="${esc(t)}">`).join("")}</datalist><datalist id="wk-v">${venues.map(v=>`<option value="${esc(v)}">`).join("")}</datalist><div class="imp"><button class="btn alt" type="button" data-wk="row">+ Ajouter un match</button></div><div class="err" id="wk-err" role="alert"></div><div class="imp"><button class="btn" type="button" data-wk="save">Enregistrer la semaine</button><button class="btn alt" type="button" data-wk="cancel">Annuler</button></div></div>`;
 }
 function wkDelete(id){
@@ -2026,7 +2031,7 @@ const gr=[...new Set([...Object.values(GRADE_FIX),...ARBITRES.map(a=>a.niveau).f
 if(!gr.includes("Stagiaire"))gr.unshift("Stagiaire");
 const cs=cityList({ville:""}),dv=sel&&cs.includes(sel)?sel:"";
 const f=(id,l,t,ph)=>`<label for="${id}">${l}</label><input id="${id}" type="${t||"text"}"${ph?` placeholder="${ph}"`:""} autocomplete="off">`;
-return `<h3>Ajouter un arbitre</h3><div class="ef">${f("ar-nom","Nom *")}${f("ar-prenom","Prénom *")}<label for="ar-ville">Ville *</label><select id="ar-ville" class="f"><option value=""${dv?"":" selected"} disabled>Choisir une ville</option>${cs.map(c=>`<option${c===dv?" selected":""}>${esc(c)}</option>`).join("")}<option value="__o">Autre ville…</option></select><input id="ar-vo" type="text" placeholder="Nom de la ville" hidden style="margin-top:.5rem"><label for="ar-grade">Grade *</label><select id="ar-grade" class="f">${gr.map(g=>`<option${g==="Stagiaire"?" selected":""}>${esc(g)}</option>`).join("")}</select>${f("ar-cin","CIN (facultatif)","text","ex. AB123456")}${f("ar-gsm","Téléphone (facultatif)","tel")}${f("ar-email","E-mail (facultatif)","email")}<p class="help">Le numéro est attribué automatiquement dans la ville. Sans CIN, l’arbitre ne pourra pas se connecter tant qu’il n’est pas renseigné.</p><div class="err" id="ar-err" role="alert"></div><div class="imp"><button class="btn" type="button" data-ar="save">Ajouter</button><button class="btn alt" type="button" data-ar="cancel">Annuler</button></div></div>`;
+return `<h3>Ajouter un arbitre</h3><div class="ef">${f("ar-nom","Nom *")}${f("ar-prenom","Prénom *")}<label for="ar-ville">Ville *</label><select id="ar-ville" class="f"><option value=""${dv?"":" selected"} disabled>Choisir une ville</option>${cs.map(c=>`<option${c===dv?" selected":""}>${esc(c)}</option>`).join("")}<option value="__o">Autre ville…</option></select><input id="ar-vo" type="text" placeholder="Nom de la ville" hidden style="margin-top:.5rem"><label for="ar-grade">Grade *</label><select id="ar-grade" class="f">${gr.map(g=>`<option${g==="Stagiaire"?" selected":""}>${esc(g)}</option>`).join("")}</select>${f("ar-cin","CIN (facultatif)","text","ex. AB123456")}${f("ar-dn","Date de naissance (facultatif)","date")}${f("ar-gsm","Téléphone (facultatif)","tel")}${f("ar-email","E-mail (facultatif)","email")}<p class="help">Le numéro est attribué automatiquement dans la ville. Sans CIN, l’arbitre ne pourra pas se connecter tant qu’il n’est pas renseigné.</p><div class="err" id="ar-err" role="alert"></div><div class="imp"><button class="btn" type="button" data-ar="save">Ajouter</button><button class="btn alt" type="button" data-ar="cancel">Annuler</button></div></div>`;
 }
 const arAdmin=()=>!(typeof ADMENC!=="undefined"&&ADMENC)||!!ADMKEY;
 document.getElementById("ar-open").addEventListener("click",()=>{
@@ -2043,16 +2048,17 @@ if(act==="cancel"){f.hidden=true;f.innerHTML="";$("ar-open").setAttribute("aria-
 if(act==="again"){f.innerHTML=arForm();$("ar-nom").focus();return}
 if(act!=="save")return;
 const err=m=>{$("ar-err").textContent=m},g=id=>$(id).value.trim();
-const nom=g("ar-nom"),prenom=g("ar-prenom"),niveau=gradeName(g("ar-grade")),cin=g("ar-cin").replace(/\s/g,"").toUpperCase(),gsm=g("ar-gsm"),email=g("ar-email");
+const nom=g("ar-nom"),prenom=g("ar-prenom"),niveau=gradeName(g("ar-grade")),cin=g("ar-cin").replace(/\s/g,"").toUpperCase(),gsm=g("ar-gsm"),email=g("ar-email"),dn=g("ar-dn");
 const vs=$("ar-ville").value,ville=vs==="__o"?cityName(g("ar-vo")):vs;
 if(!nom||!prenom||!ville){err("Le nom, le prénom et la ville sont obligatoires.");return}
 if(cin&&!/^[A-Z]{1,2}\d{4,8}$/.test(cin)){err("CIN invalide (exemple : AB123456).");return}
 if(gsm&&!/^\+?[\d\s.\-]{9,16}$/.test(gsm)){err("Numéro de téléphone invalide.");return}
 if(email&&!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){err("Adresse e-mail invalide.");return}
+if(dn&&!dnOk(dn)){err("Date de naissance invalide.");return}
 if(cin&&(ARBITRES.some(a=>norm(a.cin)===norm(cin))||loadProfils().some(p=>norm(p.cin)===norm(cin)))){err("Ce CIN est déjà utilisé.");return}
 if(ARBITRES.some(a=>norm(a.nom+a.prenom)===norm(nom+prenom)&&norm(a.ville)===norm(ville))){err("Cet arbitre existe déjà dans cette ville.");return}
 const num=String(1+Math.max(0,...ARBITRES.filter(a=>a.ville===ville).map(a=>parseFloat(a.num)||0)));
-ARBITRES.push({num,nom,prenom,ville,niveau,cin,gsm:gsm?phoneName(gsm):"",email,actif:true,r1:0,r2:0,mq:0,jl:0});
+ARBITRES.push({num,nom,prenom,ville,niveau,cin,dn,gsm:gsm?phoneName(gsm):"",email,actif:true,r1:0,r2:0,mq:0,jl:0});
 markPend(ARBITRES[ARBITRES.length-1]);save();sel=ville;q.value="";drawNav();draw();
 f.innerHTML='<p class="ok">✓ '+esc(nom)+" "+esc(prenom)+" a été ajouté à "+esc(ville)+" (grade : "+esc(niveau)+", N° "+esc(num)+').</p><div class="imp"><button class="btn" type="button" data-ar="again">Ajouter un autre arbitre</button><button class="btn alt" type="button" data-ar="cancel">Fermer</button></div>';
 });
@@ -2227,7 +2233,7 @@ rows.sort((x,y)=>rk(x)-rk(y)||cmp(x.nom,y.nom)||cmp(x.prenom,y.prenom));
 const logo=await imgOf(LOGO);
 try{await document.fonts.load("700 12px Lato");await document.fonts.load("400 12px Lato")}catch(_){}
 const F=(w,z)=>w+" "+z+"px Lato, Arial, sans-serif",GR="#0f6b3b",RD="#c8102e",S=2.5,W=595.28,H=841.89,M=36,RH=20,cvs=[],ctx=[];
-const CW=[24,112,64,64,50,70,139],CX=[];{let x=M;CW.forEach(w=>{CX.push(x);x+=w})}
+const CW=[22,108,58,58,26,50,66,135],CX=[];{let x=M;CW.forEach(w=>{CX.push(x);x+=w})}
 const TT="Liste des arbitres internationaux et nationaux";
 let c,y=0;
 const fit=(t,w)=>{t=String(t||"—");if(c.measureText(t).width<=w)return t;while(t.length>1&&c.measureText(t+"…").width>w)t=t.slice(0,-1);return t+"…"};
@@ -2250,7 +2256,7 @@ logoAt(M,14,38);c.textAlign="left";c.fillStyle="#1a1a1a";c.font=F("700",12);c.fi
 c.fillStyle=RD;c.fillRect(M,58,W-2*M,2.5);y=74;
 }
 c.fillStyle=GR;c.fillRect(M,y,W-2*M,26);c.fillStyle="#fff";c.font=F("700",8.5);
-["N°","Nom et prénom","Grade","Ville","CIN","GSM","E-mail"].forEach((t,i)=>{if(i===0){c.textAlign="center";c.fillText(t,CX[i]+CW[i]/2,y+13)}else{c.textAlign="left";c.fillText(t,CX[i]+4,y+13)}});
+["N°","Nom et prénom","Grade","Ville","Âge","CIN","GSM","E-mail"].forEach((t,i)=>{if(i===0){c.textAlign="center";c.fillText(t,CX[i]+CW[i]/2,y+13)}else{c.textAlign="left";c.fillText(t,CX[i]+4,y+13)}});
 y+=26;cvs.push(cv);ctx.push(c)};
 const band=t=>{c.fillStyle="#e3efe7";c.fillRect(M,y,W-2*M,18);c.fillStyle=GR;c.font=F("700",9);c.textAlign="left";c.fillText(t,M+6,y+9);y+=18};
 newPage();
@@ -2264,7 +2270,7 @@ n++;
 if(alt++%2){c.fillStyle="#f4f6f4";c.fillRect(M,y,W-2*M,RH)}
 c.fillStyle="#1a1a1a";c.textAlign="center";c.font=F("700",8.5);c.fillText(String(n),CX[0]+CW[0]/2,y+RH/2);
 c.textAlign="left";
-const T=[(a.nom+" "+(a.prenom||"")).trim(),g===0?"International":"National",a.ville,a.cin,a.gsm,a.email];
+const T=[(a.nom+" "+(a.prenom||"")).trim(),g===0?"International":"National",a.ville,ageOf(a.dn)==null?"—":String(ageOf(a.dn)),a.cin,a.gsm,a.email];
 T.forEach((t,i)=>{c.font=F(i===0?"700":"400",8.5);c.fillStyle=a.actif===false?"#8a8f8a":(i===1&&g===0?GR:"#1a1a1a");c.fillText(fit(t,CW[i+1]-8),CX[i+1]+4,y+RH/2)});
 c.strokeStyle="#dfe3df";c.lineWidth=.5;c.beginPath();c.moveTo(M,y+RH);c.lineTo(W-M,y+RH);c.stroke();
 y+=RH});
