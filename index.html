@@ -489,6 +489,7 @@ footer{max-width:1100px;margin:auto;padding:0 1.25rem 2rem;color:var(--mut);font
 <button class="mi" type="button" data-p="res" aria-pressed="false"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 4h8v5a4 4 0 0 1-8 0z"/><path d="M8 6H5a2 2 0 0 0 2 4M16 6h3a2 2 0 0 1-2 4M12 13v4M9 20h6"/></svg>Résultats et classements</button>
 <button class="mi" type="button" data-p="nom" aria-pressed="false"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4h6v3H9zM9 14l2 2 4-4"/></svg>Nominations</button>
 <button class="mi" type="button" data-p="rec" aria-pressed="false"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h12v18l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6"/></svg>Reçus d'arbitrage</button>
+<button class="mi" type="button" data-p="wa" aria-pressed="false"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/><path d="M9 9.5c.4 2 2 3.6 4 4l1.2-1 1.6.8-.4 1.2c-2.8.6-6-2.6-6.6-5.4l1.2-.4.8 1.6z"/></svg>Messages WhatsApp</button>
 <button class="mi" type="button" data-p="stat" aria-pressed="false"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h16M7 20v-7M12 20V6M17 20v-10"/></svg>Statistiques</button>
 <button class="mi" type="button" data-p="regles" aria-pressed="false"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v16H6.5A2.5 2.5 0 0 0 4 21.5z"/><path d="M4 19V5.5M9 8h7M9 12h7"/></svg>Règles officielles 2025-2028</button>
 <button class="mi" type="button" data-p="nouv" aria-pressed="false"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l1.8 4.7L18.5 9.5l-4.7 1.8L12 16l-1.8-4.7L5.5 9.5l4.7-1.8z"/><path d="M19 15l.8 2 2 .8-2 .8-.8 2-.8-2-2-.8 2-.8z"/></svg>Nouvelles règles 2026</button>
@@ -530,6 +531,9 @@ footer{max-width:1100px;margin:auto;padding:0 1.25rem 2rem;color:var(--mut);font
 </section>
 <section id="p-rec" class="pg" hidden>
 <div class="cd"><h3>Reçus d'arbitrage</h3><div id="rec-a"></div></div>
+</section>
+<section id="p-wa" class="pg" hidden>
+<div id="wa-a"></div>
 </section>
 <section id="p-stat" class="pg" hidden>
 <div class="kpis" id="sa-kpis"></div>
@@ -1277,10 +1281,10 @@ $("me-pt").textContent=T[p][0];$("me-ps").textContent=T[p][1];window.scrollTo(0,
 }
 document.querySelectorAll(".mi[data-m]").forEach(b=>b.addEventListener("click",()=>mpage(b.dataset.m)));
 function page(p){
-["home","cal","refs","prog","res","nom","rec","stat","regles","nouv","case","notes","imp"].forEach(k=>{$("p-"+k).hidden=k!==p});
+["home","cal","refs","prog","res","nom","rec","wa","stat","regles","nouv","case","notes","imp"].forEach(k=>{$("p-"+k).hidden=k!==p});
 document.querySelectorAll(".mi[data-p]").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.p===p)));
-const T={home:["Vue d'ensemble","Suivi des arbitres — FRMVB"],cal:["Calendrier des matchs","Calendriers des six compétitions"],refs:["Arbitres par ville","Choisissez une ville ou recherchez-la"],prog:["Programmes","Programmes des rencontres"],res:["Résultats et classements","Résultats des matchs et classements"],nom:["Nominations","Désignations de chaque arbitre par fonction"],rec:["Reçus d'arbitrage","Reçus d'arbitrage des rencontres"],stat:["Statistiques","Chiffres clés des désignations"],regles:["Règles officielles 2025-2028","Règles officielles de volleyball de la FIVB"],nouv:["Nouvelles règles 2026","Règles testées par la FIVB en 2026"],case:["Casebook","Practical cases with official rulings"],notes:["Notes","Vos notes personnelles"],imp:["Importer et configuration","Fichier Excel, autorisations, désignations, photo de fond"]};
-$("pg-t").textContent=T[p][0];$("pg-s").textContent=T[p][1];if(p==="imp")$("auth-box").innerHTML=renderAuth();if(p==="home")drawHome();if(p==="cal")refreshProg();if(p==="rec")renderRecus();if(p==="res"){if(arAdmin())rimpSync(true);resLive()}window.scrollTo(0,0);
+const T={home:["Vue d'ensemble","Suivi des arbitres — FRMVB"],cal:["Calendrier des matchs","Calendriers des six compétitions"],refs:["Arbitres par ville","Choisissez une ville ou recherchez-la"],prog:["Programmes","Programmes des rencontres"],res:["Résultats et classements","Résultats des matchs et classements"],nom:["Nominations","Désignations de chaque arbitre par fonction"],rec:["Reçus d'arbitrage","Reçus d'arbitrage des rencontres"],wa:["Messages WhatsApp","Prévenir les arbitres par WhatsApp"],stat:["Statistiques","Chiffres clés des désignations"],regles:["Règles officielles 2025-2028","Règles officielles de volleyball de la FIVB"],nouv:["Nouvelles règles 2026","Règles testées par la FIVB en 2026"],case:["Casebook","Practical cases with official rulings"],notes:["Notes","Vos notes personnelles"],imp:["Importer et configuration","Fichier Excel, autorisations, désignations, photo de fond"]};
+$("pg-t").textContent=T[p][0];$("pg-s").textContent=T[p][1];if(p==="imp")$("auth-box").innerHTML=renderAuth();if(p==="home")drawHome();if(p==="cal")refreshProg();if(p==="rec")renderRecus();if(p==="wa")waRender();if(p==="res"){if(arAdmin())rimpSync(true);resLive()}window.scrollTo(0,0);
 }
 document.querySelectorAll(".mi[data-p]").forEach(b=>b.addEventListener("click",()=>page(b.dataset.p)));
 document.getElementById("me-h").addEventListener("change",e=>{
@@ -2319,6 +2323,82 @@ await savePng(bl,nm+".pdf");
 say("✓ "+items.length*2+" reçus téléchargés ("+items.length+" match"+(items.length>1?"s":"")+")."+(nofee?" Attention : frais non renseignés pour "+nofee+" match"+(nofee>1?"s":"")+" (montant « — »). Saisissez-les dans la désignation des arbitres, puis régénérez.":""))}
 catch(_){say("La génération des reçus a échoué. Réessayez.")}
 finally{bt.disabled=false}});
+/* --- Messages WhatsApp aux arbitres : le site prépare le message et ouvre WhatsApp (liens wa.me), l'admin envoie --- */
+const WA_URL="https://1973-ahmed.github.io/cca-vb/",WA_SIG="Commission d’arbitrage — FRMVB";
+const WA_DEF="Bonjour {prenom},\n\nNouveauté sur la plateforme CCA-VB e-Ref Assist :\n• …\n\nÀ consulter ici : "+WA_URL+"\n\n"+WA_SIG;
+const waNum=t=>{const raw=String(t||"").trim(),plus=raw.startsWith("+");let d=raw.replace(/\D/g,"");if(!d)return"";
+if(plus){}else if(d.startsWith("00"))d=d.slice(2);else if(/^0[5-7]\d{8}$/.test(d))d="212"+d.slice(1);else if(/^[5-7]\d{8}$/.test(d))d="212"+d;
+if(d.startsWith("0"))return"";
+if(d.startsWith("212"))return /^212[5-7]\d{8}$/.test(d)?d:"";
+return /^\d{9,15}$/.test(d)?d:""};
+const waShow=n=>n.startsWith("212")?"+212 "+n.slice(3,4)+" "+n.slice(4).replace(/(\d{2})(?=\d)/g,"$1 ").trim():"+"+n;
+const WA_STEPS_A="Pour le compléter :\n1. Ouvrez "+WA_URL+" et connectez-vous (identifiant : votre nom, mot de passe : votre CIN).\n2. Dans « Ma fiche », cliquez sur « Modifier mes informations ».\n3. Renseignez les champs, cliquez sur « Enregistrer », puis sur « Envoyer mes modifications par e-mail ».\n\nVous pouvez aussi répondre simplement à ce message avec ces informations.";
+const WA_STEPS_B="Pour le compléter, répondez simplement à ce message avec ces informations : je les ajouterai à votre fiche.";
+const WA_PDEF="Bonjour {prenom},\n\nVotre profil sur la plateforme CCA-VB e-Ref Assist est incomplet. Il manque :\n{manque}\n\n{etapes}\n\nMerci.\n"+WA_SIG;
+const WA={mode:"gen",msg:WA_DEF,pmsg:WA_PDEF,req:{dn:true,email:true,cin:true},note:"",ville:"",grade:"",wk:"",sent:(()=>{try{return JSON.parse(localStorage.getItem("wa-sent-v1")||"{}")}catch(_){return{}}})()};
+const waHash=s=>{let h=0;for(let i=0;i<s.length;i++)h=(h*31+s.charCodeAt(i))|0;return(h>>>0).toString(36)};
+function waSlotArb(P,i,s){
+const d=DESIG[P.id+i]||{},v=d[s];
+if(v&&!String(v).startsWith("txt:")){const a=findP(v);if(a)return a}
+if(v)return null;
+const e=P.matchs[i][4];if(!e)return null;
+const n=/^jl\d$/.test(s)?(e.jl||[])[+s.slice(2)-1]:e[s];if(!n)return null;
+const k=norm(String(n).replace(/\(.*\)/,""));return ARBITRES.find(a=>norm(a.nom+a.prenom)===k||norm(a.prenom+a.nom)===k)||null}
+const waFilter=()=>ARBITRES.filter(a=>a.actif!==false&&(!WA.ville||a.ville===WA.ville)&&(!WA.grade||norm(a.niveau)===norm(WA.grade)));
+function waRecipients(){
+if(WA.mode==="gen"){
+const L=ARBITRES.filter(a=>a.actif!==false&&(!WA.ville||a.ville===WA.ville)&&(!WA.grade||norm(a.niveau)===norm(WA.grade)));
+return{label:"annonce",items:L.map(a=>({a,msg:WA.msg.replace(/\{prenom\}/g,a.prenom||"").replace(/\{nom\}/g,a.nom||"")}))}}
+if(WA.mode==="prof"){
+const items=[];waFilter().forEach(a=>{const m=[];
+if(WA.req.dn&&ageOf(a.dn)==null)m.push("• Votre date de naissance");
+if(WA.req.email&&!String(a.email||"").trim())m.push("• Votre adresse e-mail");
+if(WA.req.cin&&!String(a.cin||"").trim())m.push("• Votre numéro de CIN");
+if(!m.length)return;
+items.push({a,msg:WA.pmsg.replace(/\{prenom\}/g,a.prenom||"").replace(/\{nom\}/g,a.nom||"").replace(/\{manque\}/g,m.join("\n")).replace(/\{etapes\}/g,String(a.cin||"").trim()?WA_STEPS_A:WA_STEPS_B)})});
+return{label:"profil",items}}
+const P=PROGS.find(x=>x.id===WA.wk);if(!P)return{label:"",items:[]};
+const M=new Map(),slots=slotsFor(P);
+P.matchs.forEach(([h,x,y,lieu],i)=>slots.forEach(([s,lab])=>{const a=waSlotArb(P,i,s);if(!a)return;if(!M.has(a))M.set(a,[]);M.get(a).push("• Match "+mno(P,i)+" : "+x+" contre "+y+" · "+h+(lieu?" · "+lieu:"")+" · "+lab)}));
+return{label:"désignation",items:[...M].map(([a,lines])=>({a,msg:"Bonjour "+(a.prenom||"")+",\n\nDésignation — "+P.titre+" · "+P.sous+" ("+P.date+") :\n"+lines.join("\n")+"\n"+(WA.note.trim()?"\n"+WA.note.trim()+"\n":"")+"\nMerci de confirmer votre disponibilité.\nDétails : "+WA_URL+"\n\n"+WA_SIG}))}}
+function waList(){
+const box=document.getElementById("wa-list");if(!box)return;
+const R=waRecipients(),ok=[],no=[];
+const st=document.getElementById("wa-st");
+if(st){const L=waFilter(),c=f=>L.filter(f).length;st.innerHTML="Arbitres actifs concernés : <b>"+L.length+"</b> · sans date de naissance : <b>"+c(a=>ageOf(a.dn)==null)+"</b> · sans e-mail : <b>"+c(a=>!String(a.email||"").trim())+"</b> · sans CIN : <b>"+c(a=>!String(a.cin||"").trim())+"</b> · profils complets : <b>"+c(a=>ageOf(a.dn)!=null&&String(a.email||"").trim()&&String(a.cin||"").trim())+"</b>"}
+R.items.forEach(it=>{const n=waNum(it.a.gsm);(n?ok:no).push({...it,n})});
+const nm=a=>(a.nom+" "+(a.prenom||"")).trim();
+box.innerHTML=`<p class="help"><b>${ok.length}</b> destinataire${ok.length>1?"s":""} avec un numéro valide${no.length?` · <b>${no.length}</b> sans numéro valide`:""}.</p>`+
+(ok.length?ok.map(it=>{const id=norm(it.a.cin||nm(it.a))+"|"+waHash(it.msg),sent=!!WA.sent[id];
+return `<div class="rcr"><div><b>${esc(nm(it.a))}</b><span class="help">${esc(it.a.ville)} · ${esc(waShow(it.n))}</span></div><div class="rca"><a class="btn${sent?" alt":""}" href="https://wa.me/${it.n}?text=${encodeURIComponent(it.msg)}" target="_blank" rel="noopener" data-wa="${esc(id)}">${sent?"✓ Envoyé · rouvrir":"Envoyer sur WhatsApp"}</a></div></div>`}).join("")
+:`<p class="help">${WA.mode==="week"&&!WA.wk?"Choisissez une semaine.":"Aucun destinataire."}</p>`)+
+(no.length?`<p class="help"><b>Sans numéro WhatsApp valide :</b> ${no.map(it=>esc(nm(it.a))).join(", ")}.</p>`:"")+
+(ok.some(it=>WA.sent[norm(it.a.cin||nm(it.a))+"|"+waHash(it.msg)])?`<div class="imp"><button class="btn alt" type="button" data-warst="1">Remettre tous les envois à zéro</button></div>`:"")}
+function waRender(){
+const e=document.getElementById("wa-a");if(!e)return;
+const vs=[...new Set(ARBITRES.map(a=>a.ville))].sort((a,b)=>String(a).localeCompare(String(b),"fr")),gs=gradesList();
+const wk=PROGS.slice().sort((a,b)=>String(a.titre).localeCompare(String(b.titre),"fr")||weekNum(a)-weekNum(b));
+if(WA.mode==="week"&&!WA.wk&&wk.length)WA.wk=wk[0].id;
+const chip=(m,t)=>`<button type="button" class="wkchip${WA.mode===m?" on":""}" data-wamode="${m}">${t}</button>`;
+const filt=`<div class="imp"><div><label for="wa-v">Ville</label><select id="wa-v" class="f"><option value="">Toutes les villes</option>${vs.map(v=>`<option${v===WA.ville?" selected":""}>${esc(v)}</option>`).join("")}</select></div><div><label for="wa-g">Grade</label><select id="wa-g" class="f"><option value="">Tous les grades</option>${gs.map(g=>`<option${g===WA.grade?" selected":""}>${esc(g)}</option>`).join("")}</select></div></div>`;
+let body;
+if(WA.mode==="gen")body=filt+`<label for="wa-m">Message ({prenom} et {nom} sont remplacés pour chaque arbitre)</label><textarea id="wa-m" rows="8" style="width:100%">${esc(WA.msg)}</textarea><div class="imp"><button class="btn alt" type="button" data-wacopy="1">Copier le message pour le groupe WhatsApp</button><span class="help" id="wa-cm"></span></div>`;
+else if(WA.mode==="prof")body=filt+`<p class="help" id="wa-st"></p><div class="imp" role="group" aria-label="Informations à demander"><span class="help" style="margin:0">Demander :</span><label class="tag"><input type="checkbox" data-wareq="dn"${WA.req.dn?" checked":""}> Date de naissance</label><label class="tag"><input type="checkbox" data-wareq="email"${WA.req.email?" checked":""}> E-mail</label><label class="tag"><input type="checkbox" data-wareq="cin"${WA.req.cin?" checked":""}> CIN</label></div><label for="wa-p">Message ({prenom}, {nom}, {manque} et {etapes} sont remplacés pour chaque arbitre)</label><textarea id="wa-p" rows="10" style="width:100%">${esc(WA.pmsg)}</textarea><p class="help">Seuls les arbitres actifs à qui il manque au moins une des informations cochées reçoivent un message, avec la liste exacte de ce qui manque à leur profil. Sans CIN, l’arbitre ne peut pas se connecter : on lui demande alors de répondre à votre message.</p>`;
+else body=`<label for="wa-w">Semaine</label><select id="wa-w" class="f">${wk.map(P=>`<option value="${esc(P.id)}"${P.id===WA.wk?" selected":""}>${esc(P.titre)} · ${esc(P.sous)} · ${esc(P.date)}</option>`).join("")}</select><label for="wa-n">Message complémentaire (facultatif, ajouté à chaque désignation)</label><textarea id="wa-n" rows="3" style="width:100%" placeholder="Ex. Présence 45 minutes avant le match.">${esc(WA.note)}</textarea><p class="help">Chaque arbitre reçoit la liste de ses matchs de la semaine, avec son rôle, l’heure et la salle.</p>`;
+e.innerHTML=`<div class="cd"><h3>Prévenir les arbitres par WhatsApp</h3><p class="help" style="margin-top:0">Le site prépare le message et ouvre WhatsApp avec le numéro de chaque arbitre : vous relisez puis vous envoyez depuis votre propre WhatsApp, un clic par arbitre. Aucun envoi automatique. N’écrivez qu’aux arbitres qui acceptent d’être contactés.</p><div class="wkbar compbar" role="group" aria-label="Type de message">${chip("gen","Annonce / nouveauté")}${chip("prof","Profils incomplets")}${chip("week","Désignations d’une semaine")}</div>${body}<div id="wa-list"></div></div>`;
+waList()}
+document.addEventListener("click",e=>{
+const t=e.target;if(!t||!t.closest)return;
+const m=t.closest("button[data-wamode]");if(m&&arAdmin()){WA.mode=m.dataset.wamode;waRender();return}
+const a=t.closest("a[data-wa]");if(a&&arAdmin()){WA.sent[a.dataset.wa]=1;try{localStorage.setItem("wa-sent-v1",JSON.stringify(WA.sent))}catch(_){}setTimeout(waList,400);return}
+if(t.closest("button[data-warst]")&&arAdmin()){WA.sent={};try{localStorage.removeItem("wa-sent-v1")}catch(_){}waList();return}
+if(t.closest("button[data-wacopy]")&&arAdmin()){const txt=WA.msg.replace(/Bonjour \{prenom\},/g,"Bonjour à toutes et à tous,").replace(/\{prenom\}/g,"").replace(/\{nom\}/g,""),c=document.getElementById("wa-cm");
+(navigator.clipboard?navigator.clipboard.writeText(txt):Promise.reject()).then(()=>{if(c)c.textContent="✓ Message copié."}).catch(()=>{if(c)c.textContent="Copie impossible : sélectionnez le texte à la main."})}});
+document.addEventListener("input",e=>{const t=e.target;if(!t||!arAdmin())return;
+if(t.id==="wa-m"){WA.msg=t.value;waList()}else if(t.id==="wa-n"){WA.note=t.value;waList()}else if(t.id==="wa-p"){WA.pmsg=t.value;waList()}});
+document.addEventListener("change",e=>{const t=e.target;if(!t||!arAdmin())return;
+if(t.dataset&&t.dataset.wareq){WA.req[t.dataset.wareq]=t.checked;waList();return}
+if(t.id==="wa-v"){WA.ville=t.value;waList()}else if(t.id==="wa-g"){WA.grade=t.value;waList()}else if(t.id==="wa-w"){WA.wk=t.value;waList()}});
 /* --- Calendrier : téléchargement PDF / Excel --- */
 const calSlug=t=>String(t).normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^A-Za-z0-9]+/g,"_").replace(/^_|_$/g,"");
 function calCsv(lg){
