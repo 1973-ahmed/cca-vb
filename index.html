@@ -841,7 +841,7 @@ const t=l=>o.push(P.titre+" · Match "+(i+1)+" · "+x+" contre "+y+" · "+l+" ·
 return o;
 }
 function progHtml(){
-const card=P=>`<div class="sch ${P.cls}"><h2>${esc(P.titre)}</h2><div class="wk">${esc(P.sous)}</div><div class="dt">${esc(P.date)}</div>${P.matchs.map(([h,a,b,lieu],i)=>{const r=getRes(P.id+i),sv=r?getSets(P.id+i):null;return `<div class="t">Match ${mno(P,i)} · ${esc(h)}</div><div class="mt">${tcell(a,"tA")}<span class="nm">${esc(a)}</span><span class="vs">${r?r[0]+"-"+r[1]:"VS"}</span><span class="nm">${esc(b)}</span>${tcell(b,"tB")}</div>${sv&&sv.length?`<div class="ss">${forfeit(sv)?"FORFAIT de "+esc(forfeit(sv)===1?b:a)+" · ":""}${sv.map(x=>x[0]+"-"+x[1]).join(" · ")}</div>`:""}<div class="lieu">${esc(lieu)}</div>${dsLine(P.id,i)}${isAdmin()?`<div class="pact"><button class="btn alt" type="button" data-rcm="${P.id}:${i}">Reçus du match (PDF)</button></div>`:""}`}).join("")}${isAdmin()?`<div class="pact"><button class="btn" type="button" data-rcw="${P.id}">Reçus de la semaine (PDF)</button></div><div class="help rcmsg" role="status" style="color:#e8dcff"></div>`:""}${!PROTECTED.includes(P.id)&&isAdmin()?`<button class="btn alt wkdel" type="button" data-wkdel="${P.id}">Supprimer cette semaine</button>`:""}<span class="mark"><img src="${LOGO}" alt="FRMVB"></span></div>`;
+const card=P=>`<div class="sch ${P.cls}"><h2>${esc(P.titre)}</h2><div class="wk">${esc(P.sous)}</div><div class="dt">${esc(P.date)}</div>${P.matchs.map(([h,a,b,lieu],i)=>{const r=getRes(P.id+i),sv=r?getSets(P.id+i):null;return `<div class="t">Match ${mno(P,i)} · ${esc(h)}</div><div class="mt">${tcell(a,"tA")}<span class="nm">${esc(a)}</span><span class="vs">${r?r[0]+"-"+r[1]:"VS"}</span><span class="nm">${esc(b)}</span>${tcell(b,"tB")}</div>${sv&&sv.length?`<div class="ss">${forfeit(sv)?"FORFAIT de "+esc(forfeit(sv)===1?b:a)+" · ":""}${sv.map(x=>x[0]+"-"+x[1]).join(" · ")}</div>`:""}<div class="lieu">${esc(lieu)}</div>${dsLine(P.id,i)}`}).join("")}${isAdmin()?`<div class="pact"><button class="btn" type="button" data-rcw="${P.id}">Reçus de la semaine (PDF)</button></div><div class="help rcmsg" role="status" style="color:#e8dcff"></div>`:""}${!PROTECTED.includes(P.id)&&isAdmin()?`<button class="btn alt wkdel" type="button" data-wkdel="${P.id}">Supprimer cette semaine</button>`:""}<span class="mark"><img src="${LOGO}" alt="FRMVB"></span></div>`;
 const list=PROGS.filter(inComp).map(card).join("");
 return compBar()+weekBar()+(list||`<div class="cd"><p class="help">Aucun programme pour ${COMPS.find(c=>c.lg===curComp()).titre} cette semaine.${isAdmin()?" Utilisez « + Ajouter une semaine (Week) » pour le créer.":""}</p></div>`)+`<p class="help ctr">Demandes de changement d'horaire ou de lieu (clubs et associations) : <a href="https://forms.gle/1ApVMr3RakeiN5cY9" target="_blank" rel="noopener">formulaire</a>. Les résultats sont à envoyer dans le groupe WhatsApp « Arbitrage Volleyball », avec le <a href="https://forms.gle/QxgCp6JsbVrWNuqm6" target="_blank" rel="noopener">formulaire des résultats</a>.</p>`;
 }
@@ -2302,14 +2302,13 @@ c.strokeStyle="#555";c.lineWidth=1;c.beginPath();c.arc(32,ys-3.6,2.7,0,6.2832);c
 cvs.push(cv)});
 return pdfFromCanvases(cvs,W,H)}
 document.addEventListener("click",async e=>{
-const bt=e.target.closest&&e.target.closest("button[data-rcm],button[data-rcw]");if(!bt||!isAdmin())return;
-let P,items;
-if(bt.dataset.rcw){P=PROGS.find(x=>x.id===bt.dataset.rcw);if(!P)return;items=P.matchs.map((_,i)=>({P,i}))}
-else{const[id,ix]=bt.dataset.rcm.split(":");P=PROGS.find(x=>x.id===id);if(!P)return;items=[{P,i:+ix}]}
+const bt=e.target.closest&&e.target.closest("button[data-rcw]");if(!bt||!isAdmin())return;
+const P=PROGS.find(x=>x.id===bt.dataset.rcw);if(!P)return;
+const items=P.matchs.map((_,i)=>({P,i}));
 const box=bt.closest(".sch"),msg=box&&box.querySelector(".rcmsg"),say=t=>{if(msg)msg.textContent=t};
 const nofee=items.filter(({P,i})=>!slotTotal(P,i)).length;
 bt.disabled=true;say("Préparation des reçus…");
-try{const bl=await rcPdf(items),it=items[0],nm=items.length===1?"Recus_Match_"+mno(it.P,it.i)+"_"+calSlug(P.matchs[it.i][1])+"_vs_"+calSlug(P.matchs[it.i][2]):"Recus_"+calSlug(P.titre)+"_"+calSlug(P.sous);
+try{const bl=await rcPdf(items),nm="Recus_"+calSlug(P.titre)+"_"+calSlug(P.sous);
 await savePng(bl,nm+".pdf");
 say("✓ "+items.length*2+" reçus téléchargés ("+items.length+" match"+(items.length>1?"s":"")+")."+(nofee?" Attention : frais non renseignés pour "+nofee+" match"+(nofee>1?"s":"")+" (montant « — »). Saisissez-les dans la désignation des arbitres, puis régénérez.":""))}
 catch(_){say("La génération des reçus a échoué. Réessayez.")}
