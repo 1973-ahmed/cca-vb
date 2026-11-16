@@ -615,7 +615,11 @@ let ADMIN_PUB=null;
 let ADMKEY=null;
 const DSLOTS=[["r1","1er arbitre","r1"],["r2","2e arbitre","r2"],["mq","Marqueur","mq"],["jl1","Juge de ligne 1","jl"],["jl2","Juge de ligne 2","jl"],["jl3","Juge de ligne 3","jl"],["jl4","Juge de ligne 4","jl"]];
 const slotsFor=P=>DSLOTS.filter(([s])=>!/^jl[34]$/.test(s)||P.cls!=="dames");
-let EDIDX=-1;
+let EDIDX=-1,AEPH,AMPH;
+document.addEventListener("change",e=>{const t=e.target;if(!t||!t.files||!t.files[0])return;
+if(t.id==="ae-ph"&&arAdmin()){shrink(t.files[0],200,d=>{AEPH=d;const pc=document.getElementById("ae-pic");if(pc)pc.innerHTML=avHtml(ARBITRES[EDIDX]||{},d)});t.value="";return}
+if(t.id==="ef-ph"){shrink(t.files[0],200,d=>{AMPH=d;const pc=document.getElementById("ef-pic");if(pc)pc.innerHTML=avHtml(CURME||{},d)});t.value=""}});
+const avHtml=(a,ph)=>ph?`<img class="av" src="${esc(ph)}" alt="">`:`<span class="av ph">${esc(((a.prenom||"?")[0]+(a.nom||"?")[0]).toUpperCase())}</span>`;
 const UPD_CFG={"form":""};
 let UPD_LOC=(()=>{try{return JSON.parse(localStorage.getItem("upd-form-v1")||"null")}catch(_){return null}})();
 const updForm=()=>(UPD_LOC&&UPD_LOC.form!==undefined?UPD_LOC.form:UPD_CFG.form)||"";
@@ -941,7 +945,7 @@ nav.innerHTML=[["Toutes les villes","",ARBITRES.filter(matchQ).length],...shown.
 function adminEditForm(a){
 const f=(id,l,v,t)=>`<label for="${id}">${l}</label><input id="${id}" type="${t||"text"}" value="${esc(v||"")}">`;
 const gl=gradesList().concat(gradesList().includes(a.niveau)?[]:[a.niveau]);
-return `<div class="ef" style="flex:1 1 100%;width:100%;margin-top:.6rem">${f("ae-num","N°",a.num)}${f("ae-nom","Nom",a.nom)}${f("ae-prenom","Prénom",a.prenom)}<label for="ae-ville">Ville</label><select id="ae-ville" class="f">${cityList(a).map(c=>`<option${c===a.ville?" selected":""}>${esc(c)}</option>`).join("")}<option value="__o">Autre ville…</option></select><input id="ae-vo" type="text" placeholder="Nom de la ville" hidden style="margin-top:.5rem">${f("ae-cin","CIN",a.cin)}${f("ae-dn","Date de naissance",a.dn,"date")}${f("ae-gsm","Téléphone (GSM)",a.gsm,"tel")}${f("ae-email","E-mail",a.email,"email")}<label for="ae-niveau">Grade</label><select id="ae-niveau" class="f">${gl.map(g=>`<option${g===a.niveau?" selected":""}>${esc(g)}</option>`).join("")}</select><div class="err" id="ae-err" role="alert"></div><div class="imp"><button class="btn" type="button" data-ae="save">Enregistrer</button><button class="btn alt" type="button" data-ae="cancel">Annuler</button></div></div>`;
+return `<div class="ef" style="flex:1 1 100%;width:100%;margin-top:.6rem">${f("ae-num","N°",a.num)}${f("ae-nom","Nom",a.nom)}${f("ae-prenom","Prénom",a.prenom)}<label for="ae-ville">Ville</label><select id="ae-ville" class="f">${cityList(a).map(c=>`<option${c===a.ville?" selected":""}>${esc(c)}</option>`).join("")}<option value="__o">Autre ville…</option></select><input id="ae-vo" type="text" placeholder="Nom de la ville" hidden style="margin-top:.5rem">${f("ae-cin","CIN",a.cin)}${f("ae-dn","Date de naissance",a.dn,"date")}${f("ae-gsm","Téléphone (GSM)",a.gsm,"tel")}${f("ae-email","E-mail",a.email,"email")}<label for="ae-niveau">Grade</label><select id="ae-niveau" class="f">${gl.map(g=>`<option${g===a.niveau?" selected":""}>${esc(g)}</option>`).join("")}</select><label>Photo personnelle</label><div class="imp" style="align-items:center"><span id="ae-pic">${avHtml(a,AEPH===undefined?a.photo:AEPH)}</span><label class="btn alt">Choisir une photo<input id="ae-ph" class="vh" type="file" accept="image/*"></label><button class="btn alt" type="button" data-ae="rmph">Retirer la photo</button></div><div class="err" id="ae-err" role="alert"></div><div class="imp"><button class="btn" type="button" data-ae="save">Enregistrer</button><button class="btn alt" type="button" data-ae="cancel">Annuler</button></div></div>`;
 }
 document.addEventListener("change",e=>{const t=e.target;if(t&&t.id==="ae-ville"){const o=document.getElementById("ae-vo");if(o)o.hidden=t.value!=="__o"}});
 function draw(){
@@ -954,9 +958,10 @@ ul.innerHTML=vs.length?vs.map(v=>{const sm=g[v].reduce((n,a)=>n+tot(a),0);return
 drawDash();
 }
 ul.addEventListener("click",e=>{if(!arAdmin())return;
-const ed=e.target.closest("button[data-ed]");if(ed){EDIDX=+ed.dataset.ed;draw();return}
+const ed=e.target.closest("button[data-ed]");if(ed){EDIDX=+ed.dataset.ed;AEPH=undefined;draw();return}
 const ae=e.target.closest("button[data-ae]");if(ae){
-if(ae.dataset.ae==="cancel"){EDIDX=-1;draw();return}
+if(ae.dataset.ae==="rmph"){AEPH="";const pc=document.getElementById("ae-pic");if(pc)pc.innerHTML=avHtml(ARBITRES[EDIDX]||{},"");return}
+if(ae.dataset.ae==="cancel"){EDIDX=-1;AEPH=undefined;draw();return}
 const a=ARBITRES[EDIDX];if(!a)return;
 const li=ae.closest("li"),q=id=>li.querySelector("#"+id),v=id=>q(id).value.trim(),err=m=>{q("ae-err").textContent=m};
 const nom=v("ae-nom"),prenom=v("ae-prenom"),cin=v("ae-cin").replace(/\s/g,"").toUpperCase(),dn=v("ae-dn"),gsm=v("ae-gsm"),email=v("ae-email"),num=v("ae-num"),niveau=gradeName(v("ae-niveau"));
@@ -970,7 +975,7 @@ if(gsm!==(a.gsm||"")&&gsm&&!/^\+?[\d\s.\-]{9,16}$/.test(gsm)){err("Numéro de t�
 if(email!==(a.email||"")&&email&&!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){err("Adresse e-mail invalide.");return}
 if(dn&&!dnOk(dn)){err("Date de naissance invalide.");return}
 const old={nom:a.nom,prenom:a.prenom,cin:a.cin},oK=pkey(a),oM=norm(pname(a)+a.ville);
-Object.assign(a,{nom,prenom,ville,cin,dn,gsm,email,niveau});if(num)a.num=num;
+Object.assign(a,{nom,prenom,ville,cin,dn,gsm,email,niveau});if(num)a.num=num;if(AEPH!==undefined){if(AEPH)a.photo=AEPH;else delete a.photo;AEPH=undefined}
 const nK=pkey(a);
 if(nK!==oK){let ch=false;Object.keys(DESIG).forEach(k=>{const d=DESIG[k];Object.keys(d).forEach(sl=>{if(d[sl]===oK){d[sl]=nK;ch=true}})});if(ch)saveDesig()}
 const nF=pname(a)+" ("+a.ville+")";
@@ -1212,6 +1217,8 @@ rd.readAsDataURL(f);e.target.value="";
 const $=id=>document.getElementById(id);
 const ADMIN_MAIL="ahmed.aziouaz1@gmail.com";
 let regPhoto="";
+function shrinkData(d,max){return new Promise(r=>{const im=new Image();im.onload=()=>{const k=Math.min(1,max/Math.max(im.width,im.height)),c=document.createElement("canvas");c.width=Math.round(im.width*k);c.height=Math.round(im.height*k);c.getContext("2d").drawImage(im,0,0,c.width,c.height);r(c.toDataURL("image/jpeg",.7))};im.onerror=()=>r(null);setTimeout(()=>r(null),4000);im.src=d})}
+async function slimPhotos(){let ch=false;for(const a of ARBITRES){if(a.photo&&a.photo.length>9000){const n=await shrinkData(a.photo,160);if(n&&n.length<a.photo.length){a.photo=n;ch=true}}}if(ch)save()}
 function shrink(file,max,cb){
 const rd=new FileReader();
 rd.onload=ev=>{const im=new Image();im.onload=()=>{
@@ -1317,7 +1324,7 @@ if(!arAdmin())return;
 const inp=e.target.closest&&e.target.closest("input[data-ph]");
 if(!inp||!inp.files[0])return;
 const a=ARBITRES[+inp.dataset.ph];if(!a)return;
-shrink(inp.files[0],240,d=>{a.photo=d;save();draw()});
+shrink(inp.files[0],200,d=>{a.photo=d;save();draw();markPend(a)});
 });
 document.getElementById("notes-a").innerHTML=notesHtml("notes-admin","na");
 bindNotes(document.getElementById("notes-a"),()=>"notes-admin","na");
@@ -1475,14 +1482,14 @@ return p?{...a,nom:p.nom,prenom:p.prenom,ville:p.ville,cin:p.cin,gsm:p.gsm,email
 function cityList(a){return [...new Set([...((EMB&&EMB.cities)||[]),...ARBITRES.map(x=>x.ville),...DIRD.map(d=>d[0]),a.ville])].filter(Boolean).sort(fr)}
 function editForm(a){
 const f=(id,l,v,t)=>`<label for="${id}">${l}</label><input id="${id}" type="${t||"text"}" value="${esc(v||"")}">`;
-return `<div class="ef">${f("ef-nom","Nom",a.nom)}${f("ef-prenom","Prénom",a.prenom)}<label for="ef-ville">Ville</label><select id="ef-ville" class="f">${cityList(a).map(c=>`<option${c===a.ville?" selected":""}>${esc(c)}</option>`).join("")}<option value="__o">Autre ville…</option></select><input id="ef-vo" type="text" placeholder="Nom de votre ville" hidden style="margin-top:.5rem">${f("ef-cin","CIN",a.cin)}${f("ef-dn","Date de naissance",a.dn,"date")}${f("ef-gsm","Téléphone (GSM)",a.gsm,"tel")}${f("ef-email","E-mail",a.email,"email")}<p class="help">Le N° (${esc(a.num||"-")}), le grade (« ${esc(a.niveau)} »), le statut (« ${a.actif===false?"Inactif":"Actif"} ») et le nombre de matchs par fonction sont gérés par l'administrateur et ne peuvent pas être modifiés.</p><div class="err" id="ef-err" role="alert"></div><div class="imp"><button class="btn" type="button" data-e="save">Enregistrer</button><button class="btn alt" type="button" data-e="cancel">Annuler</button></div></div>`;
+return `<div class="ef">${f("ef-nom","Nom",a.nom)}${f("ef-prenom","Prénom",a.prenom)}<label for="ef-ville">Ville</label><select id="ef-ville" class="f">${cityList(a).map(c=>`<option${c===a.ville?" selected":""}>${esc(c)}</option>`).join("")}<option value="__o">Autre ville…</option></select><input id="ef-vo" type="text" placeholder="Nom de votre ville" hidden style="margin-top:.5rem">${f("ef-cin","CIN",a.cin)}${f("ef-dn","Date de naissance",a.dn,"date")}${f("ef-gsm","Téléphone (GSM)",a.gsm,"tel")}${f("ef-email","E-mail",a.email,"email")}<label>Photo personnelle</label><div class="imp" style="align-items:center"><span id="ef-pic">${avHtml(a,AMPH===undefined?a.photo:AMPH)}</span><label class="btn alt">Choisir une photo<input id="ef-ph" class="vh" type="file" accept="image/*"></label></div><p class="help">La photo s’enregistre sur votre appareil. Pour qu’elle apparaisse partout sur la plateforme, envoyez-la aussi à la commission (WhatsApp) : l’administrateur l’ajoutera à votre fiche.</p><p class="help">Le N° (${esc(a.num||"-")}), le grade (« ${esc(a.niveau)} »), le statut (« ${a.actif===false?"Inactif":"Actif"} ») et le nombre de matchs par fonction sont gérés par l'administrateur et ne peuvent pas être modifiés.</p><div class="err" id="ef-err" role="alert"></div><div class="imp"><button class="btn" type="button" data-e="save">Enregistrer</button><button class="btn alt" type="button" data-e="cancel">Annuler</button></div></div>`;
 }
 
-document.getElementById("me-editb").addEventListener("click",()=>{if(!CURME)return;$("me-edit").innerHTML=editForm(CURME);$("me-actions").hidden=true});
+document.getElementById("me-editb").addEventListener("click",()=>{if(!CURME)return;AMPH=undefined;$("me-edit").innerHTML=editForm(CURME);$("me-actions").hidden=true});
 document.getElementById("me-edit").addEventListener("change",e=>{if(e.target&&e.target.id==="ef-ville")$("ef-vo").hidden=e.target.value!=="__o"});
 document.getElementById("me-edit").addEventListener("click",e=>{
 const b=e.target.closest&&e.target.closest("button[data-e]");if(!b||!CURME)return;
-if(b.dataset.e==="cancel"){$("me-edit").innerHTML="";$("me-actions").hidden=false;return}
+if(b.dataset.e==="cancel"){AMPH=undefined;$("me-edit").innerHTML="";$("me-actions").hidden=false;return}
 const err=m=>{$("ef-err").textContent=m},g=id=>$(id).value.trim(),o=CURME;
 const nom=g("ef-nom"),prenom=g("ef-prenom"),cin=g("ef-cin").replace(/\s/g,"").toUpperCase(),gsm=g("ef-gsm"),email=g("ef-email"),dn=g("ef-dn");
 const ville=($("ef-ville").value==="__o"?g("ef-vo"):$("ef-ville").value).trim();
@@ -1495,16 +1502,18 @@ if(ARBITRES.some(a=>norm(a.cin)===norm(cin)&&norm(a.cin)!==norm(o.cin))||loadPro
 if(gsm!==o.gsm&&!/^\+?[\d\s.\-]{9,16}$/.test(gsm)){err("Numéro de téléphone invalide.");return}
 if(email!==(o.email||"")&&email&&!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){err("Adresse e-mail invalide.");return}
 if(dn&&!dnOk(dn)){err("Date de naissance invalide.");return}
-const upd={...o,nom,prenom,ville,cin,dn,gsm,email,_o:o._o||norm(o.cin)};
+const phc=!!AMPH,upd={...o,nom,prenom,ville,cin,dn,gsm,email,_o:o._o||norm(o.cin)};
+if(phc){upd.photo=AMPH;try{localStorage.setItem("ph-"+(o._o||norm(o.cin)),AMPH)}catch(_){}}
 const L=[["Nom",o.nom,nom],["Prénom",o.prenom,prenom],["Ville",o.ville,ville],["CIN",o.cin,cin],["Date de naissance",dnFr(o.dn),dnFr(dn)],["GSM",o.gsm||"",gsm],["E-mail",o.email||"",email]].filter(x=>x[1]!==x[2]);
 const ps=loadProfils().filter(p=>p._o!==upd._o);ps.push(upd);saveProfils(ps);
 const li=ARBITRES.findIndex(a=>norm(a.cin)===norm(o.cin));
-if(li>=0){Object.assign(ARBITRES[li],{nom,prenom,ville,cin,dn,gsm,email});save();drawNav();draw()}
+if(li>=0){Object.assign(ARBITRES[li],{nom,prenom,ville,cin,dn,gsm,email});if(phc)ARBITRES[li].photo=AMPH;save();drawNav();draw()}
+AMPH=undefined;
 CURME=upd;showMe(upd);
-if(!L.length){$("me-edit").innerHTML='<p class="help">Aucune modification.</p>';return}
+if(!L.length){$("me-edit").innerHTML=phc?'<p class="ok">✓ Photo enregistrée sur cet appareil. Envoyez-la à la commission (WhatsApp) pour qu’elle apparaisse partout sur la plateforme.</p>':'<p class="help">Aucune modification.</p>';return}
 const body=["Bonjour,","","Je souhaite mettre à jour mes informations d'arbitre :","",...L.map(([k,a,b])=>k+" : "+(a||"(vide)")+" → "+(b||"(vide)")),"","Arbitre : "+o.nom+" "+o.prenom+" (N° "+(o.num||"-")+")","","Code de mise à jour (à coller dans la plateforme) :",makeUpd(o,upd),"","Cordialement"].join("\n");
 const fu=updFormUrl(body);
-$("me-edit").innerHTML='<p class="ok">✓ Modifications enregistrées sur cet appareil. Elles ne seront visibles par tous, sur la plateforme, qu’après validation par l’administrateur.'+(fu?" <b>Cliquez sur « Envoyer à la commission », puis sur « Envoyer » dans le formulaire qui s’ouvre.</b>":" Envoyez-les-lui par e-mail ou par WhatsApp.")+'</p><div class="imp">'+(fu?'<a class="btn" href="'+fu.replace(/&/g,"&amp;").replace(/"/g,"&quot;")+'" target="_blank" rel="noopener">Envoyer à la commission</a>':'')+'<a class="btn'+(fu?' alt':'')+'" href="mailto:'+ADMIN_MAIL+'?subject='+encodeURIComponent("Modification de profil - "+o.nom+" "+o.prenom)+'&body='+encodeURIComponent(body)+'">Envoyer mes modifications par e-mail</a><a class="btn" href="https://wa.me/?text='+encodeURIComponent(body)+'" target="_blank" rel="noopener">Envoyer par WhatsApp</a><button class="btn alt" type="button" id="me-copy">Copier le message</button></div><p class="help" id="me-cpm" role="status">Dans WhatsApp, choisissez le contact de l’administrateur (ou le groupe de la commission).</p>';
+$("me-edit").innerHTML='<p class="ok">✓ Modifications enregistrées sur cet appareil. Elles ne seront visibles par tous, sur la plateforme, qu’après validation par l’administrateur.'+(phc?" Votre photo est enregistrée sur cet appareil ; envoyez-la aussi à la commission par WhatsApp pour qu’elle apparaisse partout.":"")+(fu?" <b>Cliquez sur « Envoyer à la commission », puis sur « Envoyer » dans le formulaire qui s’ouvre.</b>":" Envoyez-les-lui par e-mail ou par WhatsApp.")+'</p><div class="imp">'+(fu?'<a class="btn" href="'+fu.replace(/&/g,"&amp;").replace(/"/g,"&quot;")+'" target="_blank" rel="noopener">Envoyer à la commission</a>':'')+'<a class="btn'+(fu?' alt':'')+'" href="mailto:'+ADMIN_MAIL+'?subject='+encodeURIComponent("Modification de profil - "+o.nom+" "+o.prenom)+'&body='+encodeURIComponent(body)+'">Envoyer mes modifications par e-mail</a><a class="btn" href="https://wa.me/?text='+encodeURIComponent(body)+'" target="_blank" rel="noopener">Envoyer par WhatsApp</a><button class="btn alt" type="button" id="me-copy">Copier le message</button></div><p class="help" id="me-cpm" role="status">Dans WhatsApp, choisissez le contact de l’administrateur (ou le groupe de la commission).</p>';
 const cp=document.getElementById("me-copy");if(cp)cp.addEventListener("click",()=>{(navigator.clipboard?navigator.clipboard.writeText(body):Promise.reject()).then(()=>{$("me-cpm").textContent="✓ Message copié : collez-le dans le message que vous envoyez à l’administrateur."}).catch(()=>{$("me-cpm").textContent="Copie impossible : utilisez les boutons d’envoi ci-dessus."})});
 });
 /* --- Page d’accès : en-tête et ancres --- */
@@ -1588,7 +1597,7 @@ try{return{start:s,end:i,obj:JSON.parse(src.slice(s,i))}}catch(_){return null}
 }
 const b64e=u=>{let s="";for(let i=0;i<u.length;i+=8192)s+=String.fromCharCode.apply(null,u.subarray(i,i+8192));return btoa(s)};
 const hex=u=>[...u].map(b=>b.toString(16).padStart(2,"0")).join("");
-const exportObj=a=>{const o={...a};delete o.photo;delete o._o;delete o.pending;return o};
+const exportObj=a=>{const o={...a};delete o._o;delete o.pending;if(o.photo&&o.photo.length>16000)delete o.photo;return o};
 async function aesEnc(key,text){const iv=crypto.getRandomValues(new Uint8Array(12)),ct=new Uint8Array(await crypto.subtle.encrypt({name:"AES-GCM",iv},key,new TextEncoder().encode(text))),raw=new Uint8Array(12+ct.length);raw.set(iv);raw.set(ct,12);return b64e(raw)}
 async function aesDec(key,b64){const raw=b64d(b64);return new TextDecoder().decode(await crypto.subtle.decrypt({name:"AES-GCM",iv:raw.slice(0,12)},key,raw.slice(12)))}
 const ghHead=c=>({Authorization:"Bearer "+c.tok,"X-GitHub-Api-Version":"2022-11-28"});
@@ -1616,6 +1625,7 @@ const c=ghCfg();
 if(mode==="github"&&!(c.tok&&c.repo)){msg("Renseignez le dépôt et le jeton GitHub (bloc « Connexion à GitHub »).",true);return}
 PUBBUSY=true;btns.forEach(b=>b&&(b.disabled=true));
 try{
+await slimPhotos();
 msg(mode==="github"?"Publication en cours… lecture du site":"Lecture du site…");
 let src,sha;
 if(mode==="github"){sha=await ghSha(c);src=await ghRead(c)}
