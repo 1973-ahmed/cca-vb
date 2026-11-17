@@ -566,7 +566,7 @@ footer{max-width:1100px;margin:auto;padding:0 1.25rem 2rem;color:var(--mut);font
 <div class="imp"><button id="upd-cfg-save" class="btn" type="button">Enregistrer</button><span class="help" id="upd-cfg-msg" role="status"></span></div></details>
 <div class="imp"><button id="upd-fetch" class="btn alt" type="button">Lire les demandes reçues (feuille Google)</button><span class="help" id="upd-fm" role="status"></span></div>
 <textarea id="upd-in" rows="3" placeholder="Collez ici (Ctrl+V)…"></textarea><div id="upd-sum"></div></div>
-<div class="cd"><h3>Importer les données</h3><div class="imp"><label class="btn" for="f">Importer un fichier Excel</label><input id="f" type="file" class="vh"><label class="btn" for="g">Importer les désignations</label><input id="g" type="file" class="vh"><label class="chk"><input id="sortnb" type="checkbox"> Classer par nombre de matchs</label><button id="rm" class="btn" type="button" hidden>Retirer les arbitres importés</button><button id="reload" class="btn alt" type="button">Recharger la liste du site</button></div><p class="help" id="msg">Colonnes : N°, Nom, Prénom, Grade, CIN, GSM, Ville (ou une feuille par ville)</p><p class="help">Matchs : utilisez + et − pour chaque fonction, ou importez un tableau de désignations dont les colonnes s'appellent « 1er arbitre », « 2e arbitre », « Marqueur », « Juge de ligne » (arbitres écrits « Nom Prénom » ou par leur CIN).</p></div>
+<div class="cd"><h3>Importer les données</h3><div class="imp"><label class="btn" for="f">Importer un fichier Excel</label><input id="f" type="file" class="vh"><label class="btn alt" for="fa">Ajouter des arbitres (sans remplacer)</label><input id="fa" type="file" class="vh"><label class="btn" for="g">Importer les désignations</label><input id="g" type="file" class="vh"><label class="chk"><input id="sortnb" type="checkbox"> Classer par nombre de matchs</label><button id="rm" class="btn" type="button" hidden>Retirer les arbitres importés</button><button id="reload" class="btn alt" type="button">Recharger la liste du site</button></div><p class="help" id="msg">Colonnes : N°, Nom, Prénom, Grade, CIN, GSM, Ville (ou une feuille par ville)</p><p class="help">« Importer un fichier Excel » remplace toute la liste. « Ajouter des arbitres (sans remplacer) » garde la liste actuelle et n'ajoute que les arbitres absents (même CIN ou même nom = déjà présent). Pensez ensuite à publier.</p><p class="help">Matchs : utilisez + et − pour chaque fonction, ou importez un tableau de désignations dont les colonnes s'appellent « 1er arbitre », « 2e arbitre », « Marqueur », « Juge de ligne » (arbitres écrits « Nom Prénom » ou par leur CIN).</p></div>
 <div class="cd"><h3>Page de connexion</h3><div class="imp"><label class="btn" for="bgf">Photo de fond</label><input id="bgf" type="file" accept="image/*" class="vh"><button id="bgr" class="btn" type="button">Fond d'origine</button></div></div>
 </section>
 </div>
@@ -1006,7 +1006,7 @@ const o=Object.fromEntries(keys.map((k,i)=>[k,r[i]===undefined?"":r[i]]));o.__c=
 });
 return out;
 }
-let WB=null;
+let WB=null,MERGE=false;
 function parse(cc){
 const msg=document.getElementById("msg"),out=[],cols=new Set();let skip=0;
 (WB.SheetNames.includes("Reel")?["Reel"]:WB.SheetNames).forEach(sn=>rowsOf(WB.Sheets[sn]).forEach(r=>{
@@ -1037,12 +1037,28 @@ msg.innerHTML='Ville non reconnue. Quelle colonne contient la ville ? <select id
 document.getElementById("ccb").onclick=()=>parse(document.getElementById("cc").value);
 return;
 }
+if(MERGE){
+const nn=a=>norm(a.nom+a.prenom),nr=a=>norm(a.prenom+a.nom);
+const haveC=new Set(ARBITRES.map(a=>norm(a.cin)).filter(Boolean));
+let add=0,dup=0;const news=[];
+out.forEach(a=>{
+const kc=norm(a.cin),same=ARBITRES.concat(news).filter(x=>nn(x)===nn(a)||nr(x)===nn(a));
+if((kc&&haveC.has(kc))||same.some(x=>!norm(x.cin)||!kc)){dup++;return}
+a.num=String(1+Math.max(0,...ARBITRES.concat(news).filter(x=>x.ville===a.ville).map(x=>parseFloat(x.num)||0)));
+news.push(a);if(kc)haveC.add(kc);add++;
+});
+news.forEach(a=>{ARBITRES.push(a);markPend(a)});
+sel="";q.value="";drawNav();draw();IMP=true;save();
+msg.textContent=add+" arbitre"+(add>1?"s":"")+" ajouté"+(add>1?"s":"")+", "+dup+" déjà présent"+(dup>1?"s":"")+" (ignoré"+(dup>1?"s":"")+")"+(skip?", "+skip+" ligne(s) ignorée(s) : nom ou ville manquant":"")+". Total : "+ARBITRES.length+". Cliquez maintenant sur « Publier sur GitHub » pour que les autres arbitres voient les ajouts.";
+return;
+}
 const seen=new Set();ARBITRES=out.filter(a=>{const k=norm(a.nom+a.prenom+a.cin);if(seen.has(k))return false;seen.add(k);return true});sel="";q.value="";drawNav();draw();
 msg.textContent=ARBITRES.length+" arbitres importés, "+new Set(ARBITRES.map(a=>a.ville)).size+" villes"+(skip?" ("+skip+" ligne(s) ignorée(s) : nom ou ville manquant)":"");
 rm.hidden=false;
 IMP=true;save();
 }
-document.getElementById("f").addEventListener("change",e=>{
+["f","fa"].forEach(fid=>document.getElementById(fid).addEventListener("change",e=>{
+MERGE=fid==="fa";
 if(!arAdmin()){e.target.value="";return}
 const file=e.target.files[0];if(!file)return;
 const msg=document.getElementById("msg");
@@ -1055,7 +1071,7 @@ try{WB=XLSX.read(ev.target.result,{type:"array",codepage:65001});parse()}
 catch(err){msg.textContent="Fichier illisible ("+(err&&err.message||err)+"). Enregistrez-le en .xlsx et réessayez."}
 };
 rd.readAsArrayBuffer(file);e.target.value="";
-});
+}));
 function roleOf(h){const n=norm(h);if(!n)return "";if(/marqueur/.test(n))return "mq";if(/juge|ligne/.test(n))return "jl";if(/deuxieme|^2e|arbitre2|second/.test(n))return "r2";if(/premier|^1er|arbitre1|principal/.test(n)||n==="arbitre")return "r1";return ""}
 function countNoms(wb){
 const byName=new Map(),byCin=new Map(),old=ARBITRES.map(a=>ROLES.map(([k])=>a[k]||0));
