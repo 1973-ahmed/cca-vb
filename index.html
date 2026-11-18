@@ -361,6 +361,23 @@ button.act:focus-visible{outline:3px solid var(--hi);outline-offset:2px}
 .ri input{width:60px;text-align:center;padding:.5rem;margin:0}
 .empty{color:var(--mut);padding:1rem 0}
 footer{max-width:1100px;margin:auto;padding:0 1.25rem 2rem;color:var(--mut);font-size:.85rem}
+.vnl{background:linear-gradient(135deg,#0a1260,#1b1f9a 55%,#2a1a8c);color:#fff;border-radius:14px;padding:1.1rem 1.2rem;margin:1rem 0;border:1px solid rgba(255,255,255,.18)}
+.vnl h3{margin:0;color:#fff;font-size:1.25rem}.vnl .vs{color:#c9d3ff;font-size:.9rem;margin:.2rem 0 1.1rem}
+.vnl .rd{display:grid;grid-template-columns:190px repeat(5,minmax(0,1fr));gap:.6rem;align-items:stretch;margin-bottom:.7rem}
+.vnl .rd.hd{font-size:.78rem;letter-spacing:.04em;text-transform:uppercase;color:#c9d3ff;margin-bottom:.4rem}.vnl .rd.hd span{text-align:center}
+.vnl .jr{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}.vnl .jr b{display:block;font-size:1rem}.vnl .jr span{display:block;color:#c9d3ff;font-size:.85rem}
+.vnl .jr .rt{display:inline-block;margin-top:.3rem;padding:.12rem .55rem;border-radius:99px;background:#1f8a4f;color:#fff;font-size:.74rem;font-weight:700}
+.vnl .mt{border:1px solid rgba(255,255,255,.4);border-radius:8px;background:rgba(0,0,10,.25);overflow:hidden;display:flex;flex-direction:row;flex-wrap:wrap;align-items:center;justify-content:center;gap:.15rem .4rem;padding:.55rem .3rem;text-align:center}
+.vnl .mt small{display:none;flex-basis:100%;text-align:center;padding:0 0 .1rem;color:#c9d3ff;font-size:.7rem;text-transform:uppercase}
+.vnl .mt span{display:inline;padding:0;font-size:.86rem;font-weight:700;text-align:center;white-space:nowrap}.vnl .mt i{display:inline;font-style:normal;font-size:.72rem;font-weight:700;letter-spacing:.06em;color:#c9d3ff}
+.vnl .note{margin:.8rem 0 0;padding:.5rem .8rem;border-left:4px solid #d9f77a;background:rgba(0,0,10,.3);font-size:.85rem;color:#dfe5ff}
+.vnl .by{margin:.7rem 0 0;font-size:.85rem;color:#c9d3ff}
+.vnl.rose{background:linear-gradient(135deg,#3a0a24,#6e2d52 55%,#9b638b);border-color:rgba(255,255,255,.25)}
+.vnl.rose .vs,.vnl.rose .rd.hd,.vnl.rose .jr span,.vnl.rose .mt small,.vnl.rose .mt i,.vnl.rose .by{color:#f3dcea}
+.vnl.rose .jr .rt{background:#2d0719;color:#fff}
+.vnl.rose .mt{background:rgba(30,0,18,.35);border-color:rgba(255,255,255,.45)}
+.vnl.rose .note{background:rgba(30,0,18,.35);border-left-color:#d9a6c6;color:#f8e8f1}
+@media(max-width:900px){.vnl .rd{grid-template-columns:repeat(2,minmax(0,1fr))}.vnl .rd.hd{display:none}.vnl .jr{grid-column:1/-1}.vnl .mt small{display:block}}
 </style>
 </head>
 <body>
@@ -422,6 +439,7 @@ footer{max-width:1100px;margin:auto;padding:0 1.25rem 2rem;color:var(--mut);font
 <span class="pill">Volley-ball · Saison 2026</span>
 <div class="sb-h">Menu</div>
 <button class="mi" type="button" data-m="cal" aria-pressed="false"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="4" width="17" height="16" rx="2"/><path d="M3.5 9h17M9 9v11M15 9v11M3.5 14.5h17"/></svg>Calendrier</button>
+<button class="mi" type="button" data-m="delegues" aria-pressed="false"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6z"/><path d="M9 12l2 2 4-4"/></svg>Délégués d'arbitrage</button>
 <button class="mi" type="button" data-m="arbitres" aria-pressed="true"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.5 2.7-6 6-6s6 2.5 6 6"/><circle cx="17" cy="9" r="2.4"/><path d="M17 14c2.6 0 4.5 2 4.5 5"/></svg>Arbitres</button>
 <button class="mi" type="button" data-m="programmes" aria-pressed="false"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>Programmes</button>
 <button class="mi" type="button" data-m="res" aria-pressed="false"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 4h8v5a4 4 0 0 1-8 0z"/><path d="M8 6H5a2 2 0 0 0 2 4M16 6h3a2 2 0 0 1-2 4M12 13v4M9 20h6"/></svg>Résultats et classements</button>
@@ -438,9 +456,12 @@ footer{max-width:1100px;margin:auto;padding:0 1.25rem 2rem;color:var(--mut);font
 </aside>
 <div class="ct">
 <div class="ct-h"><h1 id="me-pt">Arbitres</h1><p id="me-ps"></p></div>
+<section id="m-delegues" class="pg" hidden>
+<div class="cd" id="del-box-me"></div>
+</section>
 <section id="m-arbitres" class="pg">
 <div class="cd"><h3>Ma fiche</h3><div id="me-h"></div><dl class="me-info" id="me-info"></dl><div class="imp" id="me-actions" style="margin-top:.8rem"><button class="btn" type="button" id="me-editb">Modifier mes informations</button></div><div id="me-edit"></div></div>
-<div class="cd" id="del-box-me" hidden></div><div class="refs"><div><input id="dq" type="search" placeholder="Rechercher une ville" aria-label="Rechercher une ville"><nav id="dir-nav" aria-label="Villes"></nav></div><div class="cd"><h3 id="dir-t"></h3><ul id="dir-l"></ul></div></div>
+<div class="refs"><div><input id="dq" type="search" placeholder="Rechercher une ville" aria-label="Rechercher une ville"><nav id="dir-nav" aria-label="Villes"></nav></div><div class="cd"><h3 id="dir-t"></h3><ul id="dir-l"></ul></div></div>
 </section>
 <section id="m-cal" class="pg" hidden>
 <div id="cal-m"></div>
@@ -482,14 +503,14 @@ footer{max-width:1100px;margin:auto;padding:0 1.25rem 2rem;color:var(--mut);font
 <div class="sb-brand"><span class="mark"><img class="lg" alt="FRMVB"></span><span><b>CCA - VB</b><small>e-Ref Assist</small></span></div>
 <span class="pill">Volley-ball · Saison 2026</span>
 <div class="sb-h">Tableau de bord</div>
-<button class="mi" type="button" data-p="cal" aria-pressed="false"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="4" width="17" height="16" rx="2"/><path d="M3.5 9h17M9 9v11M15 9v11M3.5 14.5h17"/></svg>Calendrier</button>
 <button class="mi" type="button" data-p="home" aria-pressed="true"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.5"/></svg>Vue d'ensemble</button>
+<button class="mi" type="button" data-p="cal" aria-pressed="false"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="4" width="17" height="16" rx="2"/><path d="M3.5 9h17M9 9v11M15 9v11M3.5 14.5h17"/></svg>Calendrier</button>
+<button class="mi" type="button" data-p="del" aria-pressed="false"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6z"/><path d="M9 12l2 2 4-4"/></svg>Délégués d'arbitrage</button>
 <button class="mi" type="button" data-p="refs" aria-pressed="false"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.5 2.7-6 6-6s6 2.5 6 6"/><circle cx="17" cy="9" r="2.4"/><path d="M17 14c2.6 0 4.5 2 4.5 5"/></svg>Arbitres par ville</button>
 <button class="mi" type="button" data-p="prog" aria-pressed="false"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>Programmes</button>
 <button class="mi" type="button" data-p="res" aria-pressed="false"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 4h8v5a4 4 0 0 1-8 0z"/><path d="M8 6H5a2 2 0 0 0 2 4M16 6h3a2 2 0 0 1-2 4M12 13v4M9 20h6"/></svg>Résultats et classements</button>
 <button class="mi" type="button" data-p="nom" aria-pressed="false"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4h6v3H9zM9 14l2 2 4-4"/></svg>Nominations</button>
 <button class="mi" type="button" data-p="rec" aria-pressed="false"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h12v18l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6"/></svg>Reçus d'arbitrage</button>
-<button class="mi" type="button" data-p="wa" aria-pressed="false"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/><path d="M9 9.5c.4 2 2 3.6 4 4l1.2-1 1.6.8-.4 1.2c-2.8.6-6-2.6-6.6-5.4l1.2-.4.8 1.6z"/></svg>Messages WhatsApp</button>
 <button class="mi" type="button" data-p="stat" aria-pressed="false"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h16M7 20v-7M12 20V6M17 20v-10"/></svg>Statistiques</button>
 <button class="mi" type="button" data-p="regles" aria-pressed="false"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v16H6.5A2.5 2.5 0 0 0 4 21.5z"/><path d="M4 19V5.5M9 8h7M9 12h7"/></svg>Règles officielles 2025-2028</button>
 <button class="mi" type="button" data-p="nouv" aria-pressed="false"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l1.8 4.7L18.5 9.5l-4.7 1.8L12 16l-1.8-4.7L5.5 9.5l4.7-1.8z"/><path d="M19 15l.8 2 2 .8-2 .8-.8 2-.8-2-2-.8 2-.8z"/></svg>Nouvelles règles 2026</button>
@@ -509,8 +530,11 @@ footer{max-width:1100px;margin:auto;padding:0 1.25rem 2rem;color:var(--mut);font
 <div class="kpis" id="kpis"></div>
 <div class="charts"><div class="cd"><h3>Arbitres par ville (10 premières)</h3><div id="ch-bar"></div></div><div class="cd"><h3>Répartition par grade</h3><div id="ch-don"></div></div></div>
 </section>
+<section id="p-del" class="pg" hidden>
+<div class="cd" id="del-box"></div>
+</section>
 <section id="p-refs" class="pg" hidden>
-<div class="cd" id="del-box" hidden></div><div class="refs"><nav id="villes" aria-label="Villes"></nav><div><input id="q" type="search" placeholder="Rechercher une ville ou un arbitre" aria-label="Rechercher une ville ou un arbitre"><div class="ar-top"><button id="ar-open" class="btn" type="button" aria-expanded="false" aria-controls="ar-form">+ Ajouter un arbitre</button><button id="ar-pdf" class="btn alt" type="button">Liste PDF · internationaux et nationaux</button><button id="ar-pdf2" class="btn alt" type="button">Liste PDF · fédéraux, régionaux et stagiaires</button><span class="help" id="ar-pdf-msg" role="status" aria-live="polite" style="margin-left:.6rem"></span></div><p class="help" id="pend-note" hidden></p><div id="ar-form" class="cd" hidden></div><h2 id="titre"></h2><div id="liste"></div></div></div>
+<div class="refs"><nav id="villes" aria-label="Villes"></nav><div><input id="q" type="search" placeholder="Rechercher une ville ou un arbitre" aria-label="Rechercher une ville ou un arbitre"><div class="ar-top"><button id="ar-open" class="btn" type="button" aria-expanded="false" aria-controls="ar-form">+ Ajouter un arbitre</button><button id="ar-pdf" class="btn alt" type="button">Liste PDF · internationaux et nationaux</button><button id="ar-pdf2" class="btn alt" type="button">Liste PDF · fédéraux, régionaux et stagiaires</button><span class="help" id="ar-pdf-msg" role="status" aria-live="polite" style="margin-left:.6rem"></span></div><p class="help" id="pend-note" hidden></p><div id="ar-form" class="cd" hidden></div><h2 id="titre"></h2><div id="liste"></div></div></div>
 </section>
 <section id="p-cal" class="pg" hidden>
 <div id="cal-a"></div>
@@ -531,9 +555,6 @@ footer{max-width:1100px;margin:auto;padding:0 1.25rem 2rem;color:var(--mut);font
 </section>
 <section id="p-rec" class="pg" hidden>
 <div class="cd"><h3>Reçus d'arbitrage</h3><div id="rec-a"></div></div>
-</section>
-<section id="p-wa" class="pg" hidden>
-<div id="wa-a"></div>
 </section>
 <section id="p-stat" class="pg" hidden>
 <div class="kpis" id="sa-kpis"></div>
@@ -672,6 +693,33 @@ if(n)pendProg();
 CDMSG=(n?"✓ "+n+" document"+(n>1?"s":"")+" ajouté"+(n>1?"s":"")+". ":"")+(bad.length?"Refusé : "+bad.join(", ")+".":"");refreshProg()});
 let CALSEL="",CALED=false;
 const calLg=()=>COMPS.some(c=>c.lg===CALSEL)?CALSEL:curComp();
+/* --- Excellence Hommes : programme annuel général 2026-2027 --- */
+const EXH=[
+["Journée 1","Samedi 31 octobre 2026","Journée 10 · 16 janvier 2027",[["FUS","ACL"],["CODM","DHJ"],["RCOZ","IRT"],["CET","OCK"],["AS.FAR","OCY"]]],
+["Journée 2","Samedi 14 novembre 2026","Journée 11 · 23 janvier 2027",[["DHJ","FUS"],["OCK","AS.FAR"],["IRT","CET"],["ACL","RCOZ"],["OCY","CODM"]]],
+["Journée 3","Samedi 21 novembre 2026","Journée 12 · 30 janvier 2027",[["FUS","OCY"],["CODM","OCK"],["RCOZ","DHJ"],["ACL","IRT"],["AS.FAR","CET"]]],
+["Journée 4","Samedi 28 novembre 2026","Journée 13 · 6 février 2027",[["DHJ","ACL"],["CET","CODM"],["OCK","FUS"],["IRT","AS.FAR"],["OCY","RCOZ"]]],
+["Journée 5","Samedi 5 décembre 2026","Journée 14 · 13 février 2027",[["FUS","CET"],["CODM","AS.FAR"],["DHJ","IRT"],["RCOZ","OCK"],["ACL","OCY"]]],
+["Journée 6","Samedi 12 décembre 2026","Journée 15 · 20 février 2027",[["CET","RCOZ"],["OCK","ACL"],["IRT","CODM"],["OCY","DHJ"],["AS.FAR","FUS"]]],
+["Journée 7","Samedi 19 décembre 2026","Journée 16 · 27 février 2027",[["FUS","CODM"],["DHJ","OCK"],["RCOZ","AS.FAR"],["ACL","CET"],["OCY","IRT"]]],
+["Journée 8","Jeudi 24 décembre 2026","Journée 17 · 6 mars 2027",[["FUS","IRT"],["CODM","RCOZ"],["CET","DHJ"],["OCK","OCY"],["AS.FAR","ACL"]]],
+["Journée 9","Samedi 2 janvier 2027","Journée 18 · 13 mars 2027",[["DHJ","AS.FAR"],["RCOZ","FUS"],["IRT","OCK"],["ACL","CODM"],["OCY","CET"]]]];
+const EXD=[
+["Journée 1","Dimanche 1 novembre 2026","Journée 10 · 17 janvier 2027",[["FUS","IZK"],["OCS","MTVB"],["DHJ","IRT"],["ACL","ADM"],["AS.FAR","MAT"]]],
+["Journée 2","Dimanche 15 novembre 2026","Journée 11 · 24 janvier 2027",[["MTVB","FUS"],["ADM","AS.FAR"],["IRT","ACL"],["IZK","DHJ"],["MAT","OCS"]]],
+["Journée 3","Dimanche 22 novembre 2026","Journée 12 · 31 janvier 2027",[["FUS","MAT"],["OCS","ADM"],["DHJ","MTVB"],["IZK","IRT"],["AS.FAR","ACL"]]],
+["Journée 4","Dimanche 29 novembre 2026","Journée 13 · 7 février 2027",[["MTVB","IZK"],["ACL","OCS"],["ADM","FUS"],["IRT","AS.FAR"],["MAT","DHJ"]]],
+["Journée 5","Dimanche 6 décembre 2026","Journée 14 · 14 février 2027",[["FUS","ACL"],["OCS","AS.FAR"],["MTVB","IRT"],["DHJ","ADM"],["IZK","MAT"]]],
+["Journée 6","Dimanche 13 décembre 2026","Journée 15 · 21 février 2027",[["ACL","DHJ"],["ADM","IZK"],["IRT","OCS"],["MAT","MTVB"],["AS.FAR","FUS"]]],
+["Journée 7","Dimanche 20 décembre 2026","Journée 16 · 28 février 2027",[["FUS","OCS"],["MTVB","ADM"],["DHJ","AS.FAR"],["IZK","ACL"],["MAT","IRT"]]],
+["Journée 8","Dimanche 27 décembre 2026","Journée 17 · 7 mars 2027",[["FUS","IRT"],["OCS","DHJ"],["ACL","MTVB"],["ADM","MAT"],["AS.FAR","IZK"]]],
+["Journée 9","Dimanche 3 janvier 2027","Journée 18 · 14 mars 2027",[["MTVB","AS.FAR"],["DHJ","FUS"],["IRT","ADM"],["IZK","OCS"],["MAT","ACL"]]]];
+function exHtml(lg){
+const D=lg==="d"?{t:"Excellence Dames",c:" rose",r:EXD}:{t:"Excellence Hommes",c:"",r:EXH};
+const hd=`<div class="rd hd" aria-hidden="true"><span>Journée / date</span>${[1,2,3,4,5].map(n=>`<span>Match ${n}</span>`).join("")}</div>`;
+const rows=D.r.map(r=>`<div class="rd"><div class="jr"><b>${esc(r[0])}</b><span>${esc(r[1])}</span><span class="rt">Retour : ${esc(r[2])}</span></div>${r[3].map((m,i)=>`<div class="mt"><small>Match ${i+1}</small><span>${esc(m[0])}</span><i>VS</i><span>${esc(m[1])}</span></div>`).join("")}</div>`).join("");
+return `<div class="vnl${D.c}" role="region" aria-label="${esc(D.t)}, programme annuel général 2026-2027"><h3>${esc(D.t)} · Programme annuel général</h3><p class="vs">Saison sportive 2026 – 2027 · 9 journées aller, 9 journées retour</p>${hd}${rows}<p class="note">L’équipe citée en premier est l’équipe qui reçoit. Les matchs retour (journées 10 à 18) se jouent selon le même tableau, aux dates indiquées pour chaque journée.</p><p class="by">Commission d’organisation des compétitions · Redouane Haddad</p></div>`;
+}
 function calHtml(){
 const lg=calLg(),c=COMPS.find(x=>x.lg===lg),rows=calRows(lg),adm=isAdmin();
 const chips=`<div class="wkbar compbar" role="group" aria-label="Choisir le calendrier">${COMPS.map(x=>`<button type="button" class="wkchip${x.lg===lg?" on":""}" data-ccal="${x.lg}" aria-pressed="${x.lg===lg}">${esc(x.titre)}</button>`).join("")}</div>`;
@@ -681,9 +729,9 @@ body=`<p class="help">Une ligne par match, colonnes séparées par « ; » ou pa
 }else if(rows.length){
 const g=[];rows.forEach(r=>{let x=g.find(y=>y.j===r[1]);if(!x){x={j:r[1],l:[]};g.push(x)}x.l.push(r)});
 body=g.map(x=>`<h4>${esc(x.j)}</h4><div class="calw"><table><thead><tr><th>Date</th><th>Heure</th><th>Rencontre</th><th>Lieu</th></tr></thead><tbody>${x.l.map(r=>`<tr><td>${esc(r[2])}</td><td>${esc(r[3])}</td><td>${esc(r[4])} <b>VS</b> ${esc(r[5])}</td><td>${esc(r[6]||"")}</td></tr>`).join("")}</tbody></table></div>`).join("");
-}else body=`<p class="help">Le calendrier ${esc(c.titre)} n’est pas encore publié.${adm?" Utilisez « Modifier le calendrier » pour le saisir.":""}</p>`;
+}else body=lg==="h"||lg==="d"?`<p class="help">Programme annuel général de la saison 2026-2027 ci-dessous.</p>`:`<p class="help">Le calendrier ${esc(c.titre)} n’est pas encore publié.${adm?" Utilisez « Modifier le calendrier » pour le saisir.":""}</p>`;
 const dl=!(CALED&&adm)?`<div class="imp" style="margin:.2rem 0 .6rem"><button class="btn" type="button" data-cald="pdf">Télécharger le PDF</button><button class="btn alt" type="button" data-cald="csv">Télécharger (Excel)</button><span class="pmsg help"></span></div>`:"";
-return `<div class="cd calbox"><div class="sec-h"><h3>Calendrier des matchs</h3>${adm&&!CALED?`<button class="btn alt" type="button" data-cale="edit">Modifier le calendrier</button>`:""}</div>${chips}${dl}${body}</div>${calDocsHtml()}`;
+return `<div class="cd calbox"><div class="sec-h"><h3>Calendrier des matchs</h3>${adm&&!CALED?`<button class="btn alt" type="button" data-cale="edit">Modifier le calendrier</button>`:""}</div>${chips}${dl}${body}</div>${lg==="h"||lg==="d"?exHtml(lg):""}${calDocsHtml()}`;
 }
 document.addEventListener("click",e=>{
 const ch=e.target.closest&&e.target.closest("button[data-ccal]");
@@ -1152,7 +1200,7 @@ return `<section class="ville" style="margin-bottom:0"><h3>Délégués d'arbitra
 function delDraw(){
 const ad=arAdminSafe(),L=delList(),a=document.getElementById("del-box"),b=document.getElementById("del-box-me");
 if(a){const h=ad?delHtml(L,true):"";a.innerHTML=h;a.hidden=!h}
-if(b){const h=ad?"":delHtml(L,false);b.innerHTML=h;b.hidden=!h}
+if(b){b.innerHTML=ad?"":(delHtml(L,false)||'<p class="help">Aucun délégué pour le moment.</p>');b.hidden=false}
 }
 document.addEventListener("click",e=>{
 const b=e.target.closest&&e.target.closest("button[data-dl]");if(!b||!arAdminSafe())return;
@@ -1415,18 +1463,18 @@ async function initDir(a){DIRD=await loadDir(a);dsel=a.ville;$("dq").value="";dr
 $("dir-nav").addEventListener("click",e=>{const b=e.target.closest("button[data-c]");if(!b)return;dsel=b.dataset.c;drawDir()});
 $("dq").addEventListener("input",drawDir);
 function mpage(p){
-if(p==="recus")setTimeout(renderRecus,0);if(p==="cal")setTimeout(refreshProg,0);if(p==="res")resLive();
-["cal","arbitres","programmes","res","nominations","recus","stat","regles","nouv","case","notes"].forEach(k=>{$("m-"+k).hidden=k!==p});
+if(p==="delegues")delDraw();if(p==="recus")setTimeout(renderRecus,0);if(p==="cal")setTimeout(refreshProg,0);if(p==="res")resLive();
+["cal","delegues","arbitres","programmes","res","nominations","recus","stat","regles","nouv","case","notes"].forEach(k=>{$("m-"+k).hidden=k!==p});
 document.querySelectorAll(".mi[data-m]").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.m===p)));
-const T={cal:["Calendrier des matchs","Calendriers des six compétitions"],arbitres:["Arbitres","Votre fiche et les arbitres par ville"],programmes:["Programmes","Programmes des rencontres"],res:["Résultats et classements","Résultats des matchs et classements"],nominations:["Nominations","Vos nominations par fonction"],recus:["Reçus d'arbitrage","Vos reçus d'arbitrage"],stat:["Stat","Chiffres clés du suivi des arbitres"],regles:["Règles officielles 2025-2028","Règles officielles de volleyball de la FIVB"],nouv:["Nouvelles règles 2026","Règles testées par la FIVB en 2026"],case:["Casebook","Practical cases with official rulings"],notes:["Notes","Vos notes personnelles"]};
+const T={cal:["Calendrier des matchs","Calendriers des six compétitions"],delegues:["Délégués d'arbitrage","Coordonnées des délégués d'arbitrage"],arbitres:["Arbitres","Votre fiche et les arbitres par ville"],programmes:["Programmes","Programmes des rencontres"],res:["Résultats et classements","Résultats des matchs et classements"],nominations:["Nominations","Vos nominations par fonction"],recus:["Reçus d'arbitrage","Vos reçus d'arbitrage"],stat:["Stat","Chiffres clés du suivi des arbitres"],regles:["Règles officielles 2025-2028","Règles officielles de volleyball de la FIVB"],nouv:["Nouvelles règles 2026","Règles testées par la FIVB en 2026"],case:["Casebook","Practical cases with official rulings"],notes:["Notes","Vos notes personnelles"]};
 $("me-pt").textContent=T[p][0];$("me-ps").textContent=T[p][1];window.scrollTo(0,0);
 }
 document.querySelectorAll(".mi[data-m]").forEach(b=>b.addEventListener("click",()=>mpage(b.dataset.m)));
 function page(p){
-["home","cal","refs","prog","res","nom","rec","wa","stat","regles","nouv","case","notes","imp"].forEach(k=>{$("p-"+k).hidden=k!==p});
+["home","cal","del","refs","prog","res","nom","rec","stat","regles","nouv","case","notes","imp"].forEach(k=>{$("p-"+k).hidden=k!==p});
 document.querySelectorAll(".mi[data-p]").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.p===p)));
-const T={home:["Vue d'ensemble","Suivi des arbitres — FRMVB"],cal:["Calendrier des matchs","Calendriers des six compétitions"],refs:["Arbitres par ville","Choisissez une ville ou recherchez-la"],prog:["Programmes","Programmes des rencontres"],res:["Résultats et classements","Résultats des matchs et classements"],nom:["Nominations","Désignations de chaque arbitre par fonction"],rec:["Reçus d'arbitrage","Reçus d'arbitrage des rencontres"],wa:["Messages WhatsApp","Prévenir les arbitres par WhatsApp"],stat:["Statistiques","Chiffres clés des désignations"],regles:["Règles officielles 2025-2028","Règles officielles de volleyball de la FIVB"],nouv:["Nouvelles règles 2026","Règles testées par la FIVB en 2026"],case:["Casebook","Practical cases with official rulings"],notes:["Notes","Vos notes personnelles"],imp:["Importer et configuration","Fichier Excel, autorisations, désignations, photo de fond"]};
-$("pg-t").textContent=T[p][0];$("pg-s").textContent=T[p][1];if(p==="imp"){$("auth-box").innerHTML=renderAuth();if(arAdmin()&&updSheet())updFetch(true)}if(p==="home")drawHome();if(p==="cal")refreshProg();if(p==="rec")renderRecus();if(p==="wa")waRender();if(p==="res"){if(arAdmin())rimpSync(true);resLive()}window.scrollTo(0,0);
+const T={home:["Vue d'ensemble","Suivi des arbitres — FRMVB"],cal:["Calendrier des matchs","Calendriers des six compétitions"],del:["Délégués d'arbitrage","Coordonnées des délégués d'arbitrage"],refs:["Arbitres par ville","Choisissez une ville ou recherchez-la"],prog:["Programmes","Programmes des rencontres"],res:["Résultats et classements","Résultats des matchs et classements"],nom:["Nominations","Désignations de chaque arbitre par fonction"],rec:["Reçus d'arbitrage","Reçus d'arbitrage des rencontres"],stat:["Statistiques","Chiffres clés des désignations"],regles:["Règles officielles 2025-2028","Règles officielles de volleyball de la FIVB"],nouv:["Nouvelles règles 2026","Règles testées par la FIVB en 2026"],case:["Casebook","Practical cases with official rulings"],notes:["Notes","Vos notes personnelles"],imp:["Importer et configuration","Fichier Excel, autorisations, désignations, photo de fond"]};
+$("pg-t").textContent=T[p][0];$("pg-s").textContent=T[p][1];if(p==="imp"){$("auth-box").innerHTML=renderAuth();if(arAdmin()&&updSheet())updFetch(true)}if(p==="home")drawHome();if(p==="del")delDraw();if(p==="cal")refreshProg();if(p==="rec")renderRecus();if(p==="res"){if(arAdmin())rimpSync(true);resLive()}window.scrollTo(0,0);
 }
 document.querySelectorAll(".mi[data-p]").forEach(b=>b.addEventListener("click",()=>page(b.dataset.p)));
 document.getElementById("me-h").addEventListener("change",e=>{
