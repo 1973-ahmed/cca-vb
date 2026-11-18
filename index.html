@@ -566,7 +566,7 @@ footer{max-width:1100px;margin:auto;padding:0 1.25rem 2rem;color:var(--mut);font
 <div class="imp"><button id="upd-cfg-save" class="btn" type="button">Enregistrer</button><span class="help" id="upd-cfg-msg" role="status"></span></div></details>
 <div class="imp"><button id="upd-fetch" class="btn alt" type="button">Lire les demandes reçues (feuille Google)</button><span class="help" id="upd-fm" role="status"></span></div>
 <textarea id="upd-in" rows="3" placeholder="Collez ici (Ctrl+V)…"></textarea><div id="upd-sum"></div></div>
-<div class="cd"><h3>Importer les données</h3><div class="imp"><label class="btn" for="f">Importer un fichier Excel</label><input id="f" type="file" class="vh"><label class="btn alt" for="fa">Ajouter des arbitres (sans remplacer)</label><input id="fa" type="file" class="vh"><label class="btn" for="g">Importer les désignations</label><input id="g" type="file" class="vh"><label class="chk"><input id="sortnb" type="checkbox"> Classer par nombre de matchs</label><button id="rm" class="btn" type="button" hidden>Retirer les arbitres importés</button><button id="reload" class="btn alt" type="button">Recharger la liste du site</button></div><p class="help" id="msg">Colonnes : N°, Nom, Prénom, Grade, CIN, GSM, Ville (ou une feuille par ville)</p><p class="help">« Importer un fichier Excel » remplace toute la liste. « Ajouter des arbitres (sans remplacer) » garde la liste actuelle et n'ajoute que les arbitres absents (même CIN ou même nom = déjà présent). Pensez ensuite à publier.</p><p class="help">Matchs : utilisez + et − pour chaque fonction, ou importez un tableau de désignations dont les colonnes s'appellent « 1er arbitre », « 2e arbitre », « Marqueur », « Juge de ligne » (arbitres écrits « Nom Prénom » ou par leur CIN).</p></div>
+<div class="cd"><h3>Importer les données</h3><div class="imp"><label class="btn" for="f">Importer un fichier Excel</label><input id="f" type="file" class="vh"><label class="btn alt" for="fa">Ajouter des arbitres (sans remplacer)</label><input id="fa" type="file" class="vh"><label class="btn" for="g">Importer les désignations</label><input id="g" type="file" class="vh"><label class="chk"><input id="sortnb" type="checkbox"> Classer par nombre de matchs</label><button id="rm" class="btn" type="button" hidden>Retirer les arbitres importés</button><button id="reload" class="btn alt" type="button">Recharger la liste du site</button></div><p class="help" id="msg">Colonnes : N°, Nom, Prénom, Grade, CIN, GSM, Ville (ou une feuille par ville)</p><p class="help">« Importer un fichier Excel » remplace toute la liste. « Ajouter des arbitres (sans remplacer) » garde la liste actuelle et n'ajoute que les arbitres absents (même CIN ou même nom = déjà présent). Pensez ensuite à publier.</p><p class="help">Matchs : utilisez + et − pour chaque fonction, ou importez un tableau de désignations dont les colonnes s'appellent « 1er arbitre », « 2e arbitre », « Marqueur », « Juge de ligne » (arbitres écrits « Nom Prénom » ou par leur CIN).</p><div class="imp"><button id="dtx-open" class="btn alt" type="button">Coller des désignations (texte)</button></div><div id="dtx-box" hidden><textarea id="dtx" rows="10" style="width:100%" placeholder="Collez ici le texte des désignations (format : Excellence Hommes – Week 1 (date), Match 1 : A contre B (lieu, heure), 1er arbitre : NOM PRÉNOM (Ville)…)" aria-label="Texte des désignations"></textarea><div class="imp"><button id="dtx-go" class="btn" type="button">Appliquer aux désignations et aux statistiques</button></div><p class="help" id="dtx-msg"></p></div></div>
 <div class="cd"><h3>Page de connexion</h3><div class="imp"><label class="btn" for="bgf">Photo de fond</label><input id="bgf" type="file" accept="image/*" class="vh"><button id="bgr" class="btn" type="button">Fond d'origine</button></div></div>
 </section>
 </div>
@@ -1072,6 +1072,64 @@ catch(err){msg.textContent="Fichier illisible ("+(err&&err.message||err)+"). Enr
 };
 rd.readAsArrayBuffer(file);e.target.value="";
 }));
+/* Désignations collées en texte : mise à jour des désignations ET des compteurs (statistiques) */
+function dtxApply(text){
+const res={lie:0,miss:[],skip:[],warn:[],matches:0};
+const byName=new Map(),add=(k,a)=>{if(!byName.has(k))byName.set(k,[]);if(!byName.get(k).includes(a))byName.get(k).push(a)};
+ARBITRES.forEach(a=>{add(norm(pname(a)),a);add(norm(a.prenom+a.nom),a)});
+const find=raw=>{const m=String(raw).trim().match(/^(.*?)\s*\(([^()]*)\)\s*$/),nm=m?m[1].trim():String(raw).trim(),v=m?m[2]:"";let l=byName.get(norm(nm))||[];if(l.length>1&&v){const f=l.filter(a=>norm(a.ville)===norm(v));if(f.length)l=f}return{a:l.length===1?l[0]:null,nm}};
+const names=raw=>{const t=String(raw).trim();if(!t||t==="-")return[];const parts=t.split(/\)\s*,\s*/);return parts.map((x,i)=>i<parts.length-1&&!/\)$/.test(x)?x+")":x).filter(Boolean)};
+const roleOf2=s=>s.startsWith("jl")?"jl":s;
+String(text).split(/\n\s*={3,}\s*\n/).forEach(bk=>{
+const lines=bk.split(/\r?\n/).map(x=>x.trim()).filter(Boolean);if(!lines.length)return;
+const hm=lines[0].match(/^(.*?)\s*[–-]\s*Week\s*(\d+)/i);
+const P=hm&&PROGS.find(x=>norm(x.titre)===norm(hm[1])&&weekNum(x)===+hm[2]);
+if(!P){res.skip.push(lines[0]);return}
+const ms=[];let cur=null;
+lines.slice(1).forEach(l=>{
+const mm=l.match(/Match\s+\d+\s*:\s*(.+?)\s+contre\s+(.+?)\s+\((.*),\s*\d{1,2}[:h]\d{2}\)\s*$/i);
+if(mm){cur={a:mm[1].trim(),b:mm[2].trim(),v:{}};ms.push(cur);return}
+const rm=l.match(/^(1er arbitre|2e arbitre|Marqueur|Juges? de ligne)\s*:\s*(.*)$/i);
+if(rm&&cur)cur.v[norm(rm[1]).startsWith("juge")?"jl":norm(rm[1]).startsWith("1er")?"r1":norm(rm[1]).startsWith("2e")?"r2":"mq"]=rm[2];
+});
+ms.forEach(x=>{
+const m=P.matchs.findIndex(([h,a,b])=>norm(a)===norm(x.a)&&norm(b)===norm(x.b));
+if(m<0){res.skip.push(P.titre+" · "+x.a+" contre "+x.b);return}
+const SL=slotsFor(P).map(y=>y[0]),dk=P.id+m,d=DESIG[dk]=DESIG[dk]||{};
+SL.forEach(sl=>{if(d[sl])return;const e=P.matchs[m][4]||{},v=sl.startsWith("jl")?(e.jl||[])[+sl.slice(2)-1]:e[sl];if(!v)return;const o=ARBITRES.find(a=>norm(pname(a)+a.ville)===norm(v));if(o){o[roleOf2(sl)]=Math.max(0,(o[roleOf2(sl)]||0)-1);markPend(o)}});
+SL.forEach(sl=>{if(d[sl])assign(P.id,m,sl,"")});
+const want={r1:names(x.v.r1||"")[0],r2:names(x.v.r2||"")[0],mq:names(x.v.mq||"")[0]},jl=names(x.v.jl||"");
+want.jl1=jl[0];want.jl2=jl[1];want.jl3=jl[2];want.jl4=jl[3];
+SL.forEach(sl=>{
+const raw=want[sl];if(!raw)return;
+const r=find(raw);
+if(r.a){const key=pkey(r.a);if(Object.values(d).includes(key)){res.warn.push(r.nm+" est déjà désigné dans le match "+x.a+" contre "+x.b);return}assign(P.id,m,sl,key);res.lie++}
+else{d[sl]="txt:"+r.nm;res.miss.push(r.nm)}
+});
+res.matches++;
+});
+});
+saveDesig();renderDesig();refreshProg();draw();
+const seen=new Map();
+PROGS.forEach(P=>P.matchs.forEach(([h,a,b],m)=>{Object.values(DESIG[P.id+m]||{}).forEach(v=>{if(!v||String(v).startsWith("txt:"))return;const k=P.date+"@"+h+"@"+v;if(!seen.has(k))seen.set(k,[]);seen.get(k).push(P.titre+" · "+a+" contre "+b)})}));
+seen.forEach((l,k)=>{if(l.length>1){const o=findP(k.split("@").slice(2).join("@"));res.warn.push((o?pname(o):"Un arbitre")+" est désigné plusieurs fois au même horaire : "+l.join(" ; "))}});
+return res;
+}
+document.getElementById("dtx-open").addEventListener("click",()=>{if(!arAdmin())return;const b=document.getElementById("dtx-box");b.hidden=!b.hidden});
+document.getElementById("dtx-go").addEventListener("click",()=>{
+if(!arAdmin())return;
+const msg=document.getElementById("dtx-msg"),t=document.getElementById("dtx").value;
+if(!t.trim()){msg.textContent="Collez d'abord le texte des désignations.";return}
+if(!ARBITRES.length){msg.textContent="Importez d'abord la liste des arbitres.";return}
+try{
+const r=dtxApply(t),L=[];
+L.push("✓ "+r.matches+" match"+(r.matches>1?"s":"")+" mis à jour, "+r.lie+" désignation"+(r.lie>1?"s":"")+" enregistrée"+(r.lie>1?"s":"")+" (statistiques mises à jour). Cliquez maintenant sur « Publier sur GitHub ».");
+if(r.miss.length)L.push("Arbitres introuvables dans la liste (enregistrés en texte, non comptés) : "+r.miss.join(", ")+".");
+if(r.skip.length)L.push("Ignoré (programme ou match non trouvé) : "+r.skip.join(" ; ")+".");
+r.warn.forEach(w=>L.push("⚠ "+w+"."));
+msg.innerHTML=L.map(esc).join("<br>");
+}catch(e){msg.textContent="Impossible d'appliquer ce texte ("+(e&&e.message||e)+")."}
+});
 function roleOf(h){const n=norm(h);if(!n)return "";if(/marqueur/.test(n))return "mq";if(/juge|ligne/.test(n))return "jl";if(/deuxieme|^2e|arbitre2|second/.test(n))return "r2";if(/premier|^1er|arbitre1|principal/.test(n)||n==="arbitre")return "r1";return ""}
 function countNoms(wb){
 const byName=new Map(),byCin=new Map(),old=ARBITRES.map(a=>ROLES.map(([k])=>a[k]||0));
