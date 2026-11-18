@@ -440,7 +440,7 @@ footer{max-width:1100px;margin:auto;padding:0 1.25rem 2rem;color:var(--mut);font
 <div class="ct-h"><h1 id="me-pt">Arbitres</h1><p id="me-ps"></p></div>
 <section id="m-arbitres" class="pg">
 <div class="cd"><h3>Ma fiche</h3><div id="me-h"></div><dl class="me-info" id="me-info"></dl><div class="imp" id="me-actions" style="margin-top:.8rem"><button class="btn" type="button" id="me-editb">Modifier mes informations</button></div><div id="me-edit"></div></div>
-<div class="refs"><div><input id="dq" type="search" placeholder="Rechercher une ville" aria-label="Rechercher une ville"><nav id="dir-nav" aria-label="Villes"></nav></div><div class="cd"><h3 id="dir-t"></h3><ul id="dir-l"></ul></div></div>
+<div class="cd" id="del-box-me" hidden></div><div class="refs"><div><input id="dq" type="search" placeholder="Rechercher une ville" aria-label="Rechercher une ville"><nav id="dir-nav" aria-label="Villes"></nav></div><div class="cd"><h3 id="dir-t"></h3><ul id="dir-l"></ul></div></div>
 </section>
 <section id="m-cal" class="pg" hidden>
 <div id="cal-m"></div>
@@ -510,7 +510,7 @@ footer{max-width:1100px;margin:auto;padding:0 1.25rem 2rem;color:var(--mut);font
 <div class="charts"><div class="cd"><h3>Arbitres par ville (10 premières)</h3><div id="ch-bar"></div></div><div class="cd"><h3>Répartition par grade</h3><div id="ch-don"></div></div></div>
 </section>
 <section id="p-refs" class="pg" hidden>
-<div class="refs"><nav id="villes" aria-label="Villes"></nav><div><input id="q" type="search" placeholder="Rechercher une ville ou un arbitre" aria-label="Rechercher une ville ou un arbitre"><div class="ar-top"><button id="ar-open" class="btn" type="button" aria-expanded="false" aria-controls="ar-form">+ Ajouter un arbitre</button><button id="ar-pdf" class="btn alt" type="button">Liste PDF · internationaux et nationaux</button><button id="ar-pdf2" class="btn alt" type="button">Liste PDF · fédéraux, régionaux et stagiaires</button><span class="help" id="ar-pdf-msg" role="status" aria-live="polite" style="margin-left:.6rem"></span></div><p class="help" id="pend-note" hidden></p><div id="ar-form" class="cd" hidden></div><h2 id="titre"></h2><div id="liste"></div></div></div>
+<div class="cd" id="del-box" hidden></div><div class="refs"><nav id="villes" aria-label="Villes"></nav><div><input id="q" type="search" placeholder="Rechercher une ville ou un arbitre" aria-label="Rechercher une ville ou un arbitre"><div class="ar-top"><button id="ar-open" class="btn" type="button" aria-expanded="false" aria-controls="ar-form">+ Ajouter un arbitre</button><button id="ar-pdf" class="btn alt" type="button">Liste PDF · internationaux et nationaux</button><button id="ar-pdf2" class="btn alt" type="button">Liste PDF · fédéraux, régionaux et stagiaires</button><span class="help" id="ar-pdf-msg" role="status" aria-live="polite" style="margin-left:.6rem"></span></div><p class="help" id="pend-note" hidden></p><div id="ar-form" class="cd" hidden></div><h2 id="titre"></h2><div id="liste"></div></div></div>
 </section>
 <section id="p-cal" class="pg" hidden>
 <div id="cal-a"></div>
@@ -723,6 +723,7 @@ const ADMENC={"salt":"XgYVFSoIQSigera5Jne3Kw==","it":100000,"ct":"qoW+k87h4OofeS
 function cityName(s){const t=String(s||"").replace(/\s+/g," ").trim();if(!t)return "";return CITY_FIX[norm(t)]||t.toLowerCase().replace(/(^|[\s'’\-])([^\W\d_])/g,(m,a,b)=>a+b.toUpperCase())}
 function gradeName(g){const t=String(g||"").replace(/\s+/g," ").trim();if(!t)return "—";return GRADE_FIX[norm(t)]||t.charAt(0)+t.slice(1).toLowerCase()}
 function phoneName(v){const d=String(v==null?"":v).replace(/\D/g,"");if(!d)return "";const z=d.length===9?"0"+d:d;return z.length===10?z.replace(/(\d\d)(?=\d)/g,"$1 ").trim():z}
+const DELEGUES=[{"nom": "HADDAD", "prenom": "Redouane", "ville": "", "gsm": "06 61 36 92 27", "email": "redouane0813@gmail.com", "photo": ""}, {"nom": "EL BAZ", "prenom": "Moulay Ali", "ville": "", "gsm": "06 22 67 99 75", "email": "elbazvolleyball@gmail.com", "photo": ""}, {"nom": "ZOUBIR", "prenom": "Abderahman", "ville": "", "gsm": "06 62 66 54 80", "email": "ristou16@hotmail.fr", "photo": ""}];
 let ARBITRES=[];
 const ROLES=[["r1","1er arbitre"],["r2","2e arbitre"],["mq","Marqueur"],["jl","Juge de ligne"]];
 const tot=a=>ROLES.reduce((n,[k])=>n+(+a[k]||0),0);
@@ -955,7 +956,7 @@ const g={};l.forEach(a=>(g[a.ville]=g[a.ville]||[]).push(a));
 const vs=Object.keys(g),all=l.reduce((n,a)=>n+tot(a),0),pl=n=>n>1?"s":"";
 t.textContent=(sel||("Toutes les villes ("+vs.length+")"))+", "+all+" match"+(all>1?"s":"")+" au total";
 ul.innerHTML=vs.length?vs.map(v=>{const sm=g[v].reduce((n,a)=>n+tot(a),0);return `<section class="ville"><h3>${esc(v)}<span>${g[v].length} arbitre${pl(g[v].length)}, ${sm} match${sm>1?"s":""}</span></h3><ul>${g[v].map(a=>{const i=ARBITRES.indexOf(a);return `<li><span class="who"><label class="av-l" title="Ajouter ou changer la photo">${a.photo?`<img class="av" src="${esc(a.photo)}" alt="">`:`<span class="av ph">${esc(((a.prenom||"?")[0]+(a.nom||"")[0]).toUpperCase())}</span>`}<input type="file" accept="image/*" class="vh" data-ph="${i}"></label><span><small>N° ${esc(a.num||"-")}</small><br>${esc(a.nom)} ${esc(a.prenom)}</span></span><span class="contact"><span>CIN : ${esc(a.cin||"-")}</span><span>Ville : ${esc(a.ville)}</span>${a.dn&&ageOf(a.dn)!=null?`<span>Né(e) le ${esc(dnFr(a.dn))} · ${esc(ageTxt(a.dn))}</span>`:""}<a href="tel:${esc(a.gsm.replace(/\s/g,""))}">GSM : ${esc(a.gsm||"-")}</a>${a.email?`<a href="mailto:${esc(a.email)}">${esc(a.email)}</a>`:""}</span><label class="tag gsel">Grade : <select data-g="${i}" aria-label="Grade de ${esc(a.nom)} ${esc(a.prenom)}">${gradesList().concat(gradesList().includes(a.niveau)?[]:[a.niveau]).map(g=>`<option${g===a.niveau?" selected":""}>${esc(g)}</option>`).join("")}</select></label><button type="button" class="act${a.actif===false?" off":""}" data-t="${i}" aria-pressed="${a.actif!==false}" title="Cliquer pour changer le statut">● ${a.actif===false?"Inactif":"Actif"}</button><button type="button" class="btn alt" style="padding:.3rem .85rem;font-size:.8rem" data-ed="${i}">Modifier</button><span class="tot">Matchs : ${tot(a)}</span><span class="roles">${ROLES.map(([k,lab])=>`<span class="rl"><small>${lab}</small><span class="st"><button type="button" data-i="${i}" data-k="${k}" data-d="-1" aria-label="Retirer : ${lab}">−</button><b>${a[k]||0}</b><button type="button" data-i="${i}" data-k="${k}" data-d="1" aria-label="Ajouter : ${lab}">+</button></span></span>`).join("")}</span>${i===EDIDX?adminEditForm(a):""}</li>`}).join("")}</ul></section>`}).join(""):'<p class="empty">'+(ARBITRES.length?'Aucun arbitre trouvé.':'Aucun arbitre pour l\'instant : importez votre fichier Excel.')+'</p>';
-drawDash();
+drawDash();delDraw();
 }
 ul.addEventListener("click",e=>{if(!arAdmin())return;
 const ed=e.target.closest("button[data-ed]");if(ed){EDIDX=+ed.dataset.ed;AEPH=undefined;draw();return}
@@ -1130,6 +1131,50 @@ r.warn.forEach(w=>L.push("⚠ "+w+"."));
 msg.innerHTML=L.map(esc).join("<br>");
 }catch(e){msg.textContent="Impossible d'appliquer ce texte ("+(e&&e.message||e)+")."}
 });
+/* Délégués d'arbitrage */
+const arAdminSafe=()=>{try{return arAdmin()}catch(_){return false}};
+let DELED=null,DELPH=undefined;
+function delList(){if(arAdminSafe()){try{const l=JSON.parse(localStorage.getItem("del-v1")||"null");if(Array.isArray(l))return l}catch(_){}}return DELEGUES}
+function delSave(L){try{localStorage.setItem("del-v1",JSON.stringify(L))}catch(_){}const k=pendGet();if(!k.some(x=>x.del)){k.push({k:"__del",del:true});pendSet(k)}pendShow();schedulePub()}
+function delCard(d,i,edit){
+const bs='style="padding:.3rem .85rem;font-size:.8rem"';
+return `<li><span class="who"><span>${avHtml(d,d.photo)}</span><span><small>Délégué d'arbitrage</small><br>${esc(d.nom)} ${esc(d.prenom)}</span></span><span class="contact">${d.ville?`<span>Ville : ${esc(d.ville)}</span>`:""}${d.gsm?`<a href="tel:${esc(String(d.gsm).replace(/\s/g,""))}">GSM : ${esc(d.gsm)}</a>`:""}${d.email?`<a href="mailto:${esc(d.email)}">${esc(d.email)}</a>`:""}</span><span class="tag">Délégué d'arbitrage</span>${edit?`<button type="button" class="btn alt" ${bs} data-dl="ed" data-i="${i}">Modifier</button><button type="button" class="btn alt" ${bs} data-dl="rm" data-i="${i}">Supprimer</button>`:""}</li>`;
+}
+function delForm(d){
+const f=(id,l,v,t)=>`<label for="${id}">${l}</label><input id="${id}" type="${t||"text"}" value="${esc(v||"")}">`;
+return `<div class="ef" style="flex:1 1 100%;width:100%;margin-top:.6rem">${f("de-nom","Nom *",d.nom)}${f("de-prenom","Prénom *",d.prenom)}${f("de-ville","Ville (facultatif)",d.ville)}${f("de-gsm","Téléphone (GSM)",d.gsm,"tel")}${f("de-email","E-mail",d.email,"email")}<label>Photo personnelle</label><div class="imp" style="align-items:center"><span id="de-pic">${avHtml(d,DELPH===undefined?d.photo:DELPH)}</span><label class="btn alt">Choisir une photo<input id="de-ph" class="vh" type="file" accept="image/*"></label><button class="btn alt" type="button" data-dl="rmph">Retirer la photo</button></div><div class="err" id="de-err" role="alert"></div><div class="imp"><button class="btn" type="button" data-dl="save">Enregistrer</button><button class="btn alt" type="button" data-dl="cancel">Annuler</button></div></div>`;
+}
+function delHtml(L,edit){
+if(!L.length&&!edit)return "";
+const rows=L.map((d,i)=>DELED===i&&edit?`<li style="flex-wrap:wrap">${delForm(d)}</li>`:delCard(d,i,edit)).join("")+(edit&&DELED===-1?`<li style="flex-wrap:wrap">${delForm({})}</li>`:"");
+return `<section class="ville" style="margin-bottom:0"><h3>Délégués d'arbitrage<span>${L.length} délégué${L.length>1?"s":""}</span></h3>${rows?`<ul>${rows}</ul>`:`<p class="help">Aucun délégué pour le moment.</p>`}${edit&&DELED===null?`<div class="imp"><button class="btn" type="button" data-dl="new">+ Ajouter un délégué</button></div>`:""}</section>`;
+}
+function delDraw(){
+const ad=arAdminSafe(),L=delList(),a=document.getElementById("del-box"),b=document.getElementById("del-box-me");
+if(a){const h=ad?delHtml(L,true):"";a.innerHTML=h;a.hidden=!h}
+if(b){const h=ad?"":delHtml(L,false);b.innerHTML=h;b.hidden=!h}
+}
+document.addEventListener("click",e=>{
+const b=e.target.closest&&e.target.closest("button[data-dl]");if(!b||!arAdminSafe())return;
+const act=b.dataset.dl,i=+b.dataset.i;
+if(act==="new"){DELED=-1;DELPH=undefined;delDraw();return}
+if(act==="ed"){DELED=i;DELPH=undefined;delDraw();return}
+if(act==="cancel"){DELED=null;DELPH=undefined;delDraw();return}
+if(act==="rm"){const L=delList().map(x=>({...x})),d=L[i];if(!d||!confirm("Supprimer "+d.nom+" "+d.prenom+" de la liste des délégués ?"))return;L.splice(i,1);delSave(L);DELED=null;delDraw();return}
+if(act==="rmph"){DELPH="";const pc=document.getElementById("de-pic");if(pc)pc.innerHTML=avHtml({nom:document.getElementById("de-nom").value,prenom:document.getElementById("de-prenom").value},"");return}
+if(act==="save"){
+const g=id=>document.getElementById(id).value.trim(),err=m=>{document.getElementById("de-err").textContent=m};
+const nom=g("de-nom").toUpperCase(),prenom=g("de-prenom"),gsm=g("de-gsm"),email=g("de-email"),ville=cityName(g("de-ville"));
+if(!nom||!prenom){err("Le nom et le prénom sont obligatoires.");return}
+if(gsm&&!/^\+?[\d\s.\-]{9,16}$/.test(gsm)){err("Numéro de téléphone invalide.");return}
+if(email&&!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){err("Adresse e-mail invalide.");return}
+const L=delList().map(x=>({...x})),old=DELED>=0?L[DELED]:null;
+const o={nom,prenom,ville,gsm:gsm?phoneName(gsm):"",email,photo:DELPH===undefined?((old&&old.photo)||""):DELPH};
+if(DELED===-1)L.push(o);else L[DELED]=o;
+delSave(L);DELED=null;DELPH=undefined;delDraw();
+}
+});
+document.addEventListener("change",e=>{const t=e.target;if(t&&t.id==="de-ph"&&arAdminSafe()&&t.files&&t.files[0]){shrink(t.files[0],200,d=>{DELPH=d;const pc=document.getElementById("de-pic");if(pc)pc.innerHTML=avHtml({nom:document.getElementById("de-nom").value,prenom:document.getElementById("de-prenom").value},d)});t.value=""}});
 function roleOf(h){const n=norm(h);if(!n)return "";if(/marqueur/.test(n))return "mq";if(/juge|ligne/.test(n))return "jl";if(/deuxieme|^2e|arbitre2|second/.test(n))return "r2";if(/premier|^1er|arbitre1|principal/.test(n)||n==="arbitre")return "r1";return ""}
 function countNoms(wb){
 const byName=new Map(),byCin=new Map(),old=ARBITRES.map(a=>ROLES.map(([k])=>a[k]||0));
@@ -1189,7 +1234,7 @@ const sha=async x=>[...new Uint8Array(await crypto.subtle.digest("SHA-256",new T
 const V={login:document.getElementById("login"),reg:document.getElementById("reg"),me:document.getElementById("me"),admin:document.getElementById("admin")};
 const lid=document.getElementById("lid"),lpw=document.getElementById("lpw"),lerr=document.getElementById("lerr");
 let fails=0,lock=0;
-function view(n){if(n==="login"){const x=document.getElementById("actbox");if(x)x.hidden=!ARBITRES.some(a=>a.pending)}document.body.classList.toggle("pub",n!=="admin"&&n!=="me");if(n==="admin")page("home");Object.keys(V).forEach(k=>V[k].hidden=k!==n);window.scrollTo(0,0)}
+function view(n){if(n==="login"){const x=document.getElementById("actbox");if(x)x.hidden=!ARBITRES.some(a=>a.pending)}document.body.classList.toggle("pub",n!=="admin"&&n!=="me");if(n==="admin"){page("home");delDraw()}Object.keys(V).forEach(k=>V[k].hidden=k!==n);window.scrollTo(0,0)}
 function showMe(a){
 const g=id=>document.getElementById(id),t=tot(a);
 CURME=a;
@@ -1205,7 +1250,7 @@ g("me-kpis").innerHTML=[["k1","Matchs désignés",t,"Toutes fonctions"],...ROLES
 g("me-bar").innerHTML=barSvg([["1er arbitre",a.r1||0],["2e arbitre",a.r2||0],["Marqueur",a.mq||0],["Juge ligne",a.jl||0]]);
 view("me");
 mpage("arbitres");
-initDir(a);
+initDir(a);delDraw();
 }
 function bad(){fails++;lerr.textContent="Identifiant ou mot de passe incorrect.";if(fails>=5){lock=Date.now()+30000;fails=0}}
 const b64d=x=>Uint8Array.from(atob(x),c=>c.charCodeAt(0));
@@ -1639,14 +1684,14 @@ const c=ghCfg();if(!(c.auto&&c.tok&&c.repo)||!ADMKEY)return;
 clearTimeout(PUBTIMER);PUBTIMER=setTimeout(()=>pubBuild("github"),AUTO_MS);
 }
 function pendShow(){
-const pl=pendGet(),n=pl.filter(x=>!x.prog).length,np=pl.some(x=>x.prog),note=document.getElementById("pend-note"),info=document.getElementById("pub-info"),c=ghCfg(),auto=!!(c.auto&&c.tok&&c.repo);
-const what=[n?n+" arbitre"+(n>1?"s":""):"",np?"programmes (semaines)":""].filter(Boolean).join(" et ");
+const pl=pendGet(),n=pl.filter(x=>!x.prog&&!x.del).length,np=pl.some(x=>x.prog),nd=pl.some(x=>x.del),note=document.getElementById("pend-note"),info=document.getElementById("pub-info"),c=ghCfg(),auto=!!(c.auto&&c.tok&&c.repo);
+const what=[n?n+" arbitre"+(n>1?"s":""):"",np?"programmes (semaines)":"",nd?"délégués":""].filter(Boolean).join(" et ");
 if(note){
 if(PUBMSG){note.hidden=false;note.textContent=PUBMSG}
-else if(n||np){note.hidden=false;note.textContent="⚠ Modifications en attente de publication : "+what+". "+(auto?"Publication automatique en préparation.":"Elles ne sont enregistrées que sur cet appareil : publiez-les depuis « Importer et configuration » pour que les arbitres les voient.")}
+else if(n||np||nd){note.hidden=false;note.textContent="⚠ Modifications en attente de publication : "+what+". "+(auto?"Publication automatique en préparation.":"Elles ne sont enregistrées que sur cet appareil : publiez-les depuis « Importer et configuration » pour que les arbitres les voient.")}
 else note.hidden=true;
 }
-if(info)info.textContent=(n||np)?what.charAt(0).toUpperCase()+what.slice(1)+" modifié"+((n>1||(n&&np))?"s":"")+" depuis la dernière publication. "+(auto?"La publication sur GitHub est automatique ; vous pouvez aussi la lancer maintenant.":"Cliquez sur « Publier sur GitHub » (ou téléchargez le fichier et remplacez-le dans votre dépôt). Les arbitres ne voient les changements qu’après cette étape."):"Aucune modification en attente. Les changements de profil, de grade, de statut, de matchs et de programmes faits par l’administrateur apparaissent ici ; les autres appareils ne les voient qu’après publication."
+if(info)info.textContent=(n||np||nd)?what.charAt(0).toUpperCase()+what.slice(1)+" modifié"+((n>1||(n&&np))?"s":"")+" depuis la dernière publication. "+(auto?"La publication sur GitHub est automatique ; vous pouvez aussi la lancer maintenant.":"Cliquez sur « Publier sur GitHub » (ou téléchargez le fichier et remplacez-le dans votre dépôt). Les arbitres ne voient les changements qu’après cette étape."):"Aucune modification en attente. Les changements de profil, de grade, de statut, de matchs et de programmes faits par l’administrateur apparaissent ici ; les autres appareils ne les voient qu’après publication."
 }
 
 function arrConst(src,name){
@@ -1736,7 +1781,7 @@ adm.ct=await aesEnc(ADMKEY,JSON.stringify(pub.map(exportObj)));
 if(JSON.parse(await aesDec(ADMKEY,adm.ct)).length!==pub.length)throw new Error("Vérification de la liste échouée.");
 if(pend.some(x=>x.prog))PROGS.forEach(P=>P.matchs.forEach((mt,m)=>{const d=DESIG[P.id+m];if(!d)return;const e=mt[4]=mt[4]||{};const nm=v=>{if(!v)return"";if(String(v).startsWith("txt:"))return String(v).slice(4);const x=findP(v);return x?pname(x)+" ("+x.ville+")":""};["r1","r2","mq"].forEach(k=>{const n=nm(d[k]);if(n)e[k]=n});const jl=(e.jl||[]).slice();["jl1","jl2","jl3","jl4"].forEach((k,i)=>{const n=nm(d[k]);if(n)jl[i]=n});for(let i=0;i<jl.length;i++)if(!jl[i])jl[i]="";if(jl.length)e.jl=jl}));
 let out=src;
-[{s:pe.start,e:pe.end,t:JSON.stringify(emb)},{s:pa.start,e:pa.end,t:JSON.stringify(adm)}].concat(pend.some(x=>x.prog)&&arrConst(src,"PROGS")?[(r=>({s:r.start,e:r.end,t:JSON.stringify(PROGS)}))(arrConst(src,"PROGS"))]:[]).concat(pend.some(x=>x.prog)&&arrConst(src,"RECUS")?[(r=>({s:r.start,e:r.end,t:JSON.stringify(allRecus())}))(arrConst(src,"RECUS"))]:[]).concat(pend.some(x=>x.prog)&&jsonConst(src,"RES_EMB")?[(r=>({s:r.start,e:r.end,t:JSON.stringify(Object.assign({},RES_EMB,RESULTS))}))(jsonConst(src,"RES_EMB"))]:[]).concat(pend.some(x=>x.prog)&&jsonConst(src,"SETS_EMB")?[(r=>({s:r.start,e:r.end,t:JSON.stringify(Object.assign({},SETS_EMB,SETS))}))(jsonConst(src,"SETS_EMB"))]:[]).concat(pend.some(x=>x.prog)&&jsonConst(src,"UPD_CFG")?[(r=>({s:r.start,e:r.end,t:JSON.stringify({form:updForm()})}))(jsonConst(src,"UPD_CFG"))]:[]).concat(pend.some(x=>x.prog)&&arrConst(src,"CDOCS")?[(r=>({s:r.start,e:r.end,t:JSON.stringify(allCdocs())}))(arrConst(src,"CDOCS"))]:[]).concat(pend.some(x=>x.prog)&&arrConst(src,"CALS")?[(r=>({s:r.start,e:r.end,t:JSON.stringify(COMPS.flatMap(c=>calRows(c.lg)))}))(arrConst(src,"CALS"))]:[]).sort((x,y)=>y.s-x.s).forEach(p=>{out=out.slice(0,p.s)+p.t+out.slice(p.e)});
+[{s:pe.start,e:pe.end,t:JSON.stringify(emb)},{s:pa.start,e:pa.end,t:JSON.stringify(adm)}].concat(pend.some(x=>x.prog)&&arrConst(src,"PROGS")?[(r=>({s:r.start,e:r.end,t:JSON.stringify(PROGS)}))(arrConst(src,"PROGS"))]:[]).concat(pend.some(x=>x.prog)&&arrConst(src,"RECUS")?[(r=>({s:r.start,e:r.end,t:JSON.stringify(allRecus())}))(arrConst(src,"RECUS"))]:[]).concat(pend.some(x=>x.prog)&&jsonConst(src,"RES_EMB")?[(r=>({s:r.start,e:r.end,t:JSON.stringify(Object.assign({},RES_EMB,RESULTS))}))(jsonConst(src,"RES_EMB"))]:[]).concat(pend.some(x=>x.prog)&&jsonConst(src,"SETS_EMB")?[(r=>({s:r.start,e:r.end,t:JSON.stringify(Object.assign({},SETS_EMB,SETS))}))(jsonConst(src,"SETS_EMB"))]:[]).concat(pend.some(x=>x.prog)&&jsonConst(src,"UPD_CFG")?[(r=>({s:r.start,e:r.end,t:JSON.stringify({form:updForm()})}))(jsonConst(src,"UPD_CFG"))]:[]).concat(pend.some(x=>x.prog)&&arrConst(src,"CDOCS")?[(r=>({s:r.start,e:r.end,t:JSON.stringify(allCdocs())}))(arrConst(src,"CDOCS"))]:[]).concat(pend.some(x=>x.prog)&&arrConst(src,"CALS")?[(r=>({s:r.start,e:r.end,t:JSON.stringify(COMPS.flatMap(c=>calRows(c.lg)))}))(arrConst(src,"CALS"))]:[]).concat(pend.some(x=>x.del)&&arrConst(src,"DELEGUES")?[(r=>({s:r.start,e:r.end,t:JSON.stringify(delList())}))(arrConst(src,"DELEGUES"))]:[]).sort((x,y)=>y.s-x.s).forEach(p=>{out=out.slice(0,p.s)+p.t+out.slice(p.e)});
 if(mode==="github"){
 await ghPut(c,out,sha);pendSet([]);
 const t=new Date().toLocaleTimeString("fr-FR",{hour:"2-digit",minute:"2-digit"});
