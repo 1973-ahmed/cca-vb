@@ -990,7 +990,7 @@ for(let i=1;i<total;i++)str(String(offs[i]).padStart(10,"0")+" 00000 n \n");
 str("trailer\n<< /Size "+total+" /Root 1 0 R >>\nstartxref\n"+xr+"\n%%EOF\n");
 const out=new Uint8Array(len);let o=0;chunks.forEach(c=>{out.set(c,o);o+=c.length});return out;
 }
-function notesPdfBlob(pick){
+function notesPdfBlob(pick,ca){
 const W=1240,H=1754,M=110,CW=W-2*M,FONT='"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans Arabic",sans-serif';
 const cvs=[];let cv,c,y;
 const newPage=()=>{cv=document.createElement("canvas");cv.width=W;cv.height=H;c=cv.getContext("2d");c.fillStyle="#fff";c.fillRect(0,0,W,H);y=M;cvs.push(cv)};
@@ -1008,8 +1008,8 @@ lines.forEach(l=>{if(y+lh>H-M){newPage()}c.font=font;c.fillStyle=color;c.directi
 y+=after;
 };
 newPage();
-para("Mes notes","700 54px "+FONT,"#0f6b3e",66,4);
-para("e-Ref Assist · exporté le "+new Date().toLocaleString("fr-FR",{dateStyle:"long",timeStyle:"short"}),"400 26px "+FONT,"#667085",34,18);
+para(ca?"Notes de la CCA et de la Direction d’arbitrage":"Mes notes","700 "+(ca?"46":"54")+"px "+FONT,"#0f6b3e",ca?58:66,4);
+para((ca?"Commission Centrale d’arbitrage et Direction d’arbitrage · ":"")+"e-Ref Assist · exporté le "+new Date().toLocaleString("fr-FR",{dateStyle:"long",timeStyle:"short"}),"400 26px "+FONT,"#667085",34,18);
 c.fillStyle="#0f6b3e";c.fillRect(M,y,CW,4);y+=34;
 pick.forEach((n,i)=>{
 if(y+150>H-M)newPage();
@@ -1028,8 +1028,8 @@ return new Blob([pdfFromJpegs(pages)],{type:"application/pdf"});
 function loadNotes(k){try{return JSON.parse(localStorage.getItem(k)||"[]")}catch(_){return[]}}
 function saveNotes(k,l){try{localStorage.setItem(k,JSON.stringify(l))}catch(_){}}
 function notesHtml(k,id){
-const l=loadNotes(k);
-return `<div class="cd"><h3>Nouvelle note</h3><textarea id="${id}-t" rows="4" placeholder="Écrivez votre note…" aria-label="Nouvelle note"></textarea><div class="imp" style="margin:.7rem 0 0"><button class="btn" type="button" data-n="add">Enregistrer la note</button><span>Les notes restent enregistrées sur cet appareil.</span></div></div><div class="cd"><h3>Mes notes (${l.length})</h3>${l.length?`<div class="imp" style="margin:0 0 .6rem"><button class="btn alt" type="button" data-n="dlall">Télécharger toutes les notes (PDF)</button></div><ul class="nts">${l.map((n,i)=>`<li><div class="nt"><small>${esc(n.d)}</small><p>${esc(n.t)}</p></div><span style="display:flex;gap:.4rem;flex-wrap:wrap"><button class="btn alt" type="button" data-n="dl1" data-i="${i}">Télécharger</button><button class="btn alt3" type="button" data-n="del" data-i="${i}">Supprimer</button></span></li>`).join("")}</ul>`:'<p class="help" style="margin-top:0">Aucune note pour le moment.</p>'}</div>`;
+const l=loadNotes(k),ca=k==="notes-admin";
+return `<div class="cd"><h3>${ca?"Nouvelle note de la CCA / Direction d’arbitrage":"Nouvelle note"}</h3><textarea id="${id}-t" rows="4" placeholder="Écrivez votre note…" aria-label="Nouvelle note"></textarea><div class="imp" style="margin:.7rem 0 0"><button class="btn" type="button" data-n="add">Enregistrer la note</button><span>Les notes restent enregistrées sur cet appareil.</span></div></div><div class="cd"><h3>${ca?"Notes de la CCA et de la Direction d’arbitrage":"Mes notes"} (${l.length})</h3>${l.length?`<div class="imp" style="margin:0 0 .6rem"><button class="btn alt" type="button" data-n="dlall">${ca?"Télécharger les notes de la CCA et de la Direction d’arbitrage (PDF)":"Télécharger toutes les notes (PDF)"}</button></div><ul class="nts">${l.map((n,i)=>`<li><div class="nt"><small>${esc(n.d)}</small><p>${esc(n.t)}</p></div><span style="display:flex;gap:.4rem;flex-wrap:wrap"><button class="btn alt" type="button" data-n="dl1" data-i="${i}">Télécharger</button><button class="btn alt3" type="button" data-n="del" data-i="${i}">Supprimer</button></span></li>`).join("")}</ul>`:'<p class="help" style="margin-top:0">Aucune note pour le moment.</p>'}</div>`;
 }
 function bindNotes(host,getKey,id){
 host.addEventListener("click",e=>{
@@ -1039,7 +1039,7 @@ const l=loadNotes(k);
 if(b.dataset.n==="dlall"||b.dataset.n==="dl1"){
 const one=b.dataset.n==="dl1",pick=one?[l[+b.dataset.i]].filter(Boolean):l;if(!pick.length)return;
 const day=new Date().toISOString().slice(0,10);
-try{savePng(notesPdfBlob(pick),(one?"note-":"notes-")+day+".pdf")}catch(err){alert("Impossible de générer le PDF sur cet appareil.")}
+try{savePng(notesPdfBlob(pick,k==="notes-admin"),(one?"note-":"notes-")+(k==="notes-admin"?"CCA-DA-":"")+day+".pdf")}catch(err){alert("Impossible de générer le PDF sur cet appareil.")}
 return;
 }
 if(b.dataset.n==="add"){const v=document.getElementById(id+"-t").value.trim();if(!v)return;l.unshift({t:v,d:new Date().toLocaleString("fr-FR",{dateStyle:"short",timeStyle:"short"})})}
