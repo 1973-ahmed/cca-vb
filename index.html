@@ -1556,9 +1556,17 @@ $("dir-t").textContent=cur?"Arbitres de "+cur[0]+" ("+cur[1].length+")":"Choisis
 $("dir-l").innerHTML=cur?cur[1].map(([n,g])=>`<li><span>${esc(n)}</span><span class="tag">${esc(g)}</span></li>`).join(""):"";
 }
 function drawStat(a){
+const tt=document.querySelectorAll("#m-stat .cd h3");
+if(!a._deleg){
+const t=tot(a),it=ROLES.map(([k,l])=>[l,a[k]||0]),cl=["k2","k3","k4","k2"];
+$("st-kpis").innerHTML=[["k1","Mes matchs",t,"Toutes fonctions"],...ROLES.map(([k,l],i)=>[cl[i],l,a[k]||0,t?Math.round(100*(a[k]||0)/t)+" % de mes matchs":"Aucune désignation"])].map(([c,l,v,s])=>`<div class="kpi ${c}"><small>${esc(l)}</small><b>${v}</b><span>${esc(s)}</span></div>`).join("");
+$("st-bar").innerHTML=barSvg(it);$("st-don").innerHTML=donutSvg(it.filter(x=>x[1]>0));
+if(tt[0])tt[0].textContent="Mes matchs par fonction";if(tt[1])tt[1].textContent="Répartition de mes matchs";
+return}
+if(tt[0])tt[0].textContent="Arbitres par ville (10 premières)";if(tt[1])tt[1].textContent="Répartition par grade";
 const byV={},byG={};DIRD.forEach(([c,l])=>{byV[c]=l.length;l.forEach(([,g])=>{const k=g||"—";byG[k]=(byG[k]||0)+1})});
 const n=DIRD.reduce((x,[,l])=>x+l.length,0),ci=Object.entries(byV).sort((x,y)=>y[1]-x[1]||fr(x[0],y[0])),gr=Object.entries(byG).sort((x,y)=>y[1]-x[1]);
-$("st-kpis").innerHTML=[["k1","Arbitres",n,"Tous grades"],["k2","Villes",ci.length,ci[0]?"Plus grande : "+ci[0][0]+" ("+ci[0][1]+")":"—"],["k3","Mes matchs",tot(a),"Toutes fonctions"]].map(([c,l,v,s])=>`<div class="kpi ${c}"><small>${esc(l)}</small><b>${v}</b><span>${esc(s)}</span></div>`).join("");
+$("st-kpis").innerHTML=[["k1","Arbitres",n,"Tous grades"],["k2","Villes",ci.length,ci[0]?"Plus grande : "+ci[0][0]+" ("+ci[0][1]+")":"—"],(a._deleg?["k3","Délégués",delList().length,"Délégués d’arbitrage"]:["k3","Mes matchs",tot(a),"Toutes fonctions"])].map(([c,l,v,s])=>`<div class="kpi ${c}"><small>${esc(l)}</small><b>${v}</b><span>${esc(s)}</span></div>`).join("");
 $("st-bar").innerHTML=barSvg(ci.slice(0,10));$("st-don").innerHTML=donutSvg(gr);
 }
 async function initDir(a){DIRD=await loadDir(a);dsel=a.ville;$("dq").value="";drawDir();drawStat(a)}
@@ -1568,7 +1576,7 @@ function mpage(p){
 if(p==="delegues")delDraw();if(p==="recus")setTimeout(renderRecus,0);if(p==="cal")setTimeout(refreshProg,0);if(p==="res")resLive();
 ["cal","delegues","arbitres","programmes","res","nominations","recus","stat","regles","nouv","case","notes"].forEach(k=>{$("m-"+k).hidden=k!==p});
 document.querySelectorAll(".mi[data-m]").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.m===p)));
-const T={cal:["Calendrier des matchs","Calendriers des six compétitions"],delegues:["Délégués d'arbitrage","Coordonnées des délégués d'arbitrage"],arbitres:["Arbitres","Votre fiche et les arbitres par ville"],programmes:["Programmes","Programmes des rencontres"],res:["Résultats et classements","Résultats des matchs et classements"],nominations:["Nominations","Vos nominations par fonction"],recus:["Reçus d'arbitrage","Vos reçus d'arbitrage"],stat:["Stat","Chiffres clés du suivi des arbitres"],regles:["Règles officielles 2025-2028","Règles officielles de volleyball de la FIVB"],nouv:["Nouvelles règles 2026","Règles testées par la FIVB en 2026"],case:["Casebook","Practical cases with official rulings"],notes:["Notes","Vos notes personnelles"]};
+const T={cal:["Calendrier des matchs","Calendriers des six compétitions"],delegues:["Délégués d'arbitrage","Coordonnées des délégués d'arbitrage"],arbitres:["Arbitres","Votre fiche et les arbitres par ville"],programmes:["Programmes","Programmes des rencontres"],res:["Résultats et classements","Résultats des matchs et classements"],nominations:["Nominations","Vos nominations par fonction"],recus:["Reçus d'arbitrage","Vos reçus d'arbitrage"],stat:["Stat",CURME&&CURME._deleg?"Chiffres clés du suivi des arbitres":"Vos statistiques personnelles"],regles:["Règles officielles 2025-2028","Règles officielles de volleyball de la FIVB"],nouv:["Nouvelles règles 2026","Règles testées par la FIVB en 2026"],case:["Casebook","Practical cases with official rulings"],notes:["Notes","Vos notes personnelles"]};
 $("me-pt").textContent=T[p][0];$("me-ps").textContent=T[p][1];window.scrollTo(0,0);
 }
 document.querySelectorAll(".mi[data-m]").forEach(b=>b.addEventListener("click",()=>mpage(b.dataset.m)));
@@ -1929,7 +1937,8 @@ olds.forEach(d=>{if(!keep.has(d.tag)){const j=emb.rec.findIndex(x=>x[0]===d.tag)
 n++;msg((mode==="github"?"Publication en cours… ":"")+"Chiffrement des fiches "+n+"/"+pend.length);
 }
 if(pend.some(x=>x.del)){
-const DL=delList(),keepT=new Set(),dkey=(ARBITRES.find(x=>x.dk)||{}).dk;
+const DL=delList(),keepT=new Set();let dkey=(ARBITRES.find(x=>x.dk)||{}).dk;
+if(!dkey){for(const x of ARBITRES){if(dkey)break;if(!x.cin||x.pending)continue;for(const id of idsOf(x.nom,x.prenom)){const k=await derive(id,norm(x.cin)),j=emb.rec.findIndex(r=>r[0]===k.tag);if(j<0)continue;try{const o=JSON.parse(await aesDec(k.key,emb.rec[j][1]));if(o.dk){dkey=o.dk;break}}catch(_){}}}}
 for(const d of DL){const cn=norm(d.cin);if(!cn)continue;
 for(const id of idsOf(d.nom,d.prenom)){const k=await derive(id,cn);keepT.add(k.tag);
 const obj={nom:d.nom,prenom:d.prenom,ville:d.ville||"—",niveau:"Délégué d'arbitrage",cin:d.cin,gsm:d.gsm||"",email:d.email||"",photo:(d.photo&&d.photo.length<=16000)?d.photo:"",num:"",dn:"",actif:true,r1:0,r2:0,mq:0,jl:0,_deleg:true};
