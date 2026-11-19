@@ -582,7 +582,7 @@ body:not(.adm) :is(button[data-cdoc],button[data-pdf],button[data-cald],button[d
 <div id="auth-box"></div>
 <div class="cd" id="pub-box"><h3>Publier les modifications</h3><p class="help" id="pub-info"></p><div class="imp"><button id="pub-gh" class="btn" type="button">Publier sur GitHub</button><button id="pub-go" class="btn alt" type="button">Télécharger le fichier à publier</button><button id="pub-done" class="btn alt" type="button">J’ai publié le fichier</button></div><div class="ok" id="pub-ok" role="status"></div><div class="err" id="pub-err" role="alert"></div>
 <details id="gh-set" style="margin-top:.8rem"><summary>Connexion à GitHub (publication en un clic)</summary><div class="ef"><label for="gh-repo">Dépôt (propriétaire/nom)</label><input id="gh-repo" type="text" autocomplete="off"><label for="gh-br">Branche</label><input id="gh-br" type="text" autocomplete="off"><label for="gh-tok">Jeton GitHub</label><input id="gh-tok" type="password" autocomplete="off"><label class="chk"><input id="gh-rem" type="checkbox"> Mémoriser le jeton sur cet appareil</label><label class="chk"><input id="gh-auto" type="checkbox"> Publier automatiquement 20 secondes après chaque modification</label><p class="help">Le jeton est un « fine-grained personal access token » limité à ce seul dépôt, avec le droit « Contents : Read and write ». Sur GitHub : Settings, Developer settings, Personal access tokens, Fine-grained tokens. Il reste sur cet appareil.</p><div class="imp"><button id="gh-save" class="btn" type="button">Enregistrer</button><button id="gh-forget" class="btn alt" type="button">Oublier le jeton</button></div></div></details>
-<h3 style="margin-top:1.2rem">Mise à jour reçue d’un arbitre</h3><p class="help">Collez ici le ou les messages reçus par e-mail (ou les codes « VBUPD: … »). Les modifications s’affichent aussitôt : il suffit de cliquer sur <b>Accepter</b>. Seuls le nom, le prénom, la ville, le CIN, le téléphone et l’e-mail sont repris ; le grade, le statut et les matchs ne changent jamais.</p><details id="upd-cfg-box" style="margin:.6rem 0"><summary><b>Réception automatique par formulaire Google (recommandé)</b></summary>
+<h3 style="margin-top:1.2rem">Mise à jour reçue d’un arbitre</h3><p class="help">Le plus simple : ouvrez le <b>lien « accepter en un clic »</b> contenu dans l’e-mail de l’arbitre, connectez-vous en administrateur, puis cliquez sur <b>Accepter</b>. Vous pouvez aussi coller ici le ou les messages reçus (ou les codes « VBUPD: … »). Seuls le nom, le prénom, la ville, le CIN, le téléphone et l’e-mail sont repris ; le grade, le statut et les matchs ne changent jamais.</p><details id="upd-cfg-box" style="margin:.6rem 0"><summary><b>Réception automatique par formulaire Google (recommandé)</b></summary>
 <p class="help">Les arbitres envoient leur mise à jour par un formulaire Google : vous recevez un e-mail à chaque réponse, sans dépendre de leur messagerie. 1) Créez un formulaire avec une question « Code de mise à jour » (type Paragraphe). 2) Dans <i>Réponses</i>, activez « Recevoir par e-mail les nouvelles réponses ». 3) Menu ⋮, « Obtenir le lien pré-rempli », tapez TEST dans la question, « Obtenir le lien » et collez-le ci-dessous. 4) Enregistrez, puis publiez.</p>
 <label for="upd-form">Lien pré-rempli du formulaire (contient « entry. »)</label><input id="upd-form" type="url" placeholder="https://docs.google.com/forms/d/e/…/viewform?usp=pp_url&entry.…=TEST">
 <label for="upd-sheet">Lien de la feuille des réponses (facultatif, reste sur cet appareil)</label><input id="upd-sheet" type="url" placeholder="https://docs.google.com/spreadsheets/d/…">
@@ -1246,14 +1246,15 @@ msg.innerHTML=L.map(esc).join("<br>");
 const arAdminSafe=()=>{try{return arAdmin()}catch(_){return false}};
 let DELED=null,DELPH=undefined;
 function delList(){if(arAdminSafe()){try{const l=JSON.parse(localStorage.getItem("del-v1")||"null");if(Array.isArray(l))return l}catch(_){}}return DELEGUES}
+function delOldPush(x){try{const k="del-old-v1";let l=[];try{l=JSON.parse(localStorage.getItem(k)||"[]")}catch(_){}l.push({nom:x.nom,prenom:x.prenom,cin:x.cin});localStorage.setItem(k,JSON.stringify(l))}catch(_){}}
 function delSave(L){try{localStorage.setItem("del-v1",JSON.stringify(L))}catch(_){}const k=pendGet();if(!k.some(x=>x.del)){k.push({k:"__del",del:true});pendSet(k)}pendShow();schedulePub()}
 function delCard(d,i,edit){
 const bs='style="padding:.3rem .85rem;font-size:.8rem"';
-return `<li><span class="who"><span>${avHtml(d,d.photo)}</span><span><small>Délégué d'arbitrage</small><br>${esc(d.nom)} ${esc(d.prenom)}</span></span><span class="contact">${d.ville?`<span>Ville : ${esc(d.ville)}</span>`:""}${d.gsm?`<a href="tel:${esc(String(d.gsm).replace(/\s/g,""))}">GSM : ${esc(d.gsm)}</a>`:""}${d.email?`<a href="mailto:${esc(d.email)}">${esc(d.email)}</a>`:""}</span><span class="tag">Délégué d'arbitrage</span>${edit?`<button type="button" class="btn alt" ${bs} data-dl="ed" data-i="${i}">Modifier</button><button type="button" class="btn alt" ${bs} data-dl="rm" data-i="${i}">Supprimer</button>`:""}</li>`;
+return `<li><span class="who"><span>${avHtml(d,d.photo)}</span><span><small>Délégué d'arbitrage</small><br>${esc(d.nom)} ${esc(d.prenom)}</span></span><span class="contact">${edit?`<span>Connexion : ${d.cin?"CIN enregistré ✓":"CIN à saisir"}</span>`:""}${d.ville?`<span>Ville : ${esc(d.ville)}</span>`:""}${d.gsm?`<a href="tel:${esc(String(d.gsm).replace(/\s/g,""))}">GSM : ${esc(d.gsm)}</a>`:""}${d.email?`<a href="mailto:${esc(d.email)}">${esc(d.email)}</a>`:""}</span><span class="tag">Délégué d'arbitrage</span>${edit?`<button type="button" class="btn alt" ${bs} data-dl="ed" data-i="${i}">Modifier</button><button type="button" class="btn alt" ${bs} data-dl="rm" data-i="${i}">Supprimer</button>`:""}</li>`;
 }
 function delForm(d){
 const f=(id,l,v,t)=>`<label for="${id}">${l}</label><input id="${id}" type="${t||"text"}" value="${esc(v||"")}">`;
-return `<div class="ef" style="flex:1 1 100%;width:100%;margin-top:.6rem">${f("de-nom","Nom *",d.nom)}${f("de-prenom","Prénom *",d.prenom)}${f("de-ville","Ville (facultatif)",d.ville)}${f("de-gsm","Téléphone (GSM)",d.gsm,"tel")}${f("de-email","E-mail",d.email,"email")}<label>Photo personnelle</label><div class="imp" style="align-items:center"><span id="de-pic">${avHtml(d,DELPH===undefined?d.photo:DELPH)}</span><label class="btn alt">Choisir une photo<input id="de-ph" class="vh" type="file" accept="image/*"></label><button class="btn alt" type="button" data-dl="rmph">Retirer la photo</button></div><div class="err" id="de-err" role="alert"></div><div class="imp"><button class="btn" type="button" data-dl="save">Enregistrer</button><button class="btn alt" type="button" data-dl="cancel">Annuler</button></div></div>`;
+return `<div class="ef" style="flex:1 1 100%;width:100%;margin-top:.6rem">${f("de-nom","Nom *",d.nom)}${f("de-prenom","Prénom *",d.prenom)}${f("de-ville","Ville (facultatif)",d.ville)}${f("de-cin","CIN (sert à la connexion, jamais publié en clair)",d.cin)}${f("de-gsm","Téléphone (GSM)",d.gsm,"tel")}${f("de-email","E-mail",d.email,"email")}<label>Photo personnelle</label><div class="imp" style="align-items:center"><span id="de-pic">${avHtml(d,DELPH===undefined?d.photo:DELPH)}</span><label class="btn alt">Choisir une photo<input id="de-ph" class="vh" type="file" accept="image/*"></label><button class="btn alt" type="button" data-dl="rmph">Retirer la photo</button></div><div class="err" id="de-err" role="alert"></div><div class="imp"><button class="btn" type="button" data-dl="save">Enregistrer</button><button class="btn alt" type="button" data-dl="cancel">Annuler</button></div></div>`;
 }
 function delHtml(L,edit){
 if(!L.length&&!edit)return "";
@@ -1271,16 +1272,19 @@ const act=b.dataset.dl,i=+b.dataset.i;
 if(act==="new"){DELED=-1;DELPH=undefined;delDraw();return}
 if(act==="ed"){DELED=i;DELPH=undefined;delDraw();return}
 if(act==="cancel"){DELED=null;DELPH=undefined;delDraw();return}
-if(act==="rm"){const L=delList().map(x=>({...x})),d=L[i];if(!d||!confirm("Supprimer "+d.nom+" "+d.prenom+" de la liste des délégués ?"))return;L.splice(i,1);delSave(L);DELED=null;delDraw();return}
+if(act==="rm"){const L=delList().map(x=>({...x})),d=L[i];if(!d||!confirm("Supprimer "+d.nom+" "+d.prenom+" de la liste des délégués ?"))return;if(d.cin)delOldPush(d);L.splice(i,1);delSave(L);DELED=null;delDraw();return}
 if(act==="rmph"){DELPH="";const pc=document.getElementById("de-pic");if(pc)pc.innerHTML=avHtml({nom:document.getElementById("de-nom").value,prenom:document.getElementById("de-prenom").value},"");return}
 if(act==="save"){
 const g=id=>document.getElementById(id).value.trim(),err=m=>{document.getElementById("de-err").textContent=m};
-const nom=g("de-nom").toUpperCase(),prenom=g("de-prenom"),gsm=g("de-gsm"),email=g("de-email"),ville=cityName(g("de-ville"));
+const nom=g("de-nom").toUpperCase(),prenom=g("de-prenom"),gsm=g("de-gsm"),email=g("de-email"),ville=cityName(g("de-ville")),cin=g("de-cin").replace(/\s/g,"").toUpperCase();
 if(!nom||!prenom){err("Le nom et le prénom sont obligatoires.");return}
 if(gsm&&!/^\+?[\d\s.\-]{9,16}$/.test(gsm)){err("Numéro de téléphone invalide.");return}
 if(email&&!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){err("Adresse e-mail invalide.");return}
+if(cin&&!/^[A-Z]{1,2}\d{4,8}$/.test(cin)){err("CIN invalide (exemple : AB123456).");return}
 const L=delList().map(x=>({...x})),old=DELED>=0?L[DELED]:null;
-const o={nom,prenom,ville,gsm:gsm?phoneName(gsm):"",email,photo:DELPH===undefined?((old&&old.photo)||""):DELPH};
+if(cin&&(ARBITRES.some(a=>norm(a.cin)===norm(cin))||L.some((x,j)=>j!==DELED&&norm(x.cin)===norm(cin)))){err("Ce CIN est déjà utilisé.");return}
+if(old&&old.cin&&(norm(old.cin)!==norm(cin)||old.nom!==nom||old.prenom!==prenom))delOldPush(old);
+const o={nom,prenom,ville,cin,gsm:gsm?phoneName(gsm):"",email,photo:DELPH===undefined?((old&&old.photo)||""):DELPH};
 if(DELED===-1)L.push(o);else L[DELED]=o;
 delSave(L);DELED=null;DELPH=undefined;delDraw();
 }
@@ -1379,7 +1383,7 @@ const sha=async x=>[...new Uint8Array(await crypto.subtle.digest("SHA-256",new T
 const V={login:document.getElementById("login"),reg:document.getElementById("reg"),me:document.getElementById("me"),admin:document.getElementById("admin")};
 const lid=document.getElementById("lid"),lpw=document.getElementById("lpw"),lerr=document.getElementById("lerr");
 let fails=0,lock=0;
-function view(n){document.body.classList.toggle("adm",n==="admin");if(n==="login"){const x=document.getElementById("actbox");if(x)x.hidden=!ARBITRES.some(a=>a.pending)}document.body.classList.toggle("pub",n!=="admin"&&n!=="me");if(n==="admin"){page("home");delDraw()}Object.keys(V).forEach(k=>V[k].hidden=k!==n);window.scrollTo(0,0)}
+function view(n){document.body.classList.toggle("adm",n==="admin");if(n==="login"){const x=document.getElementById("actbox");if(x)x.hidden=!ARBITRES.some(a=>a.pending)}document.body.classList.toggle("pub",n!=="admin"&&n!=="me");if(n==="admin"){page("home");delDraw();updFromLink()}Object.keys(V).forEach(k=>V[k].hidden=k!==n);window.scrollTo(0,0)}
 function showMe(a){
 const g=id=>document.getElementById(id),t=tot(a);
 CURME=a;
@@ -1393,6 +1397,7 @@ g("me-info").innerHTML=rows.map(([k,v])=>`<dt>${k}</dt><dd>${esc(v)}</dd>`).join
 const cls=["k2","k3","k4","k2"];
 g("me-kpis").innerHTML=[["k1","Matchs désignés",t,"Toutes fonctions"],...ROLES.map(([k,l],i)=>[cls[i],l,a[k]||0,t?Math.round(100*(a[k]||0)/t)+" % du total":"Aucune désignation"])].map(([c,l,v,s])=>`<div class="kpi ${c}"><small>${esc(l)}</small><b>${v}</b><span>${esc(s)}</span></div>`).join("");
 g("me-bar").innerHTML=barSvg([["1er arbitre",a.r1||0],["2e arbitre",a.r2||0],["Marqueur",a.mq||0],["Juge ligne",a.jl||0]]);
+{const dl=!!a._deleg;document.querySelectorAll('button[data-m="nominations"],button[data-m="recus"]').forEach(b=>b.hidden=dl);if(dl){g("me-actions").hidden=true;g("me-kpis").innerHTML="";g("me-bar").innerHTML="";g("me-desig").innerHTML='<p class="help" style="margin-top:0">Espace délégué d’arbitrage : calendriers, programmes, résultats, règles et coordonnées des délégués.</p>'}}
 view("me");
 mpage("arbitres");
 initDir(a);delDraw();
@@ -1775,9 +1780,11 @@ if(li>=0){Object.assign(ARBITRES[li],{nom,prenom,ville,cin,dn,gsm,email});if(phc
 AMPH=undefined;
 CURME=upd;showMe(upd);
 if(!L.length){$("me-edit").innerHTML=phc?'<p class="ok">✓ Photo enregistrée sur cet appareil. Envoyez-la à la commission (WhatsApp) pour qu’elle apparaisse partout sur la plateforme.</p>':'<p class="help">Aucune modification.</p>';return}
-const body=["Bonjour,","","Je souhaite mettre à jour mes informations d'arbitre :","",...L.map(([k,a,b])=>k+" : "+(a||"(vide)")+" → "+(b||"(vide)")),"","Arbitre : "+o.nom+" "+o.prenom+" (N° "+(o.num||"-")+")","","Code de mise à jour (à coller dans la plateforme) :",makeUpd(o,upd),"","Cordialement"].join("\n");
+const code=makeUpd(o,upd),link=location.href.split("#")[0]+"#upd="+code.slice(6,-1).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");
+const body=["Modification de profil : "+o.nom+" "+o.prenom+" (N° "+(o.num||"-")+")","",...L.map(([k,a,b])=>k+" : "+(a||"(vide)")+" → "+(b||"(vide)")),"","Administrateur, pour accepter en un clic, ouvrez ce lien :",link,"","Code de secours : "+code].join("\n");
 const fu=updFormUrl(body);
-$("me-edit").innerHTML='<p class="ok">✓ Modifications enregistrées sur cet appareil. Elles ne seront visibles par tous, sur la plateforme, qu’après validation par l’administrateur.'+(phc?" Votre photo est enregistrée sur cet appareil ; envoyez-la aussi à la commission par WhatsApp pour qu’elle apparaisse partout.":"")+(fu?" <b>Cliquez sur « Envoyer à la commission », puis sur « Envoyer » dans le formulaire qui s’ouvre.</b>":" Envoyez-les-lui par e-mail ou par WhatsApp.")+'</p><div class="imp">'+(fu?'<a class="btn" href="'+fu.replace(/&/g,"&amp;").replace(/"/g,"&quot;")+'" target="_blank" rel="noopener">Envoyer à la commission</a>':'')+'<a class="btn'+(fu?' alt':'')+'" href="mailto:'+ADMIN_MAIL+'?subject='+encodeURIComponent("Modification de profil - "+o.nom+" "+o.prenom)+'&body='+encodeURIComponent(body)+'">Envoyer mes modifications par e-mail</a><a class="btn" href="https://wa.me/?text='+encodeURIComponent(body)+'" target="_blank" rel="noopener">Envoyer par WhatsApp</a><button class="btn alt" type="button" id="me-copy">Copier le message</button></div><p class="help" id="me-cpm" role="status">Dans WhatsApp, choisissez le contact de l’administrateur (ou le groupe de la commission).</p>';
+const mail="mailto:"+ADMIN_MAIL+"?subject="+encodeURIComponent("Modification de profil - "+o.nom+" "+o.prenom)+"&body="+encodeURIComponent(body),ea=t=>t.replace(/&/g,"&amp;").replace(/"/g,"&quot;");
+$("me-edit").innerHTML='<p class="ok">✓ Modifications enregistrées sur cet appareil. Elles seront visibles par tous après validation de l’administrateur.'+(phc?" Pour la photo, envoyez-la aussi à la commission par WhatsApp.":"")+'</p><div class="imp"><a class="btn" href="'+ea(fu||mail)+'"'+(fu?' target="_blank" rel="noopener"':'')+'>Envoyer à l’administrateur</a></div><p class="help">'+(fu?'Dans le formulaire qui s’ouvre, cliquez simplement sur « Envoyer ».':'Votre messagerie s’ouvre avec le message déjà prêt : cliquez simplement sur « Envoyer ».')+'</p><details style="margin-top:.6rem"><summary>Autres moyens d’envoi</summary><div class="imp" style="margin-top:.5rem">'+(fu?'<a class="btn alt" href="'+ea(mail)+'">Par e-mail</a>':'')+'<a class="btn alt" href="https://wa.me/?text='+encodeURIComponent(body)+'" target="_blank" rel="noopener">Par WhatsApp</a><button class="btn alt" type="button" id="me-copy">Copier le message</button></div></details><p class="help" id="me-cpm" role="status"></p>';
 const cp=document.getElementById("me-copy");if(cp)cp.addEventListener("click",()=>{(navigator.clipboard?navigator.clipboard.writeText(body):Promise.reject()).then(()=>{$("me-cpm").textContent="✓ Message copié : collez-le dans le message que vous envoyez à l’administrateur."}).catch(()=>{$("me-cpm").textContent="Copie impossible : utilisez les boutons d’envoi ci-dessus."})});
 });
 /* --- Page d’accès : en-tête et ancres --- */
@@ -1921,14 +1928,26 @@ if(i>=0)emb.rec[i]=rec;else emb.rec.push(rec);
 olds.forEach(d=>{if(!keep.has(d.tag)){const j=emb.rec.findIndex(x=>x[0]===d.tag);if(j>=0)emb.rec.splice(j,1)}});
 n++;msg((mode==="github"?"Publication en cours… ":"")+"Chiffrement des fiches "+n+"/"+pend.length);
 }
+if(pend.some(x=>x.del)){
+const DL=delList(),keepT=new Set(),dkey=(ARBITRES.find(x=>x.dk)||{}).dk;
+for(const d of DL){const cn=norm(d.cin);if(!cn)continue;
+for(const id of idsOf(d.nom,d.prenom)){const k=await derive(id,cn);keepT.add(k.tag);
+const obj={nom:d.nom,prenom:d.prenom,ville:d.ville||"—",niveau:"Délégué d'arbitrage",cin:d.cin,gsm:d.gsm||"",email:d.email||"",photo:(d.photo&&d.photo.length<=16000)?d.photo:"",num:"",dn:"",actif:true,r1:0,r2:0,mq:0,jl:0,_deleg:true};
+if(dkey)obj.dk=dkey;
+const rec=[k.tag,await aesEnc(k.key,JSON.stringify(obj))];
+const chk=JSON.parse(await aesDec(k.key,rec[1]));if(chk.nom!==d.nom)throw new Error("Vérification échouée pour "+d.nom+".");
+const i=emb.rec.findIndex(x=>x[0]===k.tag);if(i>=0)emb.rec[i]=rec;else emb.rec.push(rec)}}
+let olds=[];try{olds=JSON.parse(localStorage.getItem("del-old-v1")||"[]")}catch(_){}
+for(const o of olds){const cn=norm(o.cin);if(!cn)continue;for(const id of idsOf(o.nom,o.prenom)){const k=await derive(id,cn);if(!keepT.has(k.tag)){const j=emb.rec.findIndex(x=>x[0]===k.tag);if(j>=0)emb.rec.splice(j,1)}}}
+}
 const pub=ARBITRES.filter(a=>!a.pending);
 adm.ct=await aesEnc(ADMKEY,JSON.stringify(pub.map(exportObj)));
 if(JSON.parse(await aesDec(ADMKEY,adm.ct)).length!==pub.length)throw new Error("Vérification de la liste échouée.");
 if(pend.some(x=>x.prog))PROGS.forEach(P=>P.matchs.forEach((mt,m)=>{const d=DESIG[P.id+m];if(!d)return;const e=mt[4]=mt[4]||{};const nm=v=>{if(!v)return"";if(String(v).startsWith("txt:"))return String(v).slice(4);const x=findP(v);return x?pname(x)+" ("+x.ville+")":""};["r1","r2","mq"].forEach(k=>{const n=nm(d[k]);if(n)e[k]=n});const jl=(e.jl||[]).slice();["jl1","jl2","jl3","jl4"].forEach((k,i)=>{const n=nm(d[k]);if(n)jl[i]=n});for(let i=0;i<jl.length;i++)if(!jl[i])jl[i]="";if(jl.length)e.jl=jl}));
 let out=src;
-[{s:pe.start,e:pe.end,t:JSON.stringify(emb)},{s:pa.start,e:pa.end,t:JSON.stringify(adm)}].concat(pend.some(x=>x.prog)&&arrConst(src,"PROGS")?[(r=>({s:r.start,e:r.end,t:JSON.stringify(PROGS)}))(arrConst(src,"PROGS"))]:[]).concat(pend.some(x=>x.prog)&&arrConst(src,"RECUS")?[(r=>({s:r.start,e:r.end,t:JSON.stringify(allRecus())}))(arrConst(src,"RECUS"))]:[]).concat(pend.some(x=>x.prog)&&jsonConst(src,"RES_EMB")?[(r=>({s:r.start,e:r.end,t:JSON.stringify(Object.assign({},RES_EMB,RESULTS))}))(jsonConst(src,"RES_EMB"))]:[]).concat(pend.some(x=>x.prog)&&jsonConst(src,"SETS_EMB")?[(r=>({s:r.start,e:r.end,t:JSON.stringify(Object.assign({},SETS_EMB,SETS))}))(jsonConst(src,"SETS_EMB"))]:[]).concat(pend.some(x=>x.prog)&&jsonConst(src,"UPD_CFG")?[(r=>({s:r.start,e:r.end,t:JSON.stringify({form:updForm()})}))(jsonConst(src,"UPD_CFG"))]:[]).concat(pend.some(x=>x.prog)&&arrConst(src,"CDOCS")?[(r=>({s:r.start,e:r.end,t:JSON.stringify(allCdocs())}))(arrConst(src,"CDOCS"))]:[]).concat(pend.some(x=>x.prog)&&arrConst(src,"CALS")?[(r=>({s:r.start,e:r.end,t:JSON.stringify(COMPS.flatMap(c=>calRows(c.lg)))}))(arrConst(src,"CALS"))]:[]).concat(pend.some(x=>x.del)&&arrConst(src,"DELEGUES")?[(r=>({s:r.start,e:r.end,t:JSON.stringify(delList())}))(arrConst(src,"DELEGUES"))]:[]).sort((x,y)=>y.s-x.s).forEach(p=>{out=out.slice(0,p.s)+p.t+out.slice(p.e)});
+[{s:pe.start,e:pe.end,t:JSON.stringify(emb)},{s:pa.start,e:pa.end,t:JSON.stringify(adm)}].concat(pend.some(x=>x.prog)&&arrConst(src,"PROGS")?[(r=>({s:r.start,e:r.end,t:JSON.stringify(PROGS)}))(arrConst(src,"PROGS"))]:[]).concat(pend.some(x=>x.prog)&&arrConst(src,"RECUS")?[(r=>({s:r.start,e:r.end,t:JSON.stringify(allRecus())}))(arrConst(src,"RECUS"))]:[]).concat(pend.some(x=>x.prog)&&jsonConst(src,"RES_EMB")?[(r=>({s:r.start,e:r.end,t:JSON.stringify(Object.assign({},RES_EMB,RESULTS))}))(jsonConst(src,"RES_EMB"))]:[]).concat(pend.some(x=>x.prog)&&jsonConst(src,"SETS_EMB")?[(r=>({s:r.start,e:r.end,t:JSON.stringify(Object.assign({},SETS_EMB,SETS))}))(jsonConst(src,"SETS_EMB"))]:[]).concat(pend.some(x=>x.prog)&&jsonConst(src,"UPD_CFG")?[(r=>({s:r.start,e:r.end,t:JSON.stringify({form:updForm()})}))(jsonConst(src,"UPD_CFG"))]:[]).concat(pend.some(x=>x.prog)&&arrConst(src,"CDOCS")?[(r=>({s:r.start,e:r.end,t:JSON.stringify(allCdocs())}))(arrConst(src,"CDOCS"))]:[]).concat(pend.some(x=>x.prog)&&arrConst(src,"CALS")?[(r=>({s:r.start,e:r.end,t:JSON.stringify(COMPS.flatMap(c=>calRows(c.lg)))}))(arrConst(src,"CALS"))]:[]).concat(pend.some(x=>x.del)&&arrConst(src,"DELEGUES")?[(r=>({s:r.start,e:r.end,t:JSON.stringify(delList().map(({cin,...r})=>r))}))(arrConst(src,"DELEGUES"))]:[]).sort((x,y)=>y.s-x.s).forEach(p=>{out=out.slice(0,p.s)+p.t+out.slice(p.e)});
 if(mode==="github"){
-await ghPut(c,out,sha);pendSet([]);
+await ghPut(c,out,sha);pendSet([]);try{localStorage.removeItem("del-old-v1")}catch(_){}
 const t=new Date().toLocaleTimeString("fr-FR",{hour:"2-digit",minute:"2-digit"});
 msg("✓ Publié sur GitHub à "+t+" ("+n+" fiche"+(n>1?"s":"")+" mise"+(n>1?"s":"")+" à jour). Les arbitres verront les changements dans 1 à 2 minutes.");
 }else{
@@ -1974,7 +1993,7 @@ function updRender(errs,ok){const box=document.getElementById("upd-sum");
 box.innerHTML=(ok?'<p class="ok">'+esc(ok)+'</p>':"")+UPDS.map((u,i)=>'<div class="cd" style="margin:.6rem 0"><p><b>'+esc(u.a.nom)+' '+esc(u.a.prenom)+'</b> (N° '+esc(u.a.num||"-")+', '+esc(u.a.niveau)+')</p><ul class="rl2">'+u.L.map(([k,x,y])=>'<li>'+esc(k)+' : '+esc(x||"(vide)")+' → <b>'+esc(y||"(vide)")+'</b></li>').join("")+'</ul><div class="imp"><button class="btn" type="button" data-upd="ok" data-i="'+i+'">Accepter</button><button class="btn alt" type="button" data-upd="no" data-i="'+i+'">Refuser</button></div></div>').join("")+(UPDS.length>1?'<div class="imp"><button class="btn" type="button" data-upd="all">Tout accepter ('+UPDS.length+')</button></div>':"")+(errs||[]).map(m=>'<div class="err">'+esc(m)+'</div>').join("")}
 function updScan(quiet){
 if(!arAdmin())return;
-const txt=document.getElementById("upd-in").value;UPDS=[];
+const txt=document.getElementById("upd-in").value.replace(/#upd=([A-Za-z0-9_\-]+)/g," VBUPD:$1~ ");UPDS=[];
 if(!txt.trim()){updRender([]);return}
 const errs=[],byA=new Map(),codes=txt.match(UPDRX)||[];
 if(!codes.length){errs.push("Code de mise à jour introuvable : il commence par VBUPD: et se termine par ~.")}
@@ -1997,6 +2016,12 @@ if(nK!==oK){let ch=false;Object.keys(DESIG).forEach(k=>{const d=DESIG[k];Object.
 if(norm(pname(a)+a.ville)!==oM){const nF=pname(a)+" ("+a.ville+")";let ch=false;const rp=n=>{if(n&&norm(n)===oM){ch=true;return nF}return n};PROGS.forEach(P=>P.matchs.forEach(mt=>{const d=mt[4];if(!d)return;["r1","r2","mq"].forEach(sl=>{if(d[sl])d[sl]=rp(d[sl])});if(d.jl)d.jl=d.jl.map(rp)}));if(ch)pendProg()}
 save();drawNav();draw();markPend(a,old);return true}
 document.getElementById("upd-in").addEventListener("input",()=>{clearTimeout(UPDT);UPDT=setTimeout(()=>updScan(),200)});
+/* Lien « accepter en un clic » reçu par e-mail : #upd=… */
+function updCapture(){try{const m=location.hash.match(/^#upd=([A-Za-z0-9_\-]+)/);if(!m)return;sessionStorage.setItem("upd-link","VBUPD:"+m[1]+"~");history.replaceState(null,"",location.href.split("#")[0]);const e=document.getElementById("lerr");if(e&&!document.body.classList.contains("adm"))e.textContent="Modification de profil reçue : connectez-vous en administrateur pour l’accepter."}catch(_){}}
+function updFromLink(){let c=null;try{c=sessionStorage.getItem("upd-link")}catch(_){}if(!c||!arAdminSafe())return;try{sessionStorage.removeItem("upd-link")}catch(_){}
+const ta=document.getElementById("upd-in");if(!ta)return;ta.value=c;page("imp");updScan();const sm=document.getElementById("upd-sum");if(sm&&sm.scrollIntoView)setTimeout(()=>sm.scrollIntoView({block:"center"}),50)}
+updCapture();window.addEventListener("hashchange",()=>{updCapture();if(document.body.classList.contains("adm"))updFromLink()});
+
 (()=>{const f=document.getElementById("upd-form"),sh=document.getElementById("upd-sheet");if(f)f.value=updForm();if(sh)sh.value=updSheet()})();
 document.getElementById("upd-cfg-save").addEventListener("click",()=>{
 if(!arAdmin())return;const m=document.getElementById("upd-cfg-msg"),f=document.getElementById("upd-form").value.trim(),sh=document.getElementById("upd-sheet").value.trim();
