@@ -623,7 +623,7 @@ body:not(.adm) :is(button[data-cdoc],button[data-pdf],button[data-cald],button[d
 <div class="imp"><button id="upd-cfg-save" class="btn" type="button">Enregistrer</button><span class="help" id="upd-cfg-msg" role="status"></span></div></details>
 <div class="imp"><button id="upd-fetch" class="btn alt" type="button">Lire les demandes reçues (feuille Google)</button><span class="help" id="upd-fm" role="status"></span></div>
 <textarea id="upd-in" rows="3" placeholder="Collez ici (Ctrl+V)…"></textarea><div id="upd-sum"></div><div id="rcv-sum"></div></div>
-<div class="cd"><h3>Importer les données</h3><div class="imp"><label class="btn" for="f">Importer un fichier Excel</label><input id="f" type="file" class="vh"><label class="btn alt" for="fa">Ajouter des arbitres (sans remplacer)</label><input id="fa" type="file" class="vh"><label class="btn" for="g">Importer les désignations</label><input id="g" type="file" class="vh"><label class="chk"><input id="sortnb" type="checkbox"> Classer par nombre de matchs</label><button id="rm" class="btn" type="button" hidden>Retirer les arbitres importés</button><button id="reload" class="btn alt" type="button">Recharger la liste du site</button></div><p class="help" id="msg">Colonnes : N°, Nom, Prénom, Grade, CIN, GSM, Ville (ou une feuille par ville)</p><p class="help">« Importer un fichier Excel » remplace toute la liste. « Ajouter des arbitres (sans remplacer) » garde la liste actuelle et n'ajoute que les arbitres absents (même CIN ou même nom = déjà présent). Pensez ensuite à publier.</p><p class="help">Matchs : utilisez + et − pour chaque fonction, ou importez un tableau de désignations dont les colonnes s'appellent « 1er arbitre », « 2e arbitre », « Marqueur », « Juge de ligne » (arbitres écrits « Nom Prénom » ou par leur CIN).</p><div class="imp"><button id="dtx-open" class="btn alt" type="button">Coller des désignations (texte)</button></div><div id="dtx-box" hidden><textarea id="dtx" rows="10" style="width:100%" placeholder="Collez ici le texte des désignations (format : Excellence Hommes – Week 1 (date), Match 1 : A contre B (lieu, heure), 1er arbitre : NOM PRÉNOM (Ville)…)" aria-label="Texte des désignations"></textarea><div class="imp"><button id="dtx-go" class="btn" type="button">Appliquer aux désignations et aux statistiques</button></div><p class="help" id="dtx-msg"></p></div><h3 style="margin-top:1.2rem">Accès des arbitres</h3><p class="help">Un arbitre se connecte avec son nom (« Nom Prénom » ou « Prénom Nom ») et son CIN comme mot de passe. Son accès n’existe en ligne qu’après une publication. Ce contrôle compare votre liste avec ce qui est réellement publié sur le site.</p><div class="imp"><button id="acc-go" class="btn alt" type="button">Vérifier les accès des arbitres</button><button id="acc-fix" class="btn" type="button" hidden>Publier les accès manquants</button></div><p class="help" id="acc-msg" role="status"></p></div>
+<div class="cd"><h3>Importer les données</h3><div class="imp"><label class="btn" for="f">Importer un fichier Excel</label><input id="f" type="file" class="vh"><label class="btn alt" for="fa">Ajouter des arbitres (sans remplacer)</label><input id="fa" type="file" class="vh"><label class="btn" for="g">Importer les désignations</label><input id="g" type="file" class="vh"><label class="chk"><input id="sortnb" type="checkbox"> Classer par nombre de matchs</label><button id="rm" class="btn" type="button" hidden>Retirer les arbitres importés</button><button id="reload" class="btn alt" type="button">Recharger la liste du site</button></div><p class="help" id="msg">Colonnes : N°, Nom, Prénom, Grade, CIN, GSM, Ville (ou une feuille par ville)</p><p class="help">« Importer un fichier Excel » remplace toute la liste. « Ajouter des arbitres (sans remplacer) » garde la liste actuelle et n'ajoute que les arbitres absents (même CIN ou même nom = déjà présent). Pensez ensuite à publier.</p><p class="help">Matchs : utilisez + et − pour chaque fonction, ou importez un tableau de désignations dont les colonnes s'appellent « 1er arbitre », « 2e arbitre », « Marqueur », « Juge de ligne » (arbitres écrits « Nom Prénom » ou par leur CIN).</p><div class="imp"><button id="dtx-open" class="btn alt" type="button">Coller des désignations (texte)</button></div><div id="dtx-box" hidden><textarea id="dtx" rows="10" style="width:100%" placeholder="Collez ici le texte des désignations (format : Excellence Hommes – Week 1 (date), Match 1 : A contre B (lieu, heure), 1er arbitre : NOM PRÉNOM (Ville)…)" aria-label="Texte des désignations"></textarea><div class="imp"><button id="dtx-go" class="btn" type="button">Appliquer aux désignations et aux statistiques</button></div><p class="help" id="dtx-msg"></p></div><h3 style="margin-top:1.2rem">Synchroniser avec Google Sheets</h3><p class="help">Collez le lien CSV publié de votre Google Sheet (Fichier, Partager, Publier sur le Web, format .csv). Colonnes : Compétition, Week, Équipe A, Équipe B, 1er arbitre, 2e arbitre, Marqueur, Juge de ligne (ou Juge de ligne 1 à 4). Seuls les matchs présents dans la feuille sont modifiés.</p><label for="gs-url" class="help" style="display:block;margin-bottom:.3rem">Lien CSV publié</label><input id="gs-url" type="url" placeholder="https://docs.google.com/spreadsheets/d/e/…/pub?output=csv" style="width:100%" autocomplete="off"><div class="imp"><button id="gs-go" class="btn" type="button">Synchroniser les désignations</button></div><p class="help" id="gs-msg" role="status"></p><h3 style="margin-top:1.2rem">Accès des arbitres</h3><p class="help">Un arbitre se connecte avec son nom (« Nom Prénom » ou « Prénom Nom ») et son CIN comme mot de passe. Son accès n’existe en ligne qu’après une publication. Ce contrôle compare votre liste avec ce qui est réellement publié sur le site.</p><div class="imp"><button id="acc-go" class="btn alt" type="button">Vérifier les accès des arbitres</button><button id="acc-fix" class="btn" type="button" hidden>Publier les accès manquants</button></div><p class="help" id="acc-msg" role="status"></p></div>
 <div class="cd"><h3>Page de connexion</h3><div class="imp"><label class="btn" for="bgf">Photo de fond</label><input id="bgf" type="file" accept="image/*" class="vh"><button id="bgr" class="btn" type="button">Fond d'origine</button></div></div>
 </section>
 </div>
@@ -1293,6 +1293,60 @@ r.warn.forEach(w=>L.push("⚠ "+w+"."));
 msg.innerHTML=L.map(esc).join("<br>");
 }catch(e){msg.textContent="Impossible d'appliquer ce texte ("+(e&&e.message||e)+")."}
 });
+/* Synchronisation des désignations depuis un Google Sheet publié en CSV */
+(function(){
+const U=document.getElementById("gs-url"),B=document.getElementById("gs-go"),M=document.getElementById("gs-msg");
+if(!U||!B||!M)return;
+try{U.value=localStorage.getItem("gs-csv-url")||""}catch(_){}
+const nm2=s=>String(s||"").trim();
+function csvToText(csv){
+const wb=XLSX.read(csv,{type:"string",raw:true}),ws=wb.Sheets[wb.SheetNames[0]];
+if(!ws)throw new Error("feuille vide");
+const m=XLSX.utils.sheet_to_json(ws,{header:1,defval:""});
+const h=m.findIndex(r=>r.some(c=>roleOf(c)));
+if(h<0)throw new Error("colonnes « 1er arbitre », « 2e arbitre », « Marqueur », « Juge de ligne » introuvables");
+const H=m[h].map(norm),col=f=>H.findIndex(f);
+const cC=col(x=>/competition|programme|titre|categorie/.test(x)),cW=col(x=>/week|semaine/.test(x));
+const cA=col(x=>/^(equipea|equipe1|domicile|eqa|club1)$/.test(x)),cB=col(x=>/^(equipeb|equipe2|exterieur|visiteur|eqb|club2)$/.test(x));
+if(cC<0||cW<0||cA<0||cB<0)throw new Error("colonnes « Compétition », « Week », « Équipe A », « Équipe B » introuvables");
+const rl=m[h].map(roleOf),fix=n=>{n=nm2(n);return /\)\s*$/.test(n)?n:n+" ()"};
+const groups=[],idx=new Map();let lastC="",lastW="";
+m.slice(h+1).forEach(r=>{
+if(!r.some(c=>nm2(c)!==""))return;
+const c=nm2(r[cC])||lastC,w=String(nm2(r[cW])||lastW).replace(/\D/g,""),a=nm2(r[cA]),b=nm2(r[cB]);
+if(nm2(r[cC]))lastC=c;if(nm2(r[cW]))lastW=nm2(r[cW]);
+if(!c||!w||!a||!b)return;
+const k=c+"|"+w;if(!idx.has(k)){idx.set(k,groups.length);groups.push({c,w,ms:[]})}
+const v={r1:"",r2:"",mq:"",jl:[]};
+rl.forEach((k2,j)=>{const t=nm2(r[j]);if(!k2||!t)return;if(k2==="jl")t.split(/[;\n,]+/).map(nm2).filter(Boolean).forEach(x=>v.jl.push(fix(x)));else if(!v[k2])v[k2]=fix(t)});
+groups[idx.get(k)].ms.push({a,b,v});
+});
+if(!groups.length)throw new Error("aucun match lisible dans la feuille");
+return groups.map(g=>g.c+" – Week "+g.w+"\n\n"+g.ms.map((x,i)=>"Match "+(i+1)+" : "+x.a+" contre "+x.b+" (salle, 00:00)\n1er arbitre : "+(x.v.r1||"-")+"\n2e arbitre : "+(x.v.r2||"-")+"\nMarqueur : "+(x.v.mq||"-")+"\nJuges de ligne : "+(x.v.jl.join(", ")||"-")).join("\n\n")).join("\n\n==========\n\n");
+}
+B.addEventListener("click",async()=>{
+if(!arAdmin())return;
+const u=U.value.trim();
+if(!/^https:\/\/docs\.google\.com\/spreadsheets\/.+/i.test(u)){M.textContent="Collez d'abord le lien CSV publié de votre Google Sheet (il commence par https://docs.google.com/spreadsheets/).";return}
+if(typeof XLSX==="undefined"){M.textContent="Le lecteur de tableur n'a pas pu se charger. Rechargez la page.";return}
+if(!ARBITRES.length){M.textContent="Importez d'abord la liste des arbitres.";return}
+try{localStorage.setItem("gs-csv-url",u)}catch(_){}
+B.disabled=true;M.textContent="Lecture du Google Sheet…";
+try{
+const r0=await fetch(u+(u.includes("?")?"&":"?")+"t="+Date.now(),{cache:"no-store"});
+if(!r0.ok)throw new Error("le lien n'est pas accessible (code "+r0.status+"). Vérifiez que la feuille est bien publiée sur le web.");
+const txt=await r0.text();
+if(/^\s*<(!doctype|html)/i.test(txt))throw new Error("le lien renvoie une page web et non un CSV. Choisissez le format « Valeurs séparées par des virgules (.csv) » dans Publier sur le Web.");
+const r=dtxApply(csvToText(txt)),L=[];
+L.push("✓ "+r.matches+" match"+(r.matches>1?"s":"")+" mis à jour, "+r.lie+" désignation"+(r.lie>1?"s":"")+" enregistrée"+(r.lie>1?"s":"")+" (statistiques mises à jour). Cliquez maintenant sur « Publier sur GitHub ».");
+if(r.miss.length)L.push("Arbitres introuvables dans la liste (enregistrés en texte, non comptés) : "+r.miss.join(", ")+".");
+if(r.skip.length)L.push("Ignoré (programme ou match non trouvé) : "+r.skip.join(" ; ")+".");
+r.warn.forEach(w=>L.push("⚠ "+w+"."));
+M.innerHTML=L.map(esc).join("<br>");
+}catch(e){M.textContent="Synchronisation impossible : "+(e&&e.message||e)+"."}
+B.disabled=false;
+});
+})();
 /* Délégués d'arbitrage */
 const arAdminSafe=()=>{try{return arAdmin()}catch(_){return false}};
 let DELED=null,DELPH=undefined;
