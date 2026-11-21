@@ -404,7 +404,7 @@ body:not(.adm) :is(button[data-cdoc],button[data-pdf],button[data-cald],button[d
 .lmode button.on{background:#1f8a4f;border-color:#1f8a4f;color:#fff}
 .lmode button:focus-visible{outline:2px solid #1f8a4f;outline-offset:2px}
 .sch .fr{display:flex;flex-direction:column;gap:.1rem;margin:.35rem 0 0;padding-top:.3rem;border-top:1px dashed rgba(255,255,255,.28);font-size:.74rem;color:#ffe9a8}.sch .fr b{font-weight:700}
-</style>
+.mres{border:1px solid var(--line);border-radius:10px;padding:.8rem 1rem;margin:.7rem 0}.mres p{margin:.2rem 0}.mres small{color:var(--mut)}.mres .rs{margin:.35rem 0}.mres .rs input{width:56px;padding:.35rem .2rem;margin:0;text-align:center}</style>
 </head>
 <body>
 <div id="login">
@@ -489,6 +489,7 @@ body:not(.adm) :is(button[data-cdoc],button[data-pdf],button[data-cald],button[d
 </section>
 <section id="m-arbitres" class="pg">
 <div class="cd"><h3>Ma fiche</h3><div id="me-h"></div><dl class="me-info" id="me-info"></dl><div class="imp" id="me-actions" style="margin-top:.8rem"><button class="btn" type="button" id="me-editb">Modifier mes informations</button></div><div id="me-edit"></div></div>
+<div class="cd" id="me-resbox" hidden><h3>Résultats de mes matchs</h3><p class="help" style="margin-top:0">Vous avez arbitré ces matchs : saisissez le résultat et envoyez-le à la commission. Il sera affiché pour tous après validation de l’administrateur.</p><div id="me-reslist"></div></div>
 <div class="refs"><div><input id="dq" type="search" placeholder="Rechercher une ville" aria-label="Rechercher une ville"><nav id="dir-nav" aria-label="Villes"></nav></div><div class="cd"><h3 id="dir-t"></h3><ul id="dir-l"></ul></div></div>
 </section>
 <section id="m-cal" class="pg" hidden>
@@ -615,13 +616,13 @@ body:not(.adm) :is(button[data-cdoc],button[data-pdf],button[data-cald],button[d
 <div id="auth-box"></div>
 <div class="cd" id="pub-box"><h3>Publier les modifications</h3><p class="help" id="pub-info"></p><div class="imp"><button id="pub-gh" class="btn" type="button">Publier sur GitHub</button><button id="pub-go" class="btn alt" type="button">Télécharger le fichier à publier</button><button id="pub-done" class="btn alt" type="button">J’ai publié le fichier</button></div><div class="ok" id="pub-ok" role="status"></div><div class="err" id="pub-err" role="alert"></div>
 <details id="gh-set" style="margin-top:.8rem"><summary>Connexion à GitHub (publication en un clic)</summary><div class="ef"><label for="gh-repo">Dépôt (propriétaire/nom)</label><input id="gh-repo" type="text" autocomplete="off"><label for="gh-br">Branche</label><input id="gh-br" type="text" autocomplete="off"><label for="gh-tok">Jeton GitHub</label><input id="gh-tok" type="password" autocomplete="off"><label class="chk"><input id="gh-rem" type="checkbox"> Mémoriser le jeton sur cet appareil</label><label class="chk"><input id="gh-auto" type="checkbox"> Publier automatiquement 20 secondes après chaque modification</label><p class="help">Le jeton est un « fine-grained personal access token » limité à ce seul dépôt, avec le droit « Contents : Read and write ». Sur GitHub : Settings, Developer settings, Personal access tokens, Fine-grained tokens. Il reste sur cet appareil.</p><div class="imp"><button id="gh-save" class="btn" type="button">Enregistrer</button><button id="gh-forget" class="btn alt" type="button">Oublier le jeton</button></div></div></details>
-<h3 style="margin-top:1.2rem">Mise à jour reçue d’un arbitre</h3><p class="help">Le plus simple : ouvrez le <b>lien « accepter en un clic »</b> contenu dans l’e-mail de l’arbitre, connectez-vous en administrateur, puis cliquez sur <b>Accepter</b>. Vous pouvez aussi coller ici le ou les messages reçus (ou les codes « VBUPD: … »). Seuls le nom, le prénom, la ville, le CIN, le téléphone et l’e-mail sont repris ; le grade, le statut et les matchs ne changent jamais.</p><details id="upd-cfg-box" style="margin:.6rem 0"><summary><b>Réception automatique par formulaire Google (recommandé)</b></summary>
+<h3 style="margin-top:1.2rem">Mise à jour reçue d’un arbitre</h3><p class="help"><b>Résultats de matchs :</b> un résultat envoyé par un arbitre arrive de la même façon (lien ou code « VBRES: … »). Il s’affiche ci-dessous avec les boutons Accepter / Refuser. Le plus simple : ouvrez le <b>lien « accepter en un clic »</b> contenu dans l’e-mail de l’arbitre, connectez-vous en administrateur, puis cliquez sur <b>Accepter</b>. Vous pouvez aussi coller ici le ou les messages reçus (ou les codes « VBUPD: … »). Seuls le nom, le prénom, la ville, le CIN, le téléphone et l’e-mail sont repris ; le grade, le statut et les matchs ne changent jamais.</p><details id="upd-cfg-box" style="margin:.6rem 0"><summary><b>Réception automatique par formulaire Google (recommandé)</b></summary>
 <p class="help">Les arbitres envoient leur mise à jour par un formulaire Google : vous recevez un e-mail à chaque réponse, sans dépendre de leur messagerie. 1) Créez un formulaire avec une question « Code de mise à jour » (type Paragraphe). 2) Dans <i>Réponses</i>, activez « Recevoir par e-mail les nouvelles réponses ». 3) Menu ⋮, « Obtenir le lien pré-rempli », tapez TEST dans la question, « Obtenir le lien » et collez-le ci-dessous. 4) Enregistrez, puis publiez.</p>
 <label for="upd-form">Lien pré-rempli du formulaire (contient « entry. »)</label><input id="upd-form" type="url" placeholder="https://docs.google.com/forms/d/e/…/viewform?usp=pp_url&entry.…=TEST">
 <label for="upd-sheet">Lien de la feuille des réponses (facultatif, reste sur cet appareil)</label><input id="upd-sheet" type="url" placeholder="https://docs.google.com/spreadsheets/d/…">
 <div class="imp"><button id="upd-cfg-save" class="btn" type="button">Enregistrer</button><span class="help" id="upd-cfg-msg" role="status"></span></div></details>
 <div class="imp"><button id="upd-fetch" class="btn alt" type="button">Lire les demandes reçues (feuille Google)</button><span class="help" id="upd-fm" role="status"></span></div>
-<textarea id="upd-in" rows="3" placeholder="Collez ici (Ctrl+V)…"></textarea><div id="upd-sum"></div></div>
+<textarea id="upd-in" rows="3" placeholder="Collez ici (Ctrl+V)…"></textarea><div id="upd-sum"></div><div id="rcv-sum"></div></div>
 <div class="cd"><h3>Importer les données</h3><div class="imp"><label class="btn" for="f">Importer un fichier Excel</label><input id="f" type="file" class="vh"><label class="btn alt" for="fa">Ajouter des arbitres (sans remplacer)</label><input id="fa" type="file" class="vh"><label class="btn" for="g">Importer les désignations</label><input id="g" type="file" class="vh"><label class="chk"><input id="sortnb" type="checkbox"> Classer par nombre de matchs</label><button id="rm" class="btn" type="button" hidden>Retirer les arbitres importés</button><button id="reload" class="btn alt" type="button">Recharger la liste du site</button></div><p class="help" id="msg">Colonnes : N°, Nom, Prénom, Grade, CIN, GSM, Ville (ou une feuille par ville)</p><p class="help">« Importer un fichier Excel » remplace toute la liste. « Ajouter des arbitres (sans remplacer) » garde la liste actuelle et n'ajoute que les arbitres absents (même CIN ou même nom = déjà présent). Pensez ensuite à publier.</p><p class="help">Matchs : utilisez + et − pour chaque fonction, ou importez un tableau de désignations dont les colonnes s'appellent « 1er arbitre », « 2e arbitre », « Marqueur », « Juge de ligne » (arbitres écrits « Nom Prénom » ou par leur CIN).</p><div class="imp"><button id="dtx-open" class="btn alt" type="button">Coller des désignations (texte)</button></div><div id="dtx-box" hidden><textarea id="dtx" rows="10" style="width:100%" placeholder="Collez ici le texte des désignations (format : Excellence Hommes – Week 1 (date), Match 1 : A contre B (lieu, heure), 1er arbitre : NOM PRÉNOM (Ville)…)" aria-label="Texte des désignations"></textarea><div class="imp"><button id="dtx-go" class="btn" type="button">Appliquer aux désignations et aux statistiques</button></div><p class="help" id="dtx-msg"></p></div><h3 style="margin-top:1.2rem">Accès des arbitres</h3><p class="help">Un arbitre se connecte avec son nom (« Nom Prénom » ou « Prénom Nom ») et son CIN comme mot de passe. Son accès n’existe en ligne qu’après une publication. Ce contrôle compare votre liste avec ce qui est réellement publié sur le site.</p><div class="imp"><button id="acc-go" class="btn alt" type="button">Vérifier les accès des arbitres</button><button id="acc-fix" class="btn" type="button" hidden>Publier les accès manquants</button></div><p class="help" id="acc-msg" role="status"></p></div>
 <div class="cd"><h3>Page de connexion</h3><div class="imp"><label class="btn" for="bgf">Photo de fond</label><input id="bgf" type="file" accept="image/*" class="vh"><button id="bgr" class="btn" type="button">Fond d'origine</button></div></div>
 </section>
@@ -1486,7 +1487,7 @@ const sha=async x=>[...new Uint8Array(await crypto.subtle.digest("SHA-256",new T
 const V={login:document.getElementById("login"),reg:document.getElementById("reg"),me:document.getElementById("me"),admin:document.getElementById("admin")};
 const lid=document.getElementById("lid"),lpw=document.getElementById("lpw"),lerr=document.getElementById("lerr");
 let fails=0,lock=0;
-function view(n){document.body.classList.toggle("adm",n==="admin");if(n==="login"){const x=document.getElementById("actbox");if(x)x.hidden=!ARBITRES.some(a=>a.pending)}document.body.classList.toggle("pub",n!=="admin"&&n!=="me");if(n==="admin"){page("home");delDraw();updFromLink()}Object.keys(V).forEach(k=>V[k].hidden=k!==n);window.scrollTo(0,0)}
+function view(n){document.body.classList.toggle("adm",n==="admin");if(n==="login"){const x=document.getElementById("actbox");if(x)x.hidden=!ARBITRES.some(a=>a.pending)}document.body.classList.toggle("pub",n!=="admin"&&n!=="me");if(n==="admin"){page("home");delDraw();updFromLink();resFromLink();goFromLink()}Object.keys(V).forEach(k=>V[k].hidden=k!==n);window.scrollTo(0,0)}
 function showMe(a){
 const g=id=>document.getElementById(id),t=tot(a);
 CURME=a;
@@ -1501,6 +1502,7 @@ const cls=["k2","k3","k4","k2"];
 g("me-kpis").innerHTML=[["k1","Matchs désignés",t,"Toutes fonctions"],...ROLES.map(([k,l],i)=>[cls[i],l,a[k]||0,t?Math.round(100*(a[k]||0)/t)+" % du total":"Aucune désignation"])].map(([c,l,v,s])=>`<div class="kpi ${c}"><small>${esc(l)}</small><b>${v}</b><span>${esc(s)}</span></div>`).join("");
 g("me-bar").innerHTML=barSvg([["1er arbitre",a.r1||0],["2e arbitre",a.r2||0],["Marqueur",a.mq||0],["Juge ligne",a.jl||0]]);
 {const dl=!!a._deleg;document.querySelectorAll('button[data-m="nominations"],button[data-m="recus"]').forEach(b=>b.hidden=dl);if(dl){g("me-actions").hidden=true;g("me-kpis").innerHTML="";g("me-bar").innerHTML="";g("me-desig").innerHTML='<p class="help" style="margin-top:0">Espace délégué d’arbitrage : calendriers, programmes, résultats, règles et coordonnées des délégués.</p>'}}
+meResRender(a);
 view("me");
 mpage("arbitres");
 initDir(a);delDraw();
@@ -2098,6 +2100,109 @@ document.getElementById("gh-forget").addEventListener("click",()=>{if(!arAdmin()
 document.getElementById("pub-gh").addEventListener("click",()=>{clearTimeout(PUBTIMER);pubBuild("github")});
 document.getElementById("pub-go").addEventListener("click",()=>pubBuild("download"));
 document.getElementById("pub-done").addEventListener("click",()=>{if(!arAdmin())return;pendSet([]);PUBMSG="";pendShow();document.getElementById("pub-err").textContent="";document.getElementById("pub-ok").textContent="Liste des modifications en attente vidée."});
+/* --- Résultat d’un match saisi par l’arbitre (1er ou 2e arbitre), validé ensuite par l’administrateur --- */
+const RESRX=/VBRES:([A-Za-z0-9+\/=_\-\s]+?)~/g;
+const resSent=()=>{try{return JSON.parse(localStorage.getItem("res-sent-v1")||"{}")}catch(_){return{}}};
+const resNoGet=()=>{try{return JSON.parse(localStorage.getItem("res-no-v1")||"[]")}catch(_){return[]}};
+const resSig=u=>u.k+"|"+JSON.stringify(u.S);
+function resCheck(S){
+if(S.length<3)return{err:"Saisissez au moins 3 sets."};
+let wx=0,wy=0;
+for(let j=0;j<S.length;j++){const x=S[j][0],y=S[j][1],t=j===4?15:25,w=Math.max(x,y),l=Math.min(x,y);
+if(x===y)return{err:"Set "+(j+1)+" : égalité impossible."};
+if(!((w===t&&l<=t-2)||(w>t&&w-l===2)))return{err:"Set "+(j+1)+" : score impossible ("+x+"-"+y+"). Un set se gagne à "+t+" points, avec 2 points d’écart."};
+if(wx===3||wy===3)return{err:"Le match est terminé après 3 sets gagnés : retirez le set "+(j+1)+"."};
+if(x>y)wx++;else wy++}
+if(wx!==3&&wy!==3)return{err:"Aucune équipe n’a encore gagné 3 sets."};
+return{sc:[wx,wy]}}
+function myRoleMatches(a){
+const k=norm(a.nom+a.prenom),same=n=>norm(String(n).replace(/\(.*\)/,""))===k,o=[],now=new Date();now.setHours(23,59,59,0);
+PROGS.forEach(P=>P.matchs.forEach(([h,x,y,lieu,d],i)=>{
+if(!d)return;const role=d.r1&&same(d.r1)?"1er arbitre":d.r2&&same(d.r2)?"2e arbitre":"";if(!role)return;
+const m=dateNum(P.date).txt.match(/^(\d{2})\/(\d{2})\/(\d{4})$/),when=m?new Date(+m[3],+m[2]-1,+m[1]):null;
+if(when&&when>now)return;
+o.push({P,i,k:P.id+i,x,y,h,lieu,role,when:when?when.getTime():0})}));
+return o.sort((u,v)=>v.when-u.when)}
+function meResRender(a){
+const box=document.getElementById("me-resbox"),L=document.getElementById("me-reslist");if(!box||!L)return;
+const ms=a&&!a._deleg?myRoleMatches(a).slice(0,6):[];box.hidden=!ms.length;if(!ms.length){L.innerHTML="";return}
+const sent=resSent();
+L.innerHTML=ms.map(m=>{const r=getRes(m.k),sn=sent[m.k];
+return '<div class="mres" data-k="'+esc(m.k)+'"><p><b>'+esc(m.P.titre)+' · '+esc(m.P.sous)+'</b> : '+esc(m.x)+' contre '+esc(m.y)+'<br><small>'+esc(m.P.date)+' · '+esc(m.role)+'</small></p>'
++(r?'<p class="ok" style="min-height:0;margin:.2rem 0">Résultat enregistré : '+esc(m.x)+' '+r[0]+' - '+r[1]+' '+esc(m.y)+'</p>':'')
++(sn?'<p class="help" style="margin:.2rem 0">Envoyé à la commission le '+esc(sn)+(r?'.':' : en attente de validation.')+'</p>':'')
++'<div class="imp"><button class="btn alt" type="button" data-mr="open">'+(r?'Signaler une correction':'Saisir le résultat')+'</button></div><div class="mres-f"></div></div>'}).join("")}
+function meResForm(m){
+return '<div class="ef"><p class="help">Saisissez les points de chaque set : <b>'+esc(m.x)+'</b> à gauche, <b>'+esc(m.y)+'</b> à droite. Laissez vides les sets non joués ; le score en sets est calculé automatiquement.</p>'
++[0,1,2,3,4].map(j=>'<div class="rs"><span class="sg">Set '+(j+1)+'<input type="number" min="0" max="99" inputmode="numeric" data-mrs="'+j+'" data-t="a" aria-label="Set '+(j+1)+' '+esc(m.x)+'"><b>-</b><input type="number" min="0" max="99" inputmode="numeric" data-mrs="'+j+'" data-t="b" aria-label="Set '+(j+1)+' '+esc(m.y)+'"></span></div>').join("")
++'<div class="err" data-mr-err role="alert"></div><div class="imp"><button class="btn" type="button" data-mr="send">Valider</button><button class="btn alt" type="button" data-mr="cancel">Annuler</button></div></div>'}
+function makeRes(o,m,S){return "VBRES:"+btoa(unescape(encodeURIComponent(JSON.stringify({v:1,o:norm(o.cin),p:o._o||"",k:m.k,a:m.x,b:m.y,s:S,n:o.nom+" "+o.prenom,t:Date.now()}))))+"~"}
+let RESBODY={};
+document.getElementById("me-reslist").addEventListener("click",e=>{
+const cp=e.target.closest&&e.target.closest("button[data-mrcopy]");
+if(cp){const t=RESBODY[cp.dataset.mrcopy]||"",ok=()=>{cp.textContent="✓ Message copié"};try{navigator.clipboard.writeText(t).then(ok,()=>{})}catch(_){}return}
+const sl=e.target.closest&&e.target.closest("a[data-mrsent]");
+if(sl){const sn=resSent();sn[sl.dataset.mrsent]=new Date().toLocaleDateString("fr-FR");try{localStorage.setItem("res-sent-v1",JSON.stringify(sn))}catch(_){}return}
+const b=e.target.closest&&e.target.closest("button[data-mr]");if(!b||!CURME)return;
+const box=b.closest(".mres"),f=box.querySelector(".mres-f"),m=myRoleMatches(CURME).find(x=>x.k===box.dataset.k);if(!m)return;
+const act=b.dataset.mr;
+if(act==="open"){f.innerHTML=meResForm(m);return}
+if(act==="cancel"){f.innerHTML="";return}
+if(act!=="send")return;
+const err=t=>{f.querySelector("[data-mr-err]").textContent=t},S=[];let gap=false;
+for(let j=0;j<5;j++){const va=f.querySelector('[data-mrs="'+j+'"][data-t="a"]').value.trim(),vb=f.querySelector('[data-mrs="'+j+'"][data-t="b"]').value.trim();
+if(va===""&&vb===""){gap=true;continue}
+if(va===""||vb==="")return err("Set "+(j+1)+" incomplet : indiquez les points des deux équipes.");
+if(gap)return err("Remplissez les sets dans l’ordre, sans en sauter un.");
+S.push([Math.round(+va),Math.round(+vb)])}
+const R=resCheck(S);if(R.err)return err(R.err);
+const o=CURME,code=makeRes(o,m,S),link=location.href.split("#")[0]+"#res="+code.slice(6,-1).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");
+const body=["Résultat de match : "+m.P.titre+" · "+m.P.sous+" · "+m.x+" contre "+m.y+" ("+m.P.date+")","Score : "+m.x+" "+R.sc[0]+" - "+R.sc[1]+" "+m.y,"Sets : "+S.map(q=>q[0]+"-"+q[1]).join(", "),"Saisi par : "+o.nom+" "+o.prenom+" ("+m.role+")","","Administrateur, pour valider en un clic, ouvrez ce lien :",link,"","Code de secours : "+code].join("\n");
+RESBODY[m.k]=body;
+const fu=updFormUrl(body),mail="mailto:"+ADMIN_MAIL+"?subject="+encodeURIComponent("Résultat - "+m.x+" / "+m.y)+"&body="+encodeURIComponent(body),ea=t=>t.replace(/&/g,"&amp;").replace(/"/g,"&quot;");
+f.innerHTML='<p class="ok">✓ Résultat prêt : '+esc(m.x)+' '+R.sc[0]+' - '+R.sc[1]+' '+esc(m.y)+' ('+S.map(q=>q[0]+'-'+q[1]).join(', ')+').</p><div class="imp"><a class="btn" data-mrsent="'+esc(m.k)+'" href="'+ea(fu||mail)+'"'+(fu?' target="_blank" rel="noopener"':'')+'>Envoyer à la commission</a></div><p class="help">'+(fu?'Dans le formulaire qui s’ouvre, cliquez simplement sur « Envoyer ».':'Votre messagerie s’ouvre avec le message prêt : cliquez sur « Envoyer ».')+'</p><details><summary>Autres moyens d’envoi</summary><div class="imp" style="margin-top:.5rem">'+(fu?'<a class="btn alt" data-mrsent="'+esc(m.k)+'" href="'+ea(mail)+'">Par e-mail</a>':'')+'<a class="btn alt" data-mrsent="'+esc(m.k)+'" href="https://wa.me/?text='+encodeURIComponent(body)+'" target="_blank" rel="noopener">Par WhatsApp</a><button class="btn alt" type="button" data-mrcopy="'+esc(m.k)+'">Copier le message</button></div></details>'});
+/* Réception côté administrateur */
+let RESS=[];
+function resParse(t){
+const m=String(t).match(/VBRES:([A-Za-z0-9+\/=_\-\s]+?)~/);if(!m)throw new Error("Code de résultat introuvable.");
+let u;try{u=JSON.parse(decodeURIComponent(escape(atob(m[1].replace(/\s+/g,"").replace(/-/g,"+").replace(/_/g,"/")))))}catch(_){throw new Error("Code de résultat illisible.")}
+if(!u||u.v!==1||typeof u.o!=="string"||typeof u.k!=="string"||!Array.isArray(u.s))throw new Error("Code de résultat non reconnu.");
+const S=u.s.slice(0,5).map(q=>[Math.round(+(q||[])[0]),Math.round(+(q||[])[1])]);
+if(S.some(q=>!(q[0]>=0&&q[0]<=99&&q[1]>=0&&q[1]<=99)))throw new Error("Scores de sets illisibles dans le code.");
+return{o:norm(u.o),p:norm(u.p||""),k:String(u.k).slice(0,40),a:String(u.a||"").slice(0,40),b:String(u.b||"").slice(0,40),S,n:String(u.n||"").slice(0,80)}}
+function resRender(errs,ok){const box=document.getElementById("rcv-sum");if(!box)return;
+box.innerHTML=(ok?'<p class="ok">'+esc(ok)+'</p>':"")+RESS.map((u,i)=>'<div class="cd" style="margin:.6rem 0"><p><b>Résultat : '+esc(u.P.titre)+' · '+esc(u.P.sous)+'</b><br>'+esc(u.x)+' contre '+esc(u.y)+' ('+esc(u.P.date)+')</p><ul class="rl2"><li>Score : '+(u.cur?esc(u.cur[0]+"-"+u.cur[1])+' → ':'')+'<b>'+u.sc[0]+'-'+u.sc[1]+'</b></li><li>Sets : '+u.S.map(q=>q[0]+'-'+q[1]).join(', ')+'</li><li>Saisi par '+esc(u.a2.nom+" "+u.a2.prenom)+' ('+esc(u.role)+')</li></ul><div class="imp"><button class="btn" type="button" data-rs="ok" data-i="'+i+'">Accepter</button><button class="btn alt" type="button" data-rs="no" data-i="'+i+'">Refuser</button></div></div>').join("")+(RESS.length>1?'<div class="imp"><button class="btn" type="button" data-rs="all">Tout accepter ('+RESS.length+')</button></div>':"")+(errs||[]).map(m=>'<div class="err">'+esc(m)+'</div>').join("")}
+function resScan(txt,quiet){
+RESS=[];const errs=[],codes=String(txt).match(RESRX)||[],no=resNoGet(),seen=new Set();
+codes.forEach((code,n)=>{try{
+const r=resParse(code),sg=resSig(r);if(seen.has(sg)||no.includes(sg))return;seen.add(sg);
+const P=PROGS.find(P=>r.k.startsWith(P.id)&&/^\d+$/.test(r.k.slice(P.id.length))&&P.matchs[+r.k.slice(P.id.length)]);
+if(!P)throw new Error("Match introuvable dans le programme ("+r.k+").");
+const i=+r.k.slice(P.id.length),mt=P.matchs[i];
+if(norm(mt[1])!==norm(r.a)||norm(mt[2])!==norm(r.b))throw new Error("Les équipes du code ne correspondent pas au programme ("+r.a+" / "+r.b+").");
+const a2=ARBITRES.find(x=>norm(x.cin)&&[r.o,r.p].filter(Boolean).includes(norm(x.cin)));
+if(!a2)throw new Error("Arbitre introuvable dans votre liste (CIN non reconnu).");
+const k2=norm(a2.nom+a2.prenom),same=nm=>norm(String(nm).replace(/\(.*\)/,""))===k2,d=mt[4]||{},role=d.r1&&same(d.r1)?"1er arbitre":d.r2&&same(d.r2)?"2e arbitre":"";
+if(!role)throw new Error(a2.nom+" "+a2.prenom+" n’est pas désigné 1er ou 2e arbitre sur "+mt[1]+" / "+mt[2]+".");
+const R=resCheck(r.S);if(R.err)throw new Error(a2.nom+" "+a2.prenom+" : "+R.err);
+const cur=getRes(r.k),cs=getSets(r.k);
+if(cur&&cur[0]===R.sc[0]&&cur[1]===R.sc[1]&&JSON.stringify(cs||[])===JSON.stringify(r.S))return;
+RESS.push({k:r.k,S:r.S,sc:R.sc,cur,P,i,x:mt[1],y:mt[2],a2,role,sig:sg})}
+catch(e){errs.push((codes.length>1?"Résultat "+(n+1)+" : ":"")+(e.message||"code invalide."))}});
+resRender(errs)}
+document.getElementById("rcv-sum").addEventListener("click",e=>{
+const b=e.target.closest&&e.target.closest("button[data-rs]");if(!b||!arAdmin())return;
+const k=b.dataset.rs;
+if(k==="no"){const u=RESS[+b.dataset.i];if(!u)return;const no=resNoGet();no.push(u.sig);try{localStorage.setItem("res-no-v1",JSON.stringify(no))}catch(_){}RESS.splice(+b.dataset.i,1);resRender([]);return}
+const list=k==="all"?RESS.slice():[RESS[+b.dataset.i]].filter(Boolean);
+list.forEach(u=>{RESULTS[u.k]=u.sc;SETS[u.k]=u.S});
+if(list.length){saveRes();saveSets();pendProg();weekRefresh();refreshRes()}
+RESS=RESS.filter(u=>!list.includes(u));
+resRender([],list.length?"✓ "+list.length+" résultat"+(list.length>1?"s":"")+" appliqué"+(list.length>1?"s":"")+" ("+list.map(u=>u.x+" "+u.sc[0]+"-"+u.sc[1]+" "+u.y).join(" ; ")+"). Publiez pour qu’il soit visible par tous.":"")});
+/* Lien « valider en un clic » reçu par e-mail : #res=… */
+function resCapture(){try{const m=location.hash.match(/^#res=([A-Za-z0-9_\-]+)/);if(!m)return;sessionStorage.setItem("res-link","VBRES:"+m[1]+"~");history.replaceState(null,"",location.href.split("#")[0]);const e=document.getElementById("lerr");if(e&&!document.body.classList.contains("adm"))e.textContent="Résultat reçu : connectez-vous en administrateur pour le valider."}catch(_){}}
+function resFromLink(){let c=null;try{c=sessionStorage.getItem("res-link")}catch(_){}if(!c||!arAdminSafe())return;try{sessionStorage.removeItem("res-link")}catch(_){}const ta=document.getElementById("upd-in");if(!ta)return;ta.value=(ta.value?ta.value+"\n":"")+c;page("imp");updScan();const sm=document.getElementById("rcv-sum");if(sm&&sm.scrollIntoView)setTimeout(()=>sm.scrollIntoView({block:"center"}),50)}
+resCapture();window.addEventListener("hashchange",()=>{resCapture();if(document.body.classList.contains("adm"))resFromLink()});
 /* Mise à jour envoyée par un arbitre */
 function makeUpd(o,u){return "VBUPD:"+btoa(unescape(encodeURIComponent(JSON.stringify({v:1,o:norm(o.cin),p:o._o||"",nom:u.nom,prenom:u.prenom,ville:u.ville,cin:u.cin,dn:u.dn||"",gsm:u.gsm,email:u.email}))))+"~"}
 function updParse(t){
@@ -2119,10 +2224,10 @@ function updRender(errs,ok){const box=document.getElementById("upd-sum");
 box.innerHTML=(ok?'<p class="ok">'+esc(ok)+'</p>':"")+UPDS.map((u,i)=>'<div class="cd" style="margin:.6rem 0"><p><b>'+esc(u.a.nom)+' '+esc(u.a.prenom)+'</b> (N° '+esc(u.a.num||"-")+', '+esc(u.a.niveau)+')</p><ul class="rl2">'+u.L.map(([k,x,y])=>'<li>'+esc(k)+' : '+esc(x||"(vide)")+' → <b>'+esc(y||"(vide)")+'</b></li>').join("")+'</ul><div class="imp"><button class="btn" type="button" data-upd="ok" data-i="'+i+'">Accepter</button><button class="btn alt" type="button" data-upd="no" data-i="'+i+'">Refuser</button></div></div>').join("")+(UPDS.length>1?'<div class="imp"><button class="btn" type="button" data-upd="all">Tout accepter ('+UPDS.length+')</button></div>':"")+(errs||[]).map(m=>'<div class="err">'+esc(m)+'</div>').join("")}
 function updScan(quiet){
 if(!arAdmin())return;
-const txt=document.getElementById("upd-in").value.replace(/#upd=([A-Za-z0-9_\-]+)/g," VBUPD:$1~ ");UPDS=[];
-if(!txt.trim()){updRender([]);return}
+const txt=document.getElementById("upd-in").value.replace(/#upd=([A-Za-z0-9_\-]+)/g," VBUPD:$1~ ").replace(/#res=([A-Za-z0-9_\-]+)/g," VBRES:$1~ ");UPDS=[];
+if(!txt.trim()){updRender([]);RESS=[];resRender([]);return}
 const errs=[],byA=new Map(),codes=txt.match(UPDRX)||[];
-if(!codes.length){errs.push("Code de mise à jour introuvable : il commence par VBUPD: et se termine par ~.")}
+if(!codes.length&&!(txt.match(RESRX)||[]).length){errs.push("Code introuvable : il commence par VBUPD: ou VBRES: et se termine par ~.")}
 codes.forEach((code,n)=>{try{
 const r=updParse(code),a=ARBITRES.find(x=>norm(x.cin)&&[r.o,r.p].filter(Boolean).includes(norm(x.cin)));
 if(!a)throw new Error("Arbitre introuvable dans votre liste (CIN d’origine non reconnu).");
@@ -2131,7 +2236,7 @@ if(norm(ncin)!==norm(a.cin)&&ARBITRES.some(x=>x!==a&&norm(x.cin)===norm(ncin)))t
 const L=[["Nom",a.nom,r.nom],["Prénom",a.prenom,r.prenom],["Ville",a.ville,r.ville],["CIN",a.cin,ncin],...(r.dn===undefined?[]:[["Date de naissance",dnFr(a.dn),dnFr(r.dn)]]),["GSM",a.gsm||"",r.gsm],["E-mail",a.email||"",r.email]].filter(x=>x[1]!==x[2]);
 if(!L.length){if(!quiet)errs.push(a.nom+" "+a.prenom+" : aucune différence avec la fiche actuelle.");return}
 byA.set(a,{a,r,ncin,L})}catch(e){errs.push((codes.length>1?"Code "+(n+1)+" : ":"")+(e.message||"code invalide."))}});
-UPDS=[...byA.values()];updRender(errs)}
+UPDS=[...byA.values()];updRender(errs);resScan(txt,quiet)}
 function updApply(u){
 const {a,r,ncin}=u;
 if(norm(ncin)!==norm(a.cin)&&ARBITRES.some(x=>x!==a&&norm(x.cin)===norm(ncin)))return false;
@@ -2147,6 +2252,10 @@ function updCapture(){try{const m=location.hash.match(/^#upd=([A-Za-z0-9_\-]+)/)
 function updFromLink(){let c=null;try{c=sessionStorage.getItem("upd-link")}catch(_){}if(!c||!arAdminSafe())return;try{sessionStorage.removeItem("upd-link")}catch(_){}
 const ta=document.getElementById("upd-in");if(!ta)return;ta.value=c;page("imp");updScan();const sm=document.getElementById("upd-sum");if(sm&&sm.scrollIntoView)setTimeout(()=>sm.scrollIntoView({block:"center"}),50)}
 updCapture();window.addEventListener("hashchange",()=>{updCapture();if(document.body.classList.contains("adm"))updFromLink()});
+/* Lien direct vers la saisie des résultats : #resultats (semaine en cours) ou #resultats-4 (semaine 4) */
+function goCapture(){try{const m=location.hash.match(/^#resultats(?:-(\d{1,2}))?$/);if(!m)return;sessionStorage.setItem("go-res",m[1]||"0");const e=document.getElementById("lerr");if(e&&!document.body.classList.contains("adm"))e.textContent="Connectez-vous en administrateur pour ouvrir la saisie des résultats"+(m[1]?" de la semaine "+m[1]:"")+"."}catch(_){}}
+function goFromLink(){let w=null;try{w=sessionStorage.getItem("go-res")}catch(_){}if(w===null||!arAdminSafe())return;try{sessionStorage.removeItem("go-res")}catch(_){}if(+w>0&&weeksList().includes(+w))WSEL=+w;page("res");refreshRes()}
+goCapture();window.addEventListener("hashchange",()=>{goCapture();if(document.body.classList.contains("adm"))goFromLink()});
 
 (()=>{const f=document.getElementById("upd-form"),sh=document.getElementById("upd-sheet");if(f)f.value=updForm();if(sh)sh.value=updSheet()})();
 document.getElementById("upd-cfg-save").addEventListener("click",()=>{
@@ -2158,9 +2267,9 @@ async function updFetch(auto){
 const m=document.getElementById("upd-fm"),u=updSheet();if(!arAdmin())return;
 if(!u){if(!auto&&m)m.textContent="Renseignez d’abord le lien de la feuille des réponses ci-dessus.";return}
 if(m)m.textContent="Lecture de la feuille…";
-try{const rows=await sheetRows(u),codes=[];rows.forEach(r=>(r.join(" ").match(UPDRX)||[]).forEach(c=>{if(!codes.includes(c))codes.push(c)}));
+try{const rows=await sheetRows(u),codes=[];rows.forEach(r=>(r.join(" ").match(UPDRX)||[]).concat(r.join(" ").match(RESRX)||[]).forEach(c=>{if(!codes.includes(c))codes.push(c)}));
 document.getElementById("upd-in").value=codes.join("\n");updScan(true);
-if(m)m.textContent=codes.length?(UPDS.length?"✓ "+UPDS.length+" demande"+(UPDS.length>1?"s":"")+" en attente (sur "+codes.length+" reçue"+(codes.length>1?"s":"")+").":"Aucune nouvelle demande en attente ("+codes.length+" déjà traitée"+(codes.length>1?"s":"")+")."):"Aucune demande dans la feuille."}
+if(m)m.textContent=codes.length?(UPDS.length+RESS.length?"✓ "+(UPDS.length+RESS.length)+" demande"+(UPDS.length+RESS.length>1?"s":"")+" en attente (sur "+codes.length+" reçue"+(codes.length>1?"s":"")+").":"Aucune nouvelle demande en attente ("+codes.length+" déjà traitée"+(codes.length>1?"s":"")+")."):"Aucune demande dans la feuille."}
 catch(_){if(m)m.textContent="Lecture impossible : partagez la feuille en « Toute personne disposant du lien : Lecteur » puis réessayez."}}
 document.getElementById("upd-fetch").addEventListener("click",()=>updFetch(false));
 document.getElementById("upd-sum").addEventListener("click",e=>{
