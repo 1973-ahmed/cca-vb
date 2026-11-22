@@ -404,7 +404,7 @@ body:not(.adm) :is(button[data-cdoc],button[data-pdf],button[data-cald],button[d
 .lmode button.on{background:#1f8a4f;border-color:#1f8a4f;color:#fff}
 .lmode button:focus-visible{outline:2px solid #1f8a4f;outline-offset:2px}
 .sch .fr{display:flex;flex-direction:column;gap:.1rem;margin:.35rem 0 0;padding-top:.3rem;border-top:1px dashed rgba(255,255,255,.28);font-size:.74rem;color:#ffe9a8}.sch .fr b{font-weight:700}
-.mres{border:1px solid var(--line);border-radius:10px;padding:.8rem 1rem;margin:.7rem 0}.mres p{margin:.2rem 0}.mres small{color:var(--mut)}.mres .rs{margin:.35rem 0}.mres .rs input{width:56px;padding:.35rem .2rem;margin:0;text-align:center}#wk-box>.btn{margin:0 .4rem .5rem 0}</style>
+.mres{border:1px solid var(--line);border-radius:10px;padding:.8rem 1rem;margin:.7rem 0}.mres p{margin:.2rem 0}.mres small{color:var(--mut)}.mres .rs{margin:.35rem 0}.mres .rs input{width:56px;padding:.35rem .2rem;margin:0;text-align:center}#wk-box>.btn{margin:0 .4rem .5rem 0}.dm.ro .dr{display:grid;grid-template-columns:minmax(110px,150px) 1fr auto;gap:.6rem;align-items:center;padding:.35rem 0;border-bottom:1px solid var(--line)}.dm.ro .rn{font-weight:600}.dm.ro .rn.me{color:var(--red,#8f1d2c);text-decoration:underline}.dm.ro .fv{text-align:right;font-weight:700;white-space:nowrap}</style>
 </head>
 <body>
 <div id="login">
@@ -508,7 +508,7 @@ body:not(.adm) :is(button[data-cdoc],button[data-pdf],button[data-cald],button[d
 <div id="dl-nom" hidden></div>
 </section>
 <section id="m-recus" class="pg" hidden>
-<div class="cd"><h3>Reçus d'arbitrage</h3><div id="rec-m"></div></div>
+<div class="cd"><h3>Reçus d'arbitrage · détail des frais</h3><p class="help" style="margin-top:0">Désignations et détail des frais de chaque match, en consultation. Les reçus au format PDF sont réservés à la commission.</p><div id="rec-mbars"></div><div id="rec-m"></div></div>
 </section>
 <section id="m-regles" class="pg" hidden>
 <div id="rules-m"></div>
@@ -577,7 +577,6 @@ body:not(.adm) :is(button[data-cdoc],button[data-pdf],button[data-cald],button[d
 <section id="p-prog" class="pg" hidden>
 <div id="wk-box"><button id="wk-open" class="btn" type="button" aria-expanded="false" aria-controls="wk-form">+ Ajouter une semaine (Week)</button> <button id="wk-bar" class="btn alt" type="button" aria-expanded="false" aria-controls="wk-form">+ Ajouter un barrage</button><div id="wk-form" class="cd" hidden></div></div>
 <div id="prog-a"></div>
-<div id="desig-a"></div>
 </section>
 <section id="p-res" class="pg" hidden>
 <div id="res-a"></div>
@@ -585,15 +584,17 @@ body:not(.adm) :is(button[data-cdoc],button[data-pdf],button[data-cald],button[d
 <div id="resin-a"></div>
 </section>
 <section id="p-nom" class="pg" hidden>
-<div class="imp" style="margin-bottom:.8rem"><button class="btn alt" type="button" data-go="prog">← Désignations des arbitres</button><button class="btn alt" type="button" data-go="stat">Statistiques des désignations →</button></div>
+<div class="imp" style="margin-bottom:.8rem"><button class="btn alt" type="button" data-go="rec">← Désignations et reçus</button><button class="btn alt" type="button" data-go="stat">Statistiques des désignations →</button></div>
 <div class="kpis" id="nom-kpis"></div>
 <div class="cd"><h3>Nominations par arbitre</h3><div id="nom-tbl"></div></div>
 </section>
 <section id="p-rec" class="pg" hidden>
-<div class="cd"><h3>Reçus d'arbitrage</h3><div id="rec-a"></div></div>
+<div id="rec-bars"></div>
+<div id="desig-a"></div>
+<div class="cd"><h3 id="rec-h">Reçus d'arbitrage</h3><div id="rec-a"></div></div>
 </section>
 <section id="p-stat" class="pg" hidden>
-<div class="imp" style="margin-bottom:.8rem"><button class="btn alt" type="button" data-go="prog">← Désignations des arbitres</button><button class="btn alt" type="button" data-go="nom">Nominations par arbitre</button></div>
+<div class="imp" style="margin-bottom:.8rem"><button class="btn alt" type="button" data-go="rec">← Désignations et reçus</button><button class="btn alt" type="button" data-go="nom">Nominations par arbitre</button></div>
 <div class="kpis" id="sa-kpis"></div>
 <div class="tabs" id="sa-tabs"><button class="tab" type="button" data-sv="fn" aria-pressed="true">Par fonction</button><button class="tab" type="button" data-sv="ville" aria-pressed="false">Par ville</button><button class="tab" type="button" data-sv="mix" aria-pressed="false">Fonction et ville</button><button class="tab" type="button" data-sv="grade" aria-pressed="false">Par grade</button></div>
 <div id="sv-fn"><div class="charts"><div class="cd"><h3>Désignations par fonction</h3><div id="sa-fbar"></div></div><div class="cd"><h3>Répartition par fonction</h3><div id="sa-don"></div></div></div><div class="cd"><h3>Détail par fonction</h3><div id="sa-ftbl"></div></div><div class="cd"><h3>Arbitres par fonction</h3><div id="sa-fnames" class="fn4"></div></div></div>
@@ -787,7 +788,15 @@ const FEES_EMB={"h_30":{"r1":850,"r2":810,"mq":250,"jl1":250,"jl2":250,"jl3":250
 const DVILLE_EMB={"h_30":"Rabat","h_31":"Meknès","h_32":"Oued Zem","h_33":"Larache","h_34":"Salé","d_30":"Rabat","d_31":"Safi","d_32":"El Jadida","d_33":"Khémisset","d_34":"Salé","d0":"Rabat","d1":"Safi","d2":"El Jadida","d3":"Larache","d4":"Rabat","h0":"Rabat","h1":"Meknès","h2":"Oued Zem","h3":"Tétouan","h4":"Rabat","h_20":"El Jadida","h_21":"Khouribga","h_22":"Tanger","h_23":"Larache","h_24":"Youssoufia","d_20":"Tiznit","d_21":"Fès","d_22":"Tanger","d_23":"Khémisset","d_24":"Tétouan"};
 let FEES=(()=>{try{return JSON.parse(localStorage.getItem("fees-v1")||"{}")}catch(_){return{}}})();
 function saveFees(){try{localStorage.setItem("fees-v1",JSON.stringify(FEES))}catch(_){}}
-const feeOf=(k,s)=>{const L=(FEES[k]||{})[s];return +(L!==undefined&&L!==""?L:(FEES_EMB[k]||{})[s])||0};
+function embFee(k,s){
+for(const P of PROGS){
+if(!k.startsWith(P.id))continue;const r=k.slice(P.id.length);if(!/^\d+$/.test(r))continue;
+const mt=P.matchs[+r];if(!mt)continue;const f=(mt[4]||{}).f||{};
+return +(s.startsWith("jl")?(f.jl||[])[+s.slice(2)-1]:f[s])||0;
+}
+return 0;
+}
+const feeOf=(k,s)=>{const L=(FEES[k]||{})[s];if(L!==undefined&&L!=="")return +L||0;return +(FEES_EMB[k]||{})[s]||embFee(k,s)};
 let DPDFMSG="",DTX2MSG="",DTX2OPEN=false;
 let DVILLE=(()=>{try{return JSON.parse(localStorage.getItem("dville-v1")||"{}")}catch(_){return{}}})();
 function saveDville(){try{localStorage.setItem("dville-v1",JSON.stringify(DVILLE))}catch(_){}}
@@ -935,8 +944,8 @@ function desigHtml(){
 if(!ARBITRES.length)return '<div class="cd"><h3>Désigner les arbitres</h3><p class="help" style="margin-top:0">Importez d\'abord votre liste d\'arbitres (page « Importer et configuration »).</p></div>';
 const vil=[...new Set(ARBITRES.map(a=>a.ville))].sort(fr);
 return `<div class="cd"><h3>Désigner les arbitres</h3><p class="help" style="margin-top:0">Pour chaque fonction, choisissez la ville puis l'arbitre. Les compteurs de matchs se mettent à jour automatiquement. Indiquez aussi les frais de chaque fonction : le total et la part par équipe sont calculés pour le PDF.</p><div class="imp dtool"><label class="btn" for="dpdf-in">Importer un programme (PDF)</label><input id="dpdf-in" class="vh" type="file" accept="application/pdf,.pdf">${pdfButtons()}</div><div id="dpdf-msg" class="help" role="status">${esc(DPDFMSG)}</div><div class="imp dtool"><button class="btn alt" type="button" data-dx="open">Coller des désignations (texte)</button><button class="btn alt" type="button" data-go="stat">Statistiques des désignations →</button><button class="btn alt" type="button" data-go="nom">Nominations par arbitre →</button></div><div id="dtx2-box"${DTX2OPEN?"":" hidden"}><textarea id="dtx2" rows="8" style="width:100%" placeholder="Collez ici le texte des désignations (Excellence Hommes – Week 4 (date), Match 1 : A contre B (lieu, heure), 1er arbitre : NOM PRÉNOM (Ville)…)" aria-label="Texte des désignations"></textarea><div class="imp"><button class="btn" type="button" data-dx="go">Appliquer aux désignations et aux statistiques</button></div></div><div id="dtx2-msg" class="help" role="status">${DTX2MSG}</div><div id="ds-err" class="err" role="alert"></div>${PROGS.filter(inComp).map(P=>`<h4 class="dp">${esc(P.titre)} · ${esc(P.sous)} · ${esc(P.date)}</h4>${P.matchs.map(([h,a,b],m)=>`<div class="dm" id="dm-${P.id}${m}"><h4>${gTag(P,m)}Match ${mno(P,m)} · ${esc(a)} contre ${esc(b)}</h4>${slotsFor(P).map(([s,l])=>{
-const key=P.id+m,k=(DESIG[key]||{})[s],cur=k?findP(k):null,ck=key+"|"+s,city=DCITY[ck]!==undefined?DCITY[ck]:(cur?cur.ville:""),people=ARBITRES.filter(x=>x.ville===city).sort((x,y)=>fr(pname(x),pname(y)));
-return `<div class="dr"><span>${esc(l)}</span><select class="f" data-p="${P.id}" data-m="${m}" data-s="${s}" data-w="c" aria-label="Ville pour ${esc(l)}"><option value="">Ville…</option>${vil.map(v=>`<option${v===city?" selected":""}>${esc(v)}</option>`).join("")}</select><select class="f" data-p="${P.id}" data-m="${m}" data-s="${s}" data-w="p" aria-label="Arbitre pour ${esc(l)}"><option value="">Arbitre…</option>${k&&String(k).startsWith("txt:")?`<option value="${esc(k)}" selected>${esc(String(k).slice(4))} (à rattacher)</option>`:""}${people.map(x=>`<option value="${esc(pkey(x))}"${k===pkey(x)?" selected":""}>${esc(pname(x))}</option>`).join("")}</select><input class="fee" type="number" min="0" step="10" inputmode="numeric" placeholder="Frais DH" value="${feeOf(key,s)||""}" data-fee="${key}" data-s="${s}" aria-label="Frais pour ${esc(l)}"></div>`}).join("")}<p class="dtot" data-tot="${P.id+m}">${totText(P,m)}</p></div>`).join("")}`).join("")}<div class="imp" style="margin-top:1rem"><button class="btn" type="button" data-x="txt">Afficher le texte des désignations</button></div><div id="ds-txt"></div></div>`;
+const key=P.id+m,k=(DESIG[key]||{})[s],cur=k?findP(k):null,es=k?null:embSlot(P,m,s),ck=key+"|"+s,city=DCITY[ck]!==undefined?DCITY[ck]:(cur?cur.ville:(es?es.city:"")),people=ARBITRES.filter(x=>x.ville===city).sort((x,y)=>fr(pname(x),pname(y)));
+return `<div class="dr"><span>${esc(l)}</span><select class="f" data-p="${P.id}" data-m="${m}" data-s="${s}" data-w="c" aria-label="Ville pour ${esc(l)}"><option value="">Ville…</option>${vil.map(v=>`<option${v===city?" selected":""}>${esc(v)}</option>`).join("")}</select><select class="f" data-p="${P.id}" data-m="${m}" data-s="${s}" data-w="p" aria-label="Arbitre pour ${esc(l)}"><option value="">Arbitre…</option>${k&&String(k).startsWith("txt:")?`<option value="${esc(k)}" selected>${esc(String(k).slice(4))} (à rattacher)</option>`:""}${es&&!es.a?`<option value="" selected>${esc(String(es.v).replace(/\s*\([^()]*\)\s*$/,""))} (non rattaché)</option>`:""}${people.map(x=>`<option value="${esc(pkey(x))}"${(k===pkey(x)||(es&&es.a&&pkey(es.a)===pkey(x)))?" selected":""}>${esc(pname(x))}</option>`).join("")}</select><input class="fee" type="number" min="0" step="10" inputmode="numeric" placeholder="Frais DH" value="${feeOf(key,s)||""}" data-fee="${key}" data-s="${s}" aria-label="Frais pour ${esc(l)}"></div>`}).join("")}<p class="dtot" data-tot="${P.id+m}">${totText(P,m)}</p></div>`).join("")}`).join("")}<div class="imp" style="margin-top:1rem"><button class="btn" type="button" data-x="txt">Afficher le texte des désignations</button></div><div id="ds-txt"></div></div>`;
 }
 function renderDesig(){const e=document.getElementById("desig-a");if(e)e.innerHTML=desigHtml()}
 function refreshProg(){const h=progHtml(),a=document.getElementById("prog-a"),m=document.getElementById("prog-m");if(a)a.innerHTML=h;if(m)m.innerHTML=h;const c=calHtml(),ca=document.getElementById("cal-a"),cm=document.getElementById("cal-m");if(ca)ca.innerHTML=c;if(cm)cm.innerHTML=c}
@@ -967,7 +976,7 @@ const t=l=>o.push(P.titre+" · Match "+(i+1)+" · "+x+" contre "+y+" · "+l+" ·
 return o;
 }
 function progHtml(){
-const card=P=>`<div class="sch ${P.cls}${(P.grp||P.matchs.length>=6)?" two":""}"><h2>${esc(P.titre)}</h2><div class="wk">${esc(P.sous)}</div><div class="dt">${esc(P.date)}</div>${((L)=>P.grp?'<div class="cols">'+P.grp.map((g,gi)=>{const gs=P.matchs.length/P.grp.length;return '<div class="col"><div class="gh">'+esc(g)+'</div>'+L.slice(gi*gs,(gi+1)*gs).join("")+'</div>'}).join("")+'</div>':P.matchs.length>=6?'<div class="cols"><div class="col">'+L.slice(0,Math.ceil(L.length/2)).join("")+'</div><div class="col">'+L.slice(Math.ceil(L.length/2)).join("")+'</div></div>':L.join(""))(P.matchs.map(([h,a,b,lieu],i)=>{const r=getRes(P.id+i),sv=r?getSets(P.id+i):null;return `<div class="t">Match ${mno(P,i)} · ${esc(h)}</div><div class="mt">${tcell(a,"tA")}<span class="nm">${esc(a)}</span><span class="vs">${r?r[0]+"-"+r[1]:"VS"}</span><span class="nm">${esc(b)}</span>${tcell(b,"tB")}</div>${sv&&sv.length?`<div class="ss">${forfeit(sv)?"FORFAIT de "+esc(forfeit(sv)===1?b:a)+" · ":""}${sv.map(x=>x[0]+"-"+x[1]).join(" · ")}</div>`:""}<div class="lieu">${esc(lieu)}</div>${dsLine(P.id,i)}`}))}${isAdmin()?`<div class="pact"><button class="btn" type="button" data-rcw="${P.id}">Reçus de la semaine (PDF)</button></div><div class="help rcmsg" role="status" style="color:#e8dcff"></div>`:""}${!PROTECTED.includes(P.id)&&isAdmin()?`<button class="btn alt wkdel" type="button" data-wkdel="${P.id}">${P.bar?"Supprimer ce barrage":"Supprimer cette semaine"}</button>`:""}<span class="mark"><img src="${LOGO}" alt="FRMVB"></span></div>`;
+const card=P=>`<div class="sch ${P.cls}${(P.grp||P.matchs.length>=6)?" two":""}"><h2>${esc(P.titre)}</h2><div class="wk">${esc(P.sous)}</div><div class="dt">${esc(P.date)}</div>${((L)=>P.grp?'<div class="cols">'+P.grp.map((g,gi)=>{const gs=P.matchs.length/P.grp.length;return '<div class="col"><div class="gh">'+esc(g)+'</div>'+L.slice(gi*gs,(gi+1)*gs).join("")+'</div>'}).join("")+'</div>':P.matchs.length>=6?'<div class="cols"><div class="col">'+L.slice(0,Math.ceil(L.length/2)).join("")+'</div><div class="col">'+L.slice(Math.ceil(L.length/2)).join("")+'</div></div>':L.join(""))(P.matchs.map(([h,a,b,lieu],i)=>{const r=getRes(P.id+i),sv=r?getSets(P.id+i):null;return `<div class="t">Match ${mno(P,i)} · ${esc(h)}</div><div class="mt">${tcell(a,"tA")}<span class="nm">${esc(a)}</span><span class="vs">${r?r[0]+"-"+r[1]:"VS"}</span><span class="nm">${esc(b)}</span>${tcell(b,"tB")}</div>${sv&&sv.length?`<div class="ss">${forfeit(sv)?"FORFAIT de "+esc(forfeit(sv)===1?b:a)+" · ":""}${sv.map(x=>x[0]+"-"+x[1]).join(" · ")}</div>`:""}<div class="lieu">${esc(lieu)}</div>${dsLine(P.id,i)}`}))}${!PROTECTED.includes(P.id)&&isAdmin()?`<button class="btn alt wkdel" type="button" data-wkdel="${P.id}">${P.bar?"Supprimer ce barrage":"Supprimer cette semaine"}</button>`:""}<span class="mark"><img src="${LOGO}" alt="FRMVB"></span></div>`;
 const list=PROGS.filter(inComp).map(card).join("");
 return compBar()+weekBar(true)+(list||`<div class="cd"><p class="help">${isBarView()?`Aucun barrage programmé en Week ${ew()}.${isAdmin()?" Utilisez « + Ajouter un barrage » pour le créer.":""}`:`Aucun programme pour ${COMPS.find(c=>c.lg===curComp()).titre} cette semaine.${isAdmin()?" Utilisez « + Ajouter une semaine (Week) » pour le créer.":""}`}</p></div>`)+`<p class="help ctr">Demandes de changement d'horaire ou de lieu (clubs et associations) : <a href="https://forms.gle/1ApVMr3RakeiN5cY9" target="_blank" rel="noopener">formulaire</a>. Les résultats sont à envoyer dans le groupe WhatsApp « Arbitrage Volleyball », avec le <a href="https://forms.gle/QxgCp6JsbVrWNuqm6" target="_blank" rel="noopener">formulaire des résultats</a>.</p>`;
 }
@@ -1849,8 +1858,8 @@ document.querySelectorAll(".mi[data-m]").forEach(b=>b.addEventListener("click",(
 function page(p){
 ["home","cal","del","refs","prog","res","nom","rec","stat","regles","nouv","case","el","notes","imp"].forEach(k=>{$("p-"+k).hidden=k!==p});
 document.querySelectorAll(".mi[data-p]").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.p===p)));
-const T={home:["Vue d'ensemble","Suivi des arbitres — FRMVB"],cal:["Calendrier des matchs","Calendriers des six compétitions"],el:["e-Learning","Vidéos d'accompagnement pour les arbitres"],del:["Délégués d'arbitrage","Coordonnées des délégués d'arbitrage"],refs:["Arbitres par ville","Choisissez une ville ou recherchez-la"],prog:["Programmes","Programmes des rencontres"],res:["Résultats et classements","Résultats des matchs et classements"],nom:["Nominations","Désignations de chaque arbitre par fonction"],rec:["Reçus d'arbitrage","Reçus d'arbitrage des rencontres"],stat:["Statistiques","Chiffres clés des désignations"],regles:["Règles officielles 2025-2028","Règles officielles de volleyball de la FIVB"],nouv:["Nouvelles règles 2026","Règles testées par la FIVB en 2026"],case:["Casebook","Practical cases with official rulings"],notes:["Notes","Vos notes personnelles"],imp:["Importer et configuration","Fichier Excel, autorisations, désignations, photo de fond"]};
-$("pg-t").textContent=T[p][0];$("pg-s").textContent=T[p][1];if(p==="imp"){$("auth-box").innerHTML=renderAuth();if(arAdmin()&&updSheet())updFetch(true)}if(p==="home")drawHome();if(p==="del")delDraw();if(p==="el")elDraw();if(p==="cal")refreshProg();if(p==="rec")renderRecus();if(p==="res"){if(arAdmin())rimpSync(true);resLive()}window.scrollTo(0,0);
+const T={home:["Vue d'ensemble","Suivi des arbitres — FRMVB"],cal:["Calendrier des matchs","Calendriers des six compétitions"],el:["e-Learning","Vidéos d'accompagnement pour les arbitres"],del:["Délégués d'arbitrage","Coordonnées des délégués d'arbitrage"],refs:["Arbitres par ville","Choisissez une ville ou recherchez-la"],prog:["Programmes","Programmes des rencontres"],res:["Résultats et classements","Résultats des matchs et classements"],nom:["Nominations","Désignations de chaque arbitre par fonction"],rec:["Reçus d'arbitrage","Désignations, frais et reçus de chaque journée"],stat:["Statistiques","Chiffres clés des désignations"],regles:["Règles officielles 2025-2028","Règles officielles de volleyball de la FIVB"],nouv:["Nouvelles règles 2026","Règles testées par la FIVB en 2026"],case:["Casebook","Practical cases with official rulings"],notes:["Notes","Vos notes personnelles"],imp:["Importer et configuration","Fichier Excel, autorisations, désignations, photo de fond"]};
+$("pg-t").textContent=T[p][0];$("pg-s").textContent=T[p][1];if(p==="imp"){$("auth-box").innerHTML=renderAuth();if(arAdmin()&&updSheet())updFetch(true)}if(p==="home")drawHome();if(p==="del")delDraw();if(p==="el")elDraw();if(p==="cal")refreshProg();if(p==="rec"){renderDesig();renderRecus()}if(p==="res"){if(arAdmin())rimpSync(true);resLive()}window.scrollTo(0,0);
 }
 document.querySelectorAll(".mi[data-p]").forEach(b=>b.addEventListener("click",()=>page(b.dataset.p)));
 document.getElementById("me-h").addEventListener("change",e=>{
@@ -2442,6 +2451,7 @@ const P=PROGS.find(P=>k.startsWith(P.id)&&/^\d+$/.test(k.slice(P.id.length)));
 const el=document.querySelector('[data-tot="'+k+'"]');if(el&&P)el.textContent=totText(P,+k.slice(P.id.length));
 }
 function embName(P,m,s){const e=(P.matchs[m]||[])[4]||{},v=s.startsWith("jl")?(e.jl||[])[+s.slice(2)-1]:e[s];if(!v)return"";const x=ARBITRES.find(a=>norm(pname(a)+a.ville)===norm(v));return x?x.nom:String(v).replace(/\s*\(.*\)\s*$/,"")}
+function embSlot(P,m,s){const e=(P.matchs[m]||[])[4]||{},v=s.startsWith("jl")?(e.jl||[])[+s.slice(2)-1]:e[s];if(!v)return null;const a=ARBITRES.find(x=>norm(pname(x)+x.ville)===norm(v))||null,mm=String(v).match(/\(([^()]*)\)\s*$/);return{v:String(v),a,city:a?a.ville:(mm?mm[1].trim():"")}}
 function dName(P,m,s){const v=(DESIG[P.id+m]||{})[s];if(!v)return embName(P,m,s);if(String(v).startsWith("txt:"))return String(v).slice(4);const a=findP(v);return a?a.nom:""}
 const MOIS=["janvier","fevrier","mars","avril","mai","juin","juillet","aout","septembre","octobre","novembre","decembre"];
 function dateNum(t){const m=String(t).toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").match(/(\d{1,2})\s+([a-z]+)\s+(\d{4})/);if(!m||MOIS.indexOf(m[2])<0)return{txt:String(t),y:new Date().getFullYear(),mo:1};const mo=MOIS.indexOf(m[2])+1;return{txt:m[1].padStart(2,"0")+"/"+String(mo).padStart(2,"0")+"/"+m[3],y:+m[3],mo}}
@@ -2601,7 +2611,7 @@ put("trailer\n<< /Size "+total+" /Root 1 0 R >>\nstartxref\n"+xr+"\n%%EOF\n");
 return new Blob(chunks,{type:"application/pdf"});
 }
 async function desigPdf(L){
-const ps=PROGS.filter(P=>lgOf(P)===L&&inWeek(P));if(!ps.length)return null;
+const ps=PROGS.filter(P=>lgOf(P)===L&&inWeek(P)&&!!P.bar===isBarView());if(!ps.length)return null;
 const dm=ps[0].cls==="dames",TH=dm?{main:"#5b1a4e",dark:"#3a0f33",tint:"#f4eaf2"}:{main:"#1f5fa8",dark:"#14284b",tint:"#e8f0fa"};
 const logo=await imgOf(LOGO),stamp=await imgOf(STAMP);
 try{await document.fonts.load("700 12px Lato");await document.fonts.load("400 12px Lato");await document.fonts.load("700 12px Amiri")}catch(_){}
@@ -2612,7 +2622,7 @@ chunks.forEach(ch=>{const cv=document.createElement("canvas");cv.width=Math.roun
 });
 return pdfFromCanvases(cvs,W,H);
 }
-const dpdfName=L=>{const P=PROGS.find(P=>lgOf(P)===L&&inWeek(P)),D=dateNum(P.date);return "Designations_"+P.titre.normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^A-Za-z0-9]+/g,"_").replace(/^_|_$/g,"")+"_"+D.txt.replace(/\//g,"-")+".pdf"};
+const dpdfName=L=>{const P=PROGS.find(P=>lgOf(P)===L&&inWeek(P)&&!!P.bar===isBarView()),D=dateNum(P.date);return "Designations_"+P.titre.normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^A-Za-z0-9]+/g,"_").replace(/^_|_$/g,"")+"_"+D.txt.replace(/\//g,"-")+".pdf"};
 const deskBox=document.getElementById("desig-a");
 deskBox.addEventListener("change",e=>{const t=e.target;if(t&&t.dataset&&t.dataset.fee&&arAdmin())setFee(t.dataset.fee,t.dataset.s,t.value)});
 deskBox.addEventListener("change",async e=>{
@@ -2657,10 +2667,10 @@ renderDesig();
 document.addEventListener("click",e=>{
 const g=e.target.closest&&e.target.closest("button[data-go]");if(!g||g.closest("#desig-a")||!arAdmin())return;
 page(g.dataset.go);
-if(g.dataset.go==="prog"){const d=document.getElementById("desig-a");if(d&&d.scrollIntoView)d.scrollIntoView({block:"start"})}
+if(g.dataset.go==="rec"){const d=document.getElementById("desig-a");if(d&&d.scrollIntoView)d.scrollIntoView({block:"start"})}
 });
 /* --- Semaines : sélection, ajout et suppression --- */
-function weekRefresh(){refreshProg();renderDesig();refreshRes();const ri=document.getElementById("resin-a");if(ri)ri.innerHTML=resInHtml();drawHome()}
+function weekRefresh(){refreshProg();renderDesig();try{renderRecus()}catch(_){}refreshRes();const ri=document.getElementById("resin-a");if(ri)ri.innerHTML=resInHtml();drawHome()}
 function pendProg(){const l=pendGet();if(!l.some(x=>x.prog)){l.push({k:"__prog",prog:true});pendSet(l)}pendShow();schedulePub()}
 function wkLeagues(){return COMPS.map(c=>({l:c.lg,titre:c.titre,cls:c.cls}))}
 function fmtDateFr(v){const d=new Date(v+"T12:00:00"),cap=s=>s.charAt(0).toUpperCase()+s.slice(1);return cap(d.toLocaleDateString("fr-FR",{weekday:"long"}))+" "+d.getDate()+" "+cap(d.toLocaleDateString("fr-FR",{month:"long"}))+" "+d.getFullYear()}
@@ -2732,15 +2742,56 @@ const m=String(name).match(/(Hommes|Dames)[^0-9]*(\d{2})-(\d{2})-(\d{4})/i);
 if(m){const d=m[2]+"/"+m[3]+"/"+m[4],P=PROGS.find(P=>norm(P.titre).includes(norm(m[1]))&&dateNum(P.date).txt===d);return{t:"Programme et frais d’arbitrage — "+(P?P.titre+" · "+P.sous:"Excellence "+m[1]),d}}
 return{t:String(name).replace(/\.pdf$/i,"").replace(/[_-]+/g," "),d:new Date().toLocaleDateString("fr-FR")};
 }
+/* Désignations et détail des frais, en lecture seule, visibles par les arbitres (aucun reçu PDF affiché ni téléchargeable) */
+function feeHtml(){
+const me=CURME,k=me?norm(me.nom+me.prenom):"",same=n=>k&&norm(String(n).replace(/\(.*\)/,""))===k;
+const ps=PROGS.filter(inComp);
+if(!ps.length)return '<p class="help">Aucun programme pour '+esc(isBarView()?"ce barrage":"cette semaine")+'.</p>';
+return ps.map(P=>'<h4 class="dp">'+esc(P.titre)+' · '+esc(P.sous)+' · '+esc(P.date)+'</h4>'+P.matchs.map((mt,i)=>{
+const e=mt[4]||{};
+return '<div class="dm ro"><h4>Match '+mno(P,i)+' · '+esc(mt[1])+' contre '+esc(mt[2])+'</h4>'+slotsFor(P).map(([sl,lab])=>{
+const v=sl.startsWith("jl")?(e.jl||[])[+sl.slice(2)-1]:e[sl],f=feeOf(P.id+i,sl);
+return '<div class="dr"><span>'+esc(lab)+'</span><span class="rn'+(v&&same(v)?' me':'')+'">'+(v?esc(v):'—')+'</span><span class="fv">'+(f?esc(fmtN(f))+' DH':'—')+'</span></div>'}).join("")+'<p class="dtot">'+esc(totText(P,i))+'</p></div>'}).join("")).join("")}
+const recWeek=r=>{const m=String(r.t+" "+r.f).match(/(Week|Barrage)\s*(\d+)/i);if(m)return{b:/^barrage/i.test(m[1]),n:+m[2]};const P=PROGS.find(P=>dateNum(P.date).txt===r.d);return P?{b:!!P.bar,n:P.bar?barN(P):weekNum(P)}:null};
 function renderRecus(){
+const rb=document.getElementById("rec-bars");if(rb)rb.innerHTML=compBar()+weekBar();
 const l=allRecus().slice().sort((a,b)=>recDate(b.d)-recDate(a.d)),adm=isAdmin();
-const list=l.length?l.map(r=>`<div class="rcr"><div><b>${esc(r.t)}</b><span class="help">${esc(r.d)} · ${esc(r.f)}</span></div><div class="rca"><button class="btn" type="button" data-rec="${esc(r.id)}">Télécharger (PDF)</button><span class="help dlnote">Téléchargement réservé à l’administrateur</span>${adm?`<button class="btn alt" type="button" data-recdel="${esc(r.id)}">Supprimer</button>`:""}</div></div>`).join(""):'<p class="help">Aucun reçu disponible pour le moment.</p>';
+const row=r=>`<div class="rcr"><div><b>${esc(r.t)}</b><span class="help">${esc(r.d)} · ${esc(r.f)}</span></div><div class="rca"><button class="btn" type="button" data-rec="${esc(r.id)}">Télécharger (PDF)</button><span class="help dlnote">Téléchargement réservé à l’administrateur</span>${adm?`<button class="btn alt" type="button" data-recdel="${esc(r.id)}">Supprimer</button>`:""}</div></div>`;
+const list=l.length?l.map(row).join(""):'<p class="help">Aucun reçu disponible pour le moment.</p>';
+const bv=isBarView(),wn=ew(),wl=bv?"Barrage "+wn:"Week "+wn,wk=l.map(r=>[r,recWeek(r)]);
+const mine=wk.filter(x=>x[1]&&x[1].b===bv&&x[1].n===wn).map(x=>x[0]),oth=wk.filter(x=>!x[1]).map(x=>x[0]);
+const listA=(mine.length?mine.map(row).join(""):'<p class="help">Aucun reçu enregistré pour '+(bv?"le ":"la ")+esc(wl)+'.</p>')+(oth.length?'<h4 class="dp">Autres reçus</h4>'+oth.map(row).join(""):"");
+const ls=[];PROGS.filter(P=>!!P.bar===bv&&(bv?barN(P):weekNum(P))===wn).forEach(P=>{if(!ls.some(x=>x.lg===lgOf(P)))ls.push({lg:lgOf(P),t:P.titre})});
+const rcwL=PROGS.filter(P=>!!P.bar===bv&&(bv?barN(P):weekNum(P))===wn),rcw=adm&&rcwL.length?'<div class="imp dtool">'+rcwL.map(P=>'<button class="btn alt" type="button" data-rcw="'+esc(P.id)+'">Reçus de la semaine (PDF) · '+esc(P.titre)+' · '+esc(P.sous)+'</button>').join("")+'</div>':"";
+const px=adm?'<div class="imp dtool">'+(ls.length?ls.map(x=>'<button class="btn" type="button" data-px="'+esc(x.lg)+'">Exporter les reçus · '+esc(x.t)+' · '+esc(wl)+'</button>').join("")+(ls.length>1?'<button class="btn alt" type="button" data-px="*">Tout exporter ('+ls.length+' reçus)</button>':""):'<span class="help">Aucun programme à exporter pour '+esc(wl)+'.</span>')+'</div>'+'<div id="rec-pxmsg" class="help" role="status">'+esc(RECPX)+'</div>':"";
+const rh=document.getElementById("rec-h");if(rh)rh.textContent="Reçus d\u2019arbitrage \u00b7 "+wl;
 const a=document.getElementById("rec-a"),m=document.getElementById("rec-m");
-if(a)a.innerHTML=list+(adm?`<div class="imp"><label class="btn" for="rec-in">Ajouter un reçu (PDF)</label><input id="rec-in" class="vh" type="file" accept="application/pdf,.pdf" multiple></div><div id="rec-msg" class="help" role="status">${esc(RECMSG)}</div>`:"");
-if(m)m.innerHTML=list.replace(/<button class="btn alt" type="button" data-recdel[^>]*>Supprimer<\/button>/g,"");
+if(a)a.innerHTML=px+listA;
+if(m){m.innerHTML=feeHtml();const mb=document.getElementById("rec-mbars");if(mb)mb.innerHTML=compBar()+weekBar()}
 }
-let RECMSG="";
+let RECMSG="",RECPX="";
 function recSay(t){RECMSG=t;const e=document.getElementById("rec-msg");if(e)e.textContent=t}
+/* Export des reçus de la journée choisie en PDF (mêmes PDF que « Télécharger le PDF » des désignations) */
+document.addEventListener("click",async e=>{
+const b=e.target.closest&&e.target.closest("button[data-px]");if(!b||!isAdmin())return;
+const L=b.dataset.px,list=L==="*"?[...document.querySelectorAll("#rec-a button[data-px]")].map(x=>x.dataset.px).filter(x=>x!=="*"):[L];
+const say=t=>{RECPX=t;const m=document.getElementById("rec-pxmsg");if(m)m.textContent=t};
+b.disabled=true;say("Préparation du PDF…");
+try{const names=[],big=[];let added=0,nofee=0;
+for(const l of list){const bv=isBarView(),ps=PROGS.filter(P=>lgOf(P)===l&&!!P.bar===bv&&(bv?barN(P):weekNum(P))===ew());if(!ps.length)continue;const P0=ps[0],items=ps.flatMap(P=>P.matchs.map((_,i)=>({P,i}))),nm="Recus_"+calSlug(P0.titre)+"_"+calSlug(P0.sous)+".pdf";nofee+=items.filter(({P,i})=>!slotTotal(P,i)).length;let blob=await rcPdf(items);await savePng(blob,nm);names.push(nm);if(blob.size>1600000)blob=await rcPdf(items,1.4);
+const u=await new Promise(r=>{const rd=new FileReader();rd.onload=()=>r(rd.result);rd.onerror=()=>r(null);rd.readAsDataURL(blob)});
+if(!u||blob.size>1600000){big.push(nm+" (plus de 1,5 Mo)");continue}
+const meta={t:"Reçus d’indemnité · "+P0.titre+" · "+P0.sous,d:dateNum(P0.date).txt},old=RECUS_X.filter(r=>r.f===nm);RECUS_X=RECUS_X.filter(r=>r.f!==nm);
+RECUS_X.push({id:"u"+Date.now().toString(36)+Math.random().toString(36).slice(2,6),t:meta.t,d:meta.d,f:nm,u});
+if(!saveRecus()){RECUS_X.pop();old.forEach(r=>RECUS_X.push(r));big.push(nm+" (mémoire du navigateur pleine)");continue}
+added++}
+if(added)pendProg();
+say(names.length?"✓ "+names.length+" reçu"+(names.length>1?"s":"")+" exporté"+(names.length>1?"s":"")+" (PDF téléchargé"+(names.length>1?"s":"")+")"+(added?", "+(added>1?"ajoutés":"ajouté")+" à la liste ci-dessous. Publiez pour que les arbitres le voient.":".")+(big.length?" Non ajouté à la liste : "+big.join(", ")+".":""):"Aucun programme à exporter.");
+if(nofee)say(RECPX+" Attention : frais non renseignés pour "+nofee+" match"+(nofee>1?"s":"")+" (montant « — »). Saisissez-les dans la désignation des arbitres, puis régénérez.");
+renderRecus()
+}catch(err){say(err&&err.code==="declined"?"":"⚠ Impossible de générer le PDF.")}
+finally{b.disabled=false}
+});
 document.addEventListener("click",async e=>{
 const b=e.target.closest&&e.target.closest("button[data-rec]");
 if(b){const r=allRecus().find(x=>x.id===b.dataset.rec);if(!r)return;try{await savePng(dataToBlob(r.u),r.f)}catch(_){}return}
@@ -3080,9 +3131,9 @@ const RC_TPL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAQDAwQDAwQ
 const RC_W=1376,RC_H=1058;
 const rcToday=()=>{const t=new Date();return String(t.getDate()).padStart(2,"0")+"/"+String(t.getMonth()+1).padStart(2,"0")+"/"+t.getFullYear()};
 const rcSeason=P=>{const m=String(dateNum(P.date).txt).split("/"),y=+m[2],mo=+m[1];return mo>=8?y+"-"+(y+1):(y-1)+"-"+y};
-async function rcPdf(items){
+async function rcPdf(items,SC){
 const tpl=await imgOf(RC_TPL);if(!tpl)throw new Error("modèle");
-const S=2.5,W=595.28,H=841.89,Wr=494.9,Hr=Wr*RC_H/RC_W,x0=(W-Wr)/2,k=Wr/RC_W,Y=[26,26+Hr+40],cvs=[],AR="Arial, Helvetica, sans-serif",date=rcToday();
+const S=SC||2.5,W=595.28,H=841.89,Wr=494.9,Hr=Wr*RC_H/RC_W,x0=(W-Wr)/2,k=Wr/RC_W,Y=[26,26+Hr+40],cvs=[],AR="Arial, Helvetica, sans-serif",date=rcToday();
 items.forEach(({P,i})=>{
 const [h,a,b]=P.matchs[i],tot=slotTotal(P,i),mt=tot?fmtN(tot/2):"—";
 const cv=document.createElement("canvas");cv.width=Math.round(W*S);cv.height=Math.round(H*S);const c=cv.getContext("2d");c.scale(S,S);
@@ -3101,7 +3152,7 @@ document.addEventListener("click",async e=>{
 const bt=e.target.closest&&e.target.closest("button[data-rcw]");if(!bt||!isAdmin())return;
 const P=PROGS.find(x=>x.id===bt.dataset.rcw);if(!P)return;
 const items=P.matchs.map((_,i)=>({P,i}));
-const box=bt.closest(".sch"),msg=box&&box.querySelector(".rcmsg"),say=t=>{if(msg)msg.textContent=t};
+const box=bt.closest(".sch"),msg=(box&&box.querySelector(".rcmsg"))||document.getElementById("rec-pxmsg"),say=t=>{RECPX=t;if(msg)msg.textContent=t};
 const nofee=items.filter(({P,i})=>!slotTotal(P,i)).length;
 bt.disabled=true;say("Préparation des reçus…");
 try{const bl=await rcPdf(items),nm="Recus_"+calSlug(P.titre)+"_"+calSlug(P.sous);
