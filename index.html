@@ -757,17 +757,17 @@ const rows=D.r.map(r=>`<div class="rd"><div class="jr"><b>${esc(r[0])}</b><span>
 return `<div class="vnl${D.c}" role="region" aria-label="${esc(D.t)}, programme annuel général 2026-2027"><h3>${esc(D.t)} · Programme annuel général</h3><p class="vs">Saison sportive 2026 – 2027 · 9 journées aller, 9 journées retour</p>${hd}${rows}<p class="note">L’équipe citée en premier est l’équipe qui reçoit. Les matchs retour (journées 10 à 18) se jouent selon le même tableau, aux dates indiquées pour chaque journée.</p><p class="by">Commission d’organisation des compétitions · Redouane Haddad</p></div>`;
 }
 function calHtml(){
-const lg=calLg(),c=COMPS.find(x=>x.lg===lg),rows=calRows(lg),adm=isAdmin();
+const lg=calLg(),c=COMPS.find(x=>x.lg===lg),rows=calRows(lg),rowsAll=calRowsAll(lg),adm=isAdmin();
 const chips=`<div class="wkbar compbar" role="group" aria-label="Choisir le calendrier">${COMPS.map(x=>`<button type="button" class="wkchip${x.lg===lg?" on":""}" data-ccal="${x.lg}" aria-pressed="${x.lg===lg}">${esc(x.titre)}</button>`).join("")}</div>`;
 let body;
 if(CALED&&adm){
 body=`<p class="help">Une ligne par match, colonnes séparées par « ; » ou par une tabulation (collage depuis Excel) :<br><b>Journée ; Date ; Heure ; Équipe A ; Équipe B ; Lieu</b></p><textarea class="calta" rows="12" style="width:100%" aria-label="Calendrier ${esc(c.titre)}">${esc(rows.map(r=>r.slice(1).join(" ; ")).join("\n"))}</textarea><div class="err calerr" role="alert"></div><div class="imp"><button class="btn" type="button" data-cale="save">Enregistrer</button><button class="btn alt" type="button" data-cale="cancel">Annuler</button></div>`;
-}else if(rows.length){
-const g=[];rows.forEach(r=>{let x=g.find(y=>y.j===r[1]);if(!x){x={j:r[1],l:[]};g.push(x)}x.l.push(r)});
-body=g.map(x=>`<h4>${esc(x.j)}</h4><div class="calw"><table><thead><tr><th>Date</th><th>Heure</th><th>Rencontre</th><th>Lieu</th></tr></thead><tbody>${x.l.map(r=>`<tr><td>${esc(r[2])}</td><td>${esc(r[3])}</td><td>${esc(r[4])} <b>VS</b> ${esc(r[5])}</td><td>${esc(r[6]||"")}</td></tr>`).join("")}</tbody></table></div>`).join("");
+}else if(rowsAll.length){
+const g=[];rowsAll.forEach(r=>{let x=g.find(y=>y.j===r[1]);if(!x){x={j:r[1],l:[]};g.push(x)}x.l.push(r)});
+body=g.map(x=>`<h4>${esc(x.j)}${cwBtn(lg,x.j)}</h4><div class="calw"><table><thead><tr><th>Date</th><th>Heure</th><th>Rencontre</th><th>Lieu</th></tr></thead><tbody>${x.l.map(r=>`<tr><td>${esc(r[2])}</td><td>${esc(r[3])}</td><td>${esc(r[4])} <b>VS</b> ${esc(r[5])}</td><td>${esc(r[6]||"")}</td></tr>`).join("")}</tbody></table></div>`).join("");
 }else body=lg==="h"||lg==="d"?`<p class="help">Programme annuel général de la saison 2026-2027 ci-dessous.</p>`:`<p class="help">Le calendrier ${esc(c.titre)} n’est pas encore publié.${adm?" Utilisez « Modifier le calendrier » pour le saisir.":""}</p>`;
 const dl=!(CALED&&adm)?`<div class="imp" style="margin:.2rem 0 .6rem"><button class="btn" type="button" data-cald="pdf">Télécharger le PDF</button><button class="btn alt" type="button" data-cald="csv">Télécharger (Excel)</button><span class="pmsg help"></span></div>`:"";
-return `<div class="cd calbox"><div class="sec-h"><h3>Calendrier des matchs</h3>${adm&&!CALED?`<button class="btn alt" type="button" data-cale="edit">Modifier le calendrier</button>`:""}</div>${chips}${dl}${body}</div>${lg==="h"||lg==="d"?exHtml(lg):""}${calDocsHtml()}`;
+return `<div class="cd calbox"><div class="sec-h"><h3>Calendrier des matchs</h3>${adm&&!CALED?`<button class="btn alt" type="button" data-cale="edit">Modifier le calendrier</button>`:""}</div>${chips}${dl}${body}</div>${lg==="h"||lg==="d"?exHtml(lg):""}${grpHtml(lg)}${calDocsHtml()}`;
 }
 document.addEventListener("click",e=>{
 const ch=e.target.closest&&e.target.closest("button[data-ccal]");
@@ -978,7 +978,7 @@ return o;
 function progHtml(){
 const card=P=>`<div class="sch ${P.cls}${(P.grp||P.matchs.length>=6)?" two":""}"><h2>${esc(P.titre)}</h2><div class="wk">${esc(P.sous)}</div><div class="dt">${esc(P.date)}</div>${((L)=>P.grp?'<div class="cols">'+P.grp.map((g,gi)=>{const gs=P.matchs.length/P.grp.length;return '<div class="col"><div class="gh">'+esc(g)+'</div>'+L.slice(gi*gs,(gi+1)*gs).join("")+'</div>'}).join("")+'</div>':P.matchs.length>=6?'<div class="cols"><div class="col">'+L.slice(0,Math.ceil(L.length/2)).join("")+'</div><div class="col">'+L.slice(Math.ceil(L.length/2)).join("")+'</div></div>':L.join(""))(P.matchs.map(([h,a,b,lieu],i)=>{const r=getRes(P.id+i),sv=r?getSets(P.id+i):null;return `<div class="t">Match ${mno(P,i)} · ${esc(h)}</div><div class="mt">${tcell(a,"tA")}<span class="nm">${esc(a)}</span><span class="vs">${r?r[0]+"-"+r[1]:"VS"}</span><span class="nm">${esc(b)}</span>${tcell(b,"tB")}</div>${sv&&sv.length?`<div class="ss">${forfeit(sv)?"FORFAIT de "+esc(forfeit(sv)===1?b:a)+" · ":""}${sv.map(x=>x[0]+"-"+x[1]).join(" · ")}</div>`:""}<div class="lieu">${esc(lieu)}</div>${dsLine(P.id,i)}`}))}${!PROTECTED.includes(P.id)&&isAdmin()?`<button class="btn alt wkdel" type="button" data-wkdel="${P.id}">${P.bar?"Supprimer ce barrage":"Supprimer cette semaine"}</button>`:""}<span class="mark"><img src="${LOGO}" alt="FRMVB"></span></div>`;
 const list=PROGS.filter(inComp).map(card).join("");
-return compBar()+weekBar(true)+(list||`<div class="cd"><p class="help">${isBarView()?`Aucun barrage programmé en Week ${ew()}.${isAdmin()?" Utilisez « + Ajouter un barrage » pour le créer.":""}`:`Aucun programme pour ${COMPS.find(c=>c.lg===curComp()).titre} cette semaine.${isAdmin()?" Utilisez « + Ajouter une semaine (Week) » pour le créer.":""}`}</p></div>`)+`<p class="help ctr">Demandes de changement d'horaire ou de lieu (clubs et associations) : <a href="https://forms.gle/1ApVMr3RakeiN5cY9" target="_blank" rel="noopener">formulaire</a>. Les résultats sont à envoyer dans le groupe WhatsApp « Arbitrage Volleyball », avec le <a href="https://forms.gle/QxgCp6JsbVrWNuqm6" target="_blank" rel="noopener">formulaire des résultats</a>.</p>`;
+return compBar()+weekBar(true)+progTools()+(list||`<div class="cd"><p class="help">${isBarView()?`Aucun barrage programmé en Week ${ew()}.${isAdmin()?" Utilisez « + Ajouter un barrage » pour le créer.":""}`:`Aucun programme pour ${COMPS.find(c=>c.lg===curComp()).titre} cette semaine.${isAdmin()?" Utilisez « + Ajouter une semaine (Week) » pour le créer.":""}`}</p></div>`)+`<p class="help ctr">Demandes de changement d'horaire ou de lieu (clubs et associations) : <a href="https://forms.gle/1ApVMr3RakeiN5cY9" target="_blank" rel="noopener">formulaire</a>. Les résultats sont à envoyer dans le groupe WhatsApp « Arbitrage Volleyball », avec le <a href="https://forms.gle/QxgCp6JsbVrWNuqm6" target="_blank" rel="noopener">formulaire des résultats</a>.</p>`;
 }
 const RES_EMB={"h1":[3,0],"h4":[3,0],"h3":[3,0],"h0":[3,0],"h2":[3,0],"d0":[3,0],"d2":[3,0],"d1":[0,3],"d3":[2,3],"d4":[3,0],"h_20":[0,3],"h_21":[1,3],"h_22":[1,3],"h_23":[3,0],"h_24":[0,3],"d_20":[0,3],"d_21":[0,3],"d_23":[2,3],"d_24":[3,1],"h_30":[3,0],"h_31":[3,0],"h_32":[1,3],"h_33":[3,2],"h_34":[3,0],"d_22":[0,3],"2h_b10":[3,0]};
 let RESULTS=(()=>{try{return JSON.parse(localStorage.getItem("res-v1")||"{}")}catch(_){return{}}})();
@@ -1449,6 +1449,184 @@ if(a)a.hidden=!on;if(b)b.hidden=!on;
 if(on)dlgRender();
 }
 document.addEventListener("click",e=>{const b=e.target.closest&&e.target.closest("button[data-dv]");if(!b)return;DLGTAB=b.dataset.dv;dlgRender()});
+/* ===== Affiche « Programme du week-end » (PDF en arabe) et liens avec le calendrier général ===== */
+const AR_TEAMS={"FUS":"نادي الفتح الرياضي","MAT":"المغرب أتلتيك تطوان","OCS":"نادي أولمبيك آسفي","ADM":"جمعية أمل اظهر المهراز","DHJ":"نادي الدفاع الحسني الجديدي","MTVB":"نادي مولودية تزنيت","IZK":"النادي الزموري الخميسات","IRT":"الاتحاد الرياضي طنجة","AS.FAR":"الجمعية الرياضية للقوات المسلحة","ACL":"النادي الرياضي العرائش","OCY":"نادي أولمبيك اليوسفية","CODM":"النادي الرياضي المكناسي","OCK":"نادي أولمبيك خريبكة","RCOZ":"نادي سريع واد زم","CET":"نادي طلبة تطوان","JSS":"الجمعية الرياضية صفرو","AS.STVB":"جمعية سبورتينغ تطوان","AOSF":"جمعية الواحة الرياضية فكيك","MAS":"نادي المغرب الفاسي – فرع الكرة الطائرة","USO":"جمعية نادي الاتحاد الرياضي الوجدي","ASVB":"جمعية سبارطيل طنجة","MCO":"نادي مولودية وجدة – فرع الكرة الطائرة","ATV":"جمعية تاوريرت للكرة الطائرة","ASS":"الجمعية الرياضية السلاوية – فرع الكرة الطائرة","RCA":"نادي الرجاء الرياضي – فرع الكرة الطائرة","NSVBT":"النهضة الصحراوية للكرة الطائرة","ECAC":"نادي النجم الرياضي البيضاوي للكرة الطائرة","AUFI":"جمعية اتحاد انزكان","CZVB":"نادي زناتة للكرة الطائرة","CCJ":"نادي الشرف الجديدي","ASMAQ":"الجمعية الرياضية منار القدس – فرع الكرة الطائرة","AMVB":"جمعية المضيق TAMOUDABAY","USF":"نادي الاتحاد الرياضي الفاسي","CODER":"نادي متعدد الرياضات الراشيدية","AMDS":"جمعية مستقبل درب السلطان","ALAV":"جامعة الاخوين","AMAN":"النادي الرياضي امان المراكشي","ANM":"جمعية نور مراكش","CSB":"النادي الرياضي برشيد","ANSA":"جمعية نجاح سوس – فرع الكرة الطائرة"};
+const AR_TEAMS_D={"MAS":"نادي المغرب الرياضي الفاسي – فرع الكرة الطائرة","ASVB":"جمعية سبارطيل طنجة للكرة الطائرة"};
+const AR_CITY={"Agadir":"أكادير","Berrechid":"برشيد","Casablanca":"الدار البيضاء","El Jadida":"الجديدة","Errachidia":"الراشيدية","Figuig":"فكيك","Fès":"فاس","Inezgane":"انزكان","Khouribga":"خريبكة","Khémisset":"الخميسات","Larache":"العرائش","M'diq":"المضيق","Meknès":"مكناس","Oued Zem":"واد زم","Oujda":"وجدة","Rabat":"الرباط","Safi":"آسفي","Salé":"سلا","Sefrou":"صفرو","Tan-Tan":"طانطان","Tanger":"طنجة","Tiznit":"تزنيت","Tétouan":"تطوان","Youssoufia":"اليوسفية","Zenata":"زناتة","Marrakech":"مراكش","Agadir Ida Outanane":"أكادير"};
+const AR_HALL={"Al Amal":"قاعة الأمل","Al Karting":"قاعة الكارتينغ","Najib Naamani":"قاعة نجيب النعامي","Al Massira":"قاعة المسيرة","Moulay Hassan":"قاعة مولاي الحسن","Al Maghrib Al Jadid":"قاعة المغرب الجديد"};
+const AR_DAYS=["الأحد","الاثنين","الثلاثاء","الأربعاء","الخميس","الجمعة","السبت"],AR_MONTHS=["يناير","فبراير","مارس","أبريل","ماي","يونيو","يوليوز","غشت","شتنبر","أكتوبر","نونبر","دجنبر"];
+const AR_ORD=["","الأولى","الثانية","الثالثة","الرابعة","الخامسة","السادسة","السابعة","الثامنة","التاسعة","العاشرة","الحادية عشرة","الثانية عشرة","الثالثة عشرة","الرابعة عشرة","الخامسة عشرة","السادسة عشرة","السابعة عشرة","الثامنة عشرة","التاسعة عشرة","العشرون","الحادية والعشرون","الثانية والعشرون"];
+const AR_TITLES={"h":"القسم الممتاز رجال","d":"القسم الممتاز سيدات","1h":"البطولة الوطنية القسم الأول رجال","1d":"البطولة الوطنية القسم الأول سيدات","2h":"البطولة الوطنية القسم الثاني رجال","2d":"البطولة الوطنية القسم الثاني سيدات"};
+const AR_GRP=["المجموعة الأولى","المجموعة الثانية","المجموعة الثالثة","المجموعة الرابعة"];
+const PP_W=924,PP_H=1308,PP_F="Tajawal,'Noto Kufi Arabic',Cairo,'Segoe UI',Tahoma,Arial,sans-serif";
+const PP_TH={"h":{bg:"#ececec",dark:"#0b0b0b",hl:"#c6ff00",pill:"#c6ff00",pt:"#111111",chip:"#eaf7c4",ct:"#26330a",code:"#9b9b9b",tag:"#0b0b0b"},"d":{bg:"#fde9f3",dark:"#5b1a4e",hl:"#ff8fc2",pill:"#ff8fc2",pt:"#2b1030",chip:"#fbdbe9",ct:"#5b1a4e",code:"#b3569d",tag:"#5b1a4e"},"1h":{bg:"#eeeefa",dark:"#2626d4",hl:"#ffffff",pill:"#2626d4",pt:"#ffffff",chip:"#e2e2f6",ct:"#1c1c9c",code:"#8d8fa8",tag:"#2626d4"},"1d":{bg:"#fff1ec",dark:"#ff4500",hl:"#ffffff",pill:"#ff4500",pt:"#ffffff",chip:"#ffe0d4",ct:"#a32c00",code:"#8d8fa8",tag:"#ff4500"},"2h":{bg:"#e8f5f3",dark:"#0f766e",hl:"#ffffff",pill:"#0f766e",pt:"#ffffff",chip:"#cfeae6",ct:"#0b524c",code:"#7a8f8c",tag:"#0f766e"},"2d":{bg:"#f3eefe",dark:"#6d28d9",hl:"#ffffff",pill:"#6d28d9",pt:"#ffffff",chip:"#e3d8fb",ct:"#4c1d95",code:"#8b84a3",tag:"#6d28d9"}};
+const ppFam=lg=>({"h":"Excellence","d":"Excellence","1h":"1° Division","1d":"1° Division","2h":"2° Division","2d":"2° Division"})[lg]||lg;
+function arVenue(v){
+const mk=o=>{const m={};Object.keys(o).forEach(k=>{m[norm(k)]=o[k]});return m},C=mk(AR_CITY),H=mk(AR_HALL);
+const p=String(v||"").split("·").map(x=>x.trim()),city=p[0]||"",hall=(p[1]||"").replace(/^salle\s+/i,"").trim();
+if(!city)return "";
+const c=C[norm(city)]||city,h=hall?H[norm(hall)]:"";
+return h?c+"، "+h:c;
+}
+function arDate(t){
+const m=String(dateNum(t).txt).split("/"),d=new Date(+m[2],+m[1]-1,+m[0]);
+if(isNaN(d.getTime()))return String(t);
+return AR_DAYS[d.getDay()]+" "+(+m[0])+" "+AR_MONTHS[+m[1]-1]+" "+m[2];
+}
+function ppPages(Ps){
+const out=[],pad=(x,g)=>g?String(x).padStart(2,"0"):String(x);
+Ps.forEach(P=>{
+const lg=lgOf(P),dames=P.cls==="dames"||/d$/.test(lg),th=PP_TH[lg]||PP_TH[dames?"d":"h"],exc=lg==="h"||lg==="d";
+const n=P.bar?barN(P):weekNum(P),rw=P.bar?"مباراة السد":(exc?"الدورة ":"الجولة ")+(AR_ORD[n]||n),base=AR_TITLES[lg]||P.titre;
+const groups=P.grp?P.grp.map((g,gi)=>({gi,idx:P.matchs.map((_,i)=>i).filter(i=>Math.floor(i/(P.matchs.length/P.grp.length))===gi)})):[{gi:-1,idx:P.matchs.map((_,i)=>i)}];
+groups.forEach(G=>{
+out.push({th,date:arDate(P.date),round:rw,title:base+" – "+(G.gi>=0?(AR_GRP[G.gi]||P.grp[G.gi]):rw),tag:G.gi>=0?(AR_GRP[G.gi]||P.grp[G.gi]):(dames?"سيدات":"رجال"),
+m:G.idx.map(i=>{const [h,a,b,v]=P.matchs[i],num=pad(mno(P,i),!!P.grp);return{time:String(h||""),a:{code:a,ar:(dames&&AR_TEAMS_D[a])||AR_TEAMS[a]||a},b:{code:b,ar:(dames&&AR_TEAMS_D[b])||AR_TEAMS[b]||b},label:P.bar?"مباراة السد – "+num:rw+" – المباراة "+num,venue:arVenue(v)}})});
+});
+});
+return out;
+}
+function ppRR(c,x,y,w,h,r){c.beginPath();c.moveTo(x+r,y);c.arcTo(x+w,y,x+w,y+h,r);c.arcTo(x+w,y+h,x,y+h,r);c.arcTo(x,y+h,x,y,r);c.arcTo(x,y,x+w,y,r);c.closePath()}
+function ppT(c,t,x,y,size,wt,col,al,dir){c.direction=dir||"rtl";c.textAlign=al||"right";c.textBaseline="middle";c.font=wt+" "+size+"px "+PP_F;c.fillStyle=col;c.fillText(t,x,y)}
+function ppMeasure(c,t,size,wt){c.font=wt+" "+size+"px "+PP_F;return c.measureText(t).width}
+function ppWrap(c,t,size,wt,maxW){
+if(ppMeasure(c,t,size,wt)<=maxW)return [t];
+const w=t.split(" ");let best=[t],bd=1e9;
+for(let i=1;i<w.length;i++){const a=w.slice(0,i).join(" "),b=w.slice(i).join(" "),m=Math.max(ppMeasure(c,a,size,wt),ppMeasure(c,b,size,wt));if(m<bd){bd=m;best=[a,b]}}
+return best;
+}
+function ppBadge(c,img,code,cx,cy,th){
+if(img){const k=Math.min(46/img.width,46/img.height),w=img.width*k,h=img.height*k;c.drawImage(img,cx-w/2,cy-h/2,w,h);return}
+c.fillStyle=th.dark;c.beginPath();c.arc(cx,cy,22,0,6.2832);c.fill();
+const t=String(code).replace(/[^A-Za-z0-9]/g,"").slice(0,3).toUpperCase();
+ppT(c,t,cx,cy+1,t.length>2?12:15,700,"#ffffff","center","ltr");
+}
+function ppDraw(c,pg,logo,stamp,logos){
+const th=pg.th,n=pg.m.length;
+c.fillStyle=th.bg;c.fillRect(0,0,PP_W,PP_H);
+/* bandeau */
+c.fillStyle=th.dark;ppRR(c,36,35,852,72,6);c.fill();
+ppT(c,pg.date,858,72,31,700,"#ffffff","right","rtl");
+ppT(c,pg.round,66,72,21,700,th.hl,"left","rtl");
+/* titre */
+c.fillStyle="#ffffff";ppRR(c,36,122,852,91,4);c.fill();c.strokeStyle="#dcdce2";c.lineWidth=1;c.stroke();
+if(logo)c.drawImage(logo,800,132,62,62);
+const tl=ppWrap(c,pg.title,25,700,520);
+tl.forEach((ln,k)=>ppT(c,ln,778,167.5+(k-(tl.length-1)/2)*31,tl.length>1?23:26,700,"#1b1b2b","right","rtl"));
+ppT(c,"الموسم الرياضي",230,160,14,400,"#6b6f78","right","rtl");
+ppT(c,"2026 – 2027",230,181,14,400,"#6b6f78","right","ltr");
+/* matchs */
+pg.m.forEach((m,i)=>{
+const y=229+i*158;
+c.fillStyle="#ffffff";ppRR(c,36,y,852,143,6);c.fill();c.strokeStyle="#dcdce2";c.lineWidth=1;c.stroke();
+c.fillStyle=th.pill;ppRR(c,63,y+44,122,54,22);c.fill();
+ppT(c,m.time,124,y+72,25,700,th.pt,"center","ltr");
+c.strokeStyle="#cfd0d6";c.lineWidth=1.2;c.beginPath();c.moveTo(211,y+71);c.lineTo(598,y+71);c.stroke();
+[[m.a,y+38],[m.b,y+105]].forEach(([t,cy])=>{
+ppT(c,t.code,211,cy,19,700,th.code,"left","ltr");
+const L=ppWrap(c,t.ar,24,700,250);
+L.forEach((ln,k)=>ppT(c,ln,531,cy+(k-(L.length-1)/2)*27,L.length>1?21:24,700,"#1b1b2b","right","rtl"));
+ppBadge(c,logos[t.code],t.code,575,cy,th);
+});
+const tw=Math.max(99,ppMeasure(c,pg.tag,20,700)+36);
+c.fillStyle=th.tag;ppRR(c,862-tw,y+15,tw,40,6);c.fill();
+ppT(c,pg.tag,862-tw/2,y+35,20,700,"#ffffff","center","rtl");
+ppT(c,m.label,862,y+82,13.5,700,"#333333","right","rtl");
+if(m.venue){
+let sz=13.5;while(ppMeasure(c,m.venue,sz,700)>200&&sz>10)sz-=.5;
+const vw=ppMeasure(c,m.venue,sz,700)+30;
+c.fillStyle=th.chip;ppRR(c,862-vw,y+100,vw,34,8);c.fill();
+ppT(c,m.venue,862-vw/2,y+117,sz,700,th.ct,"center","rtl");
+}
+});
+/* pied : commissions + cachet */
+const fy=229+n*158+1;
+c.fillStyle="#ffffff";ppRR(c,36,fy,852,129,4);c.fill();c.strokeStyle="#dcdce2";c.lineWidth=1;c.stroke();
+ppT(c,"لجنة تنظيم المنافسات",845,fy+45,21,700,"#1b1b2b","right","rtl");
+ppT(c,"رضوان الحداد",789,fy+84,16,400,"#555555","right","rtl");
+ppT(c,"اللجنة المركزية للتحكيم",283,fy+45,21,700,"#1b1b2b","right","rtl");
+ppT(c,"عبد الوهاب بلقايد",259,fy+84,16,400,"#555555","right","rtl");
+if(stamp)c.drawImage(stamp,412,fy+22,100,73);
+/* notes */
+const ny=fy+142;
+c.fillStyle="#ffffff";ppRR(c,36,ny,852,108,2);c.fill();c.strokeStyle="#dcdce2";c.lineWidth=1;c.stroke();
+c.fillStyle=th.tag==="#0b0b0b"?th.hl:th.dark;c.fillRect(882,ny,6,108);
+ppT(c,"لطلبات تغيير التوقيت أو مكان المقابلات بالنسبة للأندية والجمعيات، المرجو ملء الاستمارة:",862,ny+22,14,400,"#555555","right","rtl");
+ppT(c,"https://forms.gle/1ApVMr3RakeiN5cY9",862,ny+43,14,400,th.tag==="#0b0b0b"?"#4a6a00":th.dark,"right","ltr");
+ppT(c,"ترسل النتائج في مجموعة الواتساب: Volleyball Arbitrage مع ملء الاستمارة:",862,ny+67,14,400,"#555555","right","rtl");
+ppT(c,"https://forms.gle/QxgCp6JsbVrWNuqm6",862,ny+88,14,400,th.tag==="#0b0b0b"?"#4a6a00":th.dark,"right","ltr");
+}
+async function ppPdf(Ps){
+const pages=ppPages(Ps);if(!pages.length)return null;
+const logo=await imgOf(LOGO),stamp=await imgOf(STAMP);
+try{await document.fonts.load("700 20px Tajawal");await document.fonts.load("400 14px Tajawal")}catch(_){}
+const logos={};
+for(const code of new Set(pages.flatMap(p=>p.m.flatMap(m=>[m.a.code,m.b.code])))){const u=tl(code);logos[code]=u?await imgOf(u):null}
+const S=2,cvs=[];
+pages.forEach(pg=>{const cv=document.createElement("canvas");cv.width=PP_W*S;cv.height=PP_H*S;const c=cv.getContext("2d");c.scale(S,S);ppDraw(c,pg,logo,stamp,logos);cvs.push(cv)});
+return pdfFromCanvases(cvs,595.28,841.89);
+}
+let PPMSG="";
+function ppSay(t){PPMSG=t;const e=document.getElementById("pp-msg");if(e)e.textContent=t}
+function progTools(){
+const bv=isBarView(),wn=ew(),ps=PROGS.filter(P=>!!P.bar===bv&&(bv?barN(P):weekNum(P))===wn);
+if(!ps.length)return "";
+const lgs=[];ps.forEach(P=>{if(!lgs.some(x=>x.lg===lgOf(P)))lgs.push({lg:lgOf(P),t:P.titre})});
+const wl=bv?"Barrage "+wn:"Week "+wn,fam=[];
+lgs.forEach(x=>{const f=ppFam(x.lg);if(!fam.some(y=>y.f===f))fam.push({f,n:0});fam.find(y=>y.f===f).n++});
+let h="";
+if(isAdmin()){
+h+=fam.filter(y=>y.n>1).map(y=>`<button class="btn" type="button" data-pp="F:${esc(y.f)}">Programme PDF · ${esc(y.f)} (Hommes et Dames) · ${esc(wl)}</button>`).join("");
+h+=lgs.map(x=>`<button class="btn alt" type="button" data-pp="${esc(x.lg)}">Programme PDF · ${esc(x.t)} · ${esc(wl)}</button>`).join("");
+}
+if(!bv){const c=COMPS.find(x=>x.lg===curComp());if(c)h+=`<button class="btn alt" type="button" data-gcal="${esc(c.lg)}">Calendrier général · ${esc(c.titre)} →</button>`}
+return h?`<div class="imp dtool">${h}</div><div id="pp-msg" class="help" role="status">${esc(PPMSG)}</div>`:"";
+}
+document.addEventListener("click",async e=>{
+const b=e.target.closest&&e.target.closest("button[data-pp]");if(!b||!isAdmin())return;
+const v=b.dataset.pp,bv=isBarView(),wn=ew();
+let Ps=PROGS.filter(P=>!!P.bar===bv&&(bv?barN(P):weekNum(P))===wn),nm;
+if(v.startsWith("F:")){const f=v.slice(2);Ps=Ps.filter(P=>ppFam(lgOf(P))===f);nm="Programme_"+calSlug(f)+"_"+(bv?"Barrage_":"Week_")+wn+".pdf"}
+else{Ps=Ps.filter(P=>lgOf(P)===v);if(Ps.length)nm="Programme_"+calSlug(Ps[0].titre)+"_"+calSlug(Ps[0].sous)+".pdf"}
+if(!Ps.length){ppSay("Aucun programme à exporter.");return}
+b.disabled=true;ppSay("Préparation de l’affiche PDF…");
+try{const bl=await ppPdf(Ps);if(!bl){ppSay("Aucun programme à exporter.");return}
+await savePng(bl,nm);
+const miss=[...new Set(Ps.flatMap(P=>P.matchs.flatMap(m=>[m[1],m[2]])))].filter(k=>!AR_TEAMS[k]);
+ppSay("✓ Affiche téléchargée : "+nm+(miss.length?". Nom arabe manquant pour : "+miss.join(", ")+" (le code du club est affiché à la place).":"."))}
+catch(err){ppSay(err&&err.code==="declined"?"":"✗ Impossible de générer le PDF.")}
+finally{b.disabled=false}
+});
+/* Calendrier général : les weeks des programmes y apparaissent automatiquement et renvoient au programme */
+function calAuto(lg){
+return PROGS.filter(P=>lgOf(P)===lg).flatMap(P=>{const D=dateNum(P.date).txt,j=P.bar?"Barrage "+barN(P):"Journée "+weekNum(P);return P.matchs.map(([h,a,b,v],i)=>[lg,j,D,String(h||""),a,b,String(v||"")+(P.grp?" · Groupe "+"AB"[Math.floor(i/(P.matchs.length/P.grp.length))]:"")])});
+}
+function calRowsAll(lg){
+const man=calRows(lg),num=r=>+((String(r[1]).match(/\d+/)||["999"])[0]),bar=r=>/barrage/i.test(r[1]),key=r=>num(r)+"|"+bar(r)+"|"+norm(r[4])+"|"+norm(r[5]),seen=new Set(man.map(key));
+return [...man,...calAuto(lg).filter(r=>!seen.has(key(r)))].map((r,i)=>({r,i})).sort((x,y)=>(bar(x.r)-bar(y.r))||(num(x.r)-num(y.r))||(x.i-y.i)).map(x=>x.r);
+}
+function cwBtn(lg,j){
+const n=+((String(j).match(/\d+/)||["0"])[0]),bar=/barrage/i.test(j);
+if(!n||!PROGS.some(P=>lgOf(P)===lg&&!!P.bar===bar&&(bar?barN(P):weekNum(P))===n))return "";
+return ` <button type="button" class="lnk" data-cw="${lg}|${n}|${bar?1:0}">Programme du week-end →</button>`;
+}
+document.addEventListener("click",e=>{
+const g=e.target.closest&&e.target.closest("button[data-gcal]");
+if(g){CALSEL=g.dataset.gcal;CALED=false;if(document.body.classList.contains("adm"))page("cal");else mpage("cal");refreshProg();return}
+const b=e.target.closest&&e.target.closest("button[data-cw]");if(!b)return;
+const [lg,n,bar]=b.dataset.cw.split("|");
+CSEL=bar==="1"?"bar":lg;WSEL=+n;
+if(document.body.classList.contains("adm"))page("prog");else mpage("programmes");
+weekRefresh();
+});
+/* Répartition des groupes 2026-2027 (1° Division) : d'après les documents officiels de la commission */
+const GROUPES={"1h":{titre:"1° Division Hommes",g:[{n:"A",t:[[1,"JSS","الجمعية الرياضية صفرو","Sefrou"],[2,"MAS","نادي المغرب الفاسي – فرع الكرة الطائرة","Fès"],[3,"AS.STVB","جمعية سبورتينغ تطوان","Tétouan"],[4,"ASVB","جمعية سبارطيل طنجة","Tanger"],[5,"AOSF","جمعية الواحة الرياضية","Figuig"],[6,"MCO","نادي مولودية وجدة – فرع الكرة الطائرة","Oujda"],[7,"ATV","جمعية تاوريرت للكرة الطائرة","Taourirt"],[8,"USO","جمعية نادي الاتحاد الرياضي الوجدي","Oujda"]]},{n:"B",t:[[1,"ASS","الجمعية الرياضية السلاوية – فرع الكرة الطائرة","Salé"],[2,"ECAC","نادي النجم الرياضي البيضاوي للكرة الطائرة","Casablanca"],[3,"RCA","نادي الرجاء الرياضي – فرع الكرة الطائرة","Casablanca"],[4,"CZVB","نادي زناتة للكرة الطائرة","Zenata"],[5,"NSVBT","النهضة الصحراوية للكرة الطائرة","Tan-Tan"],[6,"CCJ","نادي الشرف الجديدي","El Jadida"],[7,"AUFI","جمعية اتحاد انزكان","Inezgane"],[8,"ASMAQ","الجمعية الرياضية منار القدس – فرع الكرة الطائرة","Agadir"]]}]},
+"1d":{titre:"1° Division Dames",g:[{n:"A",t:[[1,"AS.STVB","جمعية سبورتينغ تطوان","Tétouan"],[2,"AMVB","جمعية المضيق TAMOUDABAY","M'diq"],[3,"USF","نادي الاتحاد الرياضي الفاسي","Fès"],[4,"CODM","النادي الرياضي المكناسي","Meknès"],[5,"AOSF","جمعية الواحة الرياضية فكيك","Figuig"],[6,"MAS","نادي المغرب الرياضي الفاسي – فرع الكرة الطائرة","Fès"],[7,"CODER","نادي متعدد الرياضات الراشيدية","Errachidia"],[8,"ASVB","جمعية سبارطيل طنجة للكرة الطائرة","Tanger"]]},{n:"B",t:[[1,"AMDS","جمعية مستقبل درب السلطان","Casablanca"],[2,"ALAV","جامعة الاخوين","Ifrane"],[3,"CZVB","نادي زناتة للكرة الطائرة","Zenata"],[4,"CSB","النادي الرياضي برشيد","Berrechid"],[5,"AMAN","النادي الرياضي امان المراكشي","Marrakech"],[6,"ANSA","جمعية نجاح سوس – فرع الكرة الطائرة","Agadir"],[7,"ANM","جمعية نور مراكش","Marrakech"],[8,"ASMAQ","الجمعية الرياضية منار القدس – فرع الكرة الطائرة","Agadir"]]}]}};
+function grpHtml(lg){
+const G=GROUPES[lg];if(!G)return "";
+const nt=G.g.reduce((n,x)=>n+x.t.length,0);
+return `<div class="cd calbox"><div class="sec-h"><h3>Répartition des groupes 2026-2027</h3></div><p class="help" style="margin-top:0">${esc(G.titre)} : ${nt} clubs répartis en ${G.g.length} groupes de ${G.g[0].t.length}. Le groupe A correspond au « Groupe 1 » et le groupe B au « Groupe 2 » des programmes de chaque week-end.</p>${G.g.map((x,gi)=>`<h4>Groupe ${esc(x.n)}${PROGS.some(P=>lgOf(P)===lg&&!P.bar&&P.grp)?` <button type="button" class="lnk" data-cw="${lg}|${Math.max(...PROGS.filter(P=>lgOf(P)===lg&&!P.bar).map(weekNum))}|0">Dernier programme →</button>`:""}</h4><div class="calw"><table><thead><tr><th>N°</th><th>Code</th><th>Club</th><th>Ville</th></tr></thead><tbody>${x.t.map(([n,c,a,v])=>`<tr><td>${n}</td><td><b>${esc(c)}</b></td><td lang="ar" dir="rtl">${esc(a)}</td><td>${esc(v)}</td></tr>`).join("")}</tbody></table></div>`).join("")}</div>`;
+}
 /* Délégués d'arbitrage */
 const arAdminSafe=()=>{try{return arAdmin()}catch(_){return false}};
 let DELED=null,DELPH=undefined;
@@ -3240,11 +3418,11 @@ if(t.id==="wa-v"){WA.ville=t.value;waList()}else if(t.id==="wa-g"){WA.grade=t.va
 const calSlug=t=>String(t).normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^A-Za-z0-9]+/g,"_").replace(/^_|_$/g,"");
 function calCsv(lg){
 const c0=COMPS.find(x=>x.lg===lg),q=v=>{v=String(v==null?"":v);return /[;"\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v};
-const L=[["Compétition","Journée","Date","Heure","Équipe A","Équipe B","Lieu"]].concat(calRows(lg).map(r=>[c0.titre].concat(r.slice(1))));
+const L=[["Compétition","Journée","Date","Heure","Équipe A","Équipe B","Lieu"]].concat(calRowsAll(lg).map(r=>[c0.titre].concat(r.slice(1))));
 return new Blob(["\ufeff"+L.map(r=>r.map(q).join(";")).join("\r\n")],{type:"text/csv;charset=utf-8"});
 }
 async function calPdf(lg){
-const c0=COMPS.find(x=>x.lg===lg),rows=calRows(lg);if(!rows.length)return null;
+const c0=COMPS.find(x=>x.lg===lg),rows=calRowsAll(lg);if(!rows.length)return null;
 const dm=c0.cls==="dames",TH=dm?{main:"#5b1a4e",dark:"#3a0f33",tint:"#f4eaf2"}:{main:"#1f5fa8",dark:"#14284b",tint:"#e8f0fa"};
 const logo=await imgOf(LOGO);
 try{await document.fonts.load("700 12px Lato");await document.fonts.load("400 12px Lato")}catch(_){}
@@ -3284,7 +3462,7 @@ const lg=calLg(),c0=COMPS.find(x=>x.lg===lg),msg=b.parentNode.querySelector(".pm
 b.disabled=true;
 try{
 if(b.dataset.cald==="pdf"){say("Préparation du PDF…");const bl=await calPdf(lg);if(!bl){say("Aucun calendrier saisi pour "+c0.titre+" : rien à télécharger pour le moment.");return}await savePng(bl,nm+".pdf");say("✓ PDF téléchargé.")}
-else{await savePng(calCsv(lg),nm+".csv");say(calRows(lg).length?"✓ Fichier Excel (CSV) téléchargé.":"Aucun match saisi : modèle vide téléchargé (en-têtes seulement).")}
+else{await savePng(calCsv(lg),nm+".csv");say(calRowsAll(lg).length?"✓ Fichier Excel (CSV) téléchargé.":"Aucun match saisi : modèle vide téléchargé (en-têtes seulement).")}
 }catch(_){say("Le téléchargement a échoué. Réessayez.")}
 finally{b.disabled=false}
 });
