@@ -551,6 +551,8 @@ body:not(.adm) :is(button[data-cdoc],button[data-pdf],button[data-cald],button[d
 <button class="mi" type="button" data-p="case" aria-pressed="false"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 7a1.5 1.5 0 0 1 1.5-1.5h4l2 2.5h8A1.5 1.5 0 0 1 20.5 9.5V18a1.5 1.5 0 0 1-1.5 1.5H5A1.5 1.5 0 0 1 3.5 18z"/><path d="M9 14l2 2 4-4"/></svg>Casebook</button>
 <button class="mi" type="button" data-p="el" aria-pressed="false"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M10 8.5l5 3.5-5 3.5z"/></svg>e-Learning</button>
 <button class="mi" type="button" data-p="notes" aria-pressed="false"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 3h10l4 4v14H5z"/><path d="M15 3v4h4M8 12h8M8 16h6"/></svg>Notes</button>
+<div class="sb-h">Administration</div>
+<button class="mi" type="button" data-p="adm" aria-pressed="false"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><path d="M16 5.2a3.2 3.2 0 0 1 0 5.6M18 14.4c1.8.8 3 2.6 3 5.6"/></svg>Suivi des connexions</button>
 <div class="sb-h">Système</div>
 <button class="mi" type="button" data-p="imp" aria-pressed="false"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16V4M7 9l5-5 5 5M4 20h16"/></svg>Importer et configuration</button>
 <button class="mi" type="button" id="out"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 4H5v16h4M16 8l4 4-4 4M20 12H9"/></svg>Se déconnecter</button>
@@ -617,6 +619,9 @@ body:not(.adm) :is(button[data-cdoc],button[data-pdf],button[data-cald],button[d
 <section id="p-notes" class="pg" hidden>
 <div id="notes-a"></div>
 </section>
+<section id="p-adm" class="pg" hidden>
+<div id="adm-a"></div>
+</section>
 <section id="p-imp" class="pg" hidden>
 <div id="auth-box"></div>
 <div class="cd" id="pub-box"><h3>Publier les modifications</h3><p class="help" id="pub-info"></p><div class="imp"><button id="pub-gh" class="btn" type="button">Publier sur GitHub</button><button id="pub-go" class="btn alt" type="button">Télécharger le fichier à publier</button><button id="pub-done" class="btn alt" type="button">J’ai publié le fichier</button></div><div class="ok" id="pub-ok" role="status"></div><div class="err" id="pub-err" role="alert"></div>
@@ -680,6 +685,9 @@ const avHtml=(a,ph)=>ph?`<img class="av" src="${esc(ph)}" alt="">`:`<span class=
 const UPD_CFG={"form":""};
 let UPD_LOC=(()=>{try{return JSON.parse(localStorage.getItem("upd-form-v1")||"null")}catch(_){return null}})();
 const updForm=()=>(UPD_LOC&&UPD_LOC.form!==undefined?UPD_LOC.form:UPD_CFG.form)||"";
+const ANA_CFG={"url":""};
+let ANA_LOC=(()=>{try{return JSON.parse(localStorage.getItem("ana-cfg-v1")||"null")}catch(_){return null}})();
+const anaUrl=()=>(ANA_LOC&&ANA_LOC.url!==undefined?ANA_LOC.url:ANA_CFG.url)||"";
 const updSheet=()=>{try{return localStorage.getItem("upd-sheet-v1")||""}catch(_){return""}};
 function updFormUrl(text){const f=updForm();if(!f)return"";try{const u=new URL(f);let k="";u.searchParams.forEach((v,n)=>{if(!k&&/^entry\./.test(n))k=n});if(!k)return"";u.searchParams.set(k,text);return u.toString()}catch(_){return""}}
 const dnOk=v=>{const m=String(v||"").match(/^(\d{4})-(\d{2})-(\d{2})$/);if(!m)return false;const d=new Date(+m[1],+m[2]-1,+m[3]);if(d.getFullYear()!==+m[1]||d.getMonth()!==+m[2]-1||d.getDate()!==+m[3])return false;const t=new Date();return d<=t&&t.getFullYear()-d.getFullYear()<=100};
@@ -1627,6 +1635,92 @@ const G=GROUPES[lg];if(!G)return "";
 const nt=G.g.reduce((n,x)=>n+x.t.length,0);
 return `<div class="cd calbox"><div class="sec-h"><h3>Répartition des groupes 2026-2027</h3></div><p class="help" style="margin-top:0">${esc(G.titre)} : ${nt} clubs répartis en ${G.g.length} groupes de ${G.g[0].t.length}. Le groupe A correspond au « Groupe 1 » et le groupe B au « Groupe 2 » des programmes de chaque week-end.</p>${G.g.map((x,gi)=>`<h4>Groupe ${esc(x.n)}${PROGS.some(P=>lgOf(P)===lg&&!P.bar&&P.grp)?` <button type="button" class="lnk" data-cw="${lg}|${Math.max(...PROGS.filter(P=>lgOf(P)===lg&&!P.bar).map(weekNum))}|0">Dernier programme →</button>`:""}</h4><div class="calw"><table><thead><tr><th>N°</th><th>Code</th><th>Club</th><th>Ville</th></tr></thead><tbody>${x.t.map(([n,c,a,v])=>`<tr><td>${n}</td><td><b>${esc(c)}</b></td><td lang="ar" dir="rtl">${esc(a)}</td><td>${esc(v)}</td></tr>`).join("")}</tbody></table></div>`).join("")}</div>`;
 }
+const ANA_GS="const SECRET = 'CHANGEZ-CETTE-CLE';   // choisissez une cle secrete (a recopier sur le site)\nconst TZ = 'Africa/Casablanca';\nfunction sheet_() {\n  const ss = SpreadsheetApp.getActiveSpreadsheet();\n  let s = ss.getSheetByName('connexions');\n  if (!s) {\n    s = ss.insertSheet('connexions');\n    s.getRange('A:B').setNumberFormat('@');\n    s.appendRow(['date', 'heure', 'id', 'nom', 'role', 'ville']);\n  }\n  return s;\n}\nfunction out_(o) {\n  return ContentService.createTextOutput(JSON.stringify(o)).setMimeType(ContentService.MimeType.JSON);\n}\nfunction doGet(e) {\n  const p = e.parameter || {}, cache = CacheService.getScriptCache();\n  if (p.a === 'ping' || p.a === 'login') {\n    const id = String(p.id || '').slice(0, 40);\n    if (!id) return out_({ ok: 0 });\n    const lock = LockService.getScriptLock();\n    if (lock.tryLock(5000)) {\n      try {\n        const now = Date.now();\n        let on = {};\n        try { on = JSON.parse(cache.get('online') || '{}'); } catch (_) {}\n        Object.keys(on).forEach(function (k) { if (now - on[k].t > 600000) delete on[k]; });\n        on[id] = { n: String(p.n || '').slice(0, 60), r: String(p.r || '').slice(0, 20), v: String(p.v || '').slice(0, 40), p: String(p.p || '').slice(0, 30), t: now };\n        cache.put('online', JSON.stringify(on), 21600);\n        if (p.a === 'login') {\n          const d = new Date();\n          sheet_().appendRow([Utilities.formatDate(d, TZ, 'yyyy-MM-dd'), Utilities.formatDate(d, TZ, 'HH:mm'), id, on[id].n, on[id].r, on[id].v]);\n        }\n      } finally { lock.releaseLock(); }\n    }\n    return out_({ ok: 1 });\n  }\n  if (p.a === 'stats') {\n    if (p.k !== SECRET) return out_({ error: 'forbidden' });\n    const now = Date.now();\n    let on = {};\n    try { on = JSON.parse(cache.get('online') || '{}'); } catch (_) {}\n    const online = Object.keys(on).filter(function (k) { return now - on[k].t < 300000; })\n      .map(function (k) { return { id: k, n: on[k].n, r: on[k].r, v: on[k].v, p: on[k].p, s: Math.round((now - on[k].t) / 1000) }; });\n    const min = Utilities.formatDate(new Date(now - 45 * 86400000), TZ, 'yyyy-MM-dd');\n    const days = {};\n    sheet_().getDataRange().getValues().slice(1).forEach(function (r) {\n      const d = (r[0] instanceof Date) ? Utilities.formatDate(r[0], TZ, 'yyyy-MM-dd') : String(r[0]);\n      if (d < min) return;\n      const x = days[d] = days[d] || { d: d, log: 0, arb: {}, del: {}, adm: 0 };\n      x.log++;\n      if (r[4] === 'arbitre') x.arb[r[2]] = 1; else if (r[4] === 'delegue') x.del[r[2]] = 1; else x.adm++;\n    });\n    const list = Object.keys(days).sort().map(function (d) {\n      const x = days[d];\n      return { d: d, log: x.log, arb: Object.keys(x.arb).length, del: Object.keys(x.del).length, adm: x.adm };\n    });\n    return out_({ today: Utilities.formatDate(new Date(), TZ, 'yyyy-MM-dd'), online: online, days: list });\n  }\n  return out_({ ok: 1 });\n}";
+
+let ADM_TIMER=0;
+const ADM_PAGES={home:"Vue d'ensemble",cal:"Calendrier",del:"Délégués",delegues:"Délégués",refs:"Arbitres par ville",arbitres:"Arbitres",prog:"Programmes",programmes:"Programmes",res:"Résultats",nom:"Nominations",nominations:"Nominations",rec:"Reçus",recus:"Reçus",stat:"Statistiques",regles:"Règles",nouv:"Nouvelles règles",case:"Casebook",el:"e-Learning",elearn:"e-Learning",notes:"Notes",imp:"Configuration",adm:"Administration"};
+const ADM_ROLES={arbitre:"Arbitre",delegue:"Délégué",admin:"Administrateur"};
+function anaKey(){try{return localStorage.getItem("ana-key-v1")||""}catch(_){return ""}}
+const ANA_ID=(()=>{try{let v=localStorage.getItem("ana-id-v1");if(!v){v=Math.random().toString(36).slice(2,10)+Date.now().toString(36);localStorage.setItem("ana-id-v1",v)}return v}catch(_){return "x"+Math.random().toString(36).slice(2,10)}})();
+function anaPage(){const e=[...document.querySelectorAll('section[id^="p-"],section[id^="m-"]')].find(x=>!x.hidden&&x.offsetParent!==null);return e?e.id.replace(/^[pm]-/,""):""}
+function anaWho(){
+if(document.body.classList.contains("adm")&&arAdmin())return {n:"Administrateur",r:"admin",v:"",p:anaPage()};
+if(typeof CURME!=="undefined"&&CURME&&!document.body.classList.contains("pub"))return {n:pname(CURME),r:CURME._deleg?"delegue":"arbitre",v:CURME.ville||"",p:anaPage()};
+return null;
+}
+function anaSend(evt,w){
+const u=anaUrl();if(!u||!w)return;
+const q=new URLSearchParams({a:evt,id:ANA_ID,n:w.n,r:w.r,v:w.v||"",p:w.p||""});
+try{fetch(u+(u.includes("?")?"&":"?")+q.toString(),{mode:"no-cors",cache:"no-store",keepalive:true}).catch(()=>{})}catch(_){}
+}
+let ANA_K="",ANA_T=0;
+function anaTick(force){
+const u=anaUrl();if(!u)return;
+const w=anaWho();if(!w){ANA_K="";return}
+if(document.visibilityState!=="visible")return;
+const k=w.r+"|"+w.n,now=Date.now();
+if(k!==ANA_K){
+ANA_K=k;ANA_T=now;let first=true;
+try{first=sessionStorage.getItem("ana-s")!==k;sessionStorage.setItem("ana-s",k)}catch(_){}
+anaSend(first?"login":"ping",w);return;
+}
+if(force||now-ANA_T>=60000){ANA_T=now;anaSend("ping",w)}
+}
+setInterval(anaTick,15000);setTimeout(anaTick,4000);
+document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")anaTick(true)});
+function admHtml(){
+return `<div class="cd"><h3>Suivi des connexions</h3><p class="help">Ce suivi montre qui est en ligne en ce moment et combien d’arbitres se connectent chaque jour. Il utilise un petit service Google Apps Script relié à un Google Sheet de la commission. Seuls le nom, la ville et la fonction (arbitre, délégué, administrateur) sont enregistrés : jamais le CIN ni les coordonnées.</p><label class="help" for="ana-url" style="display:block;margin-bottom:.3rem">Adresse du service (se termine par /exec)</label><input id="ana-url" type="url" placeholder="https://script.google.com/macros/s/…/exec" value="${esc(anaUrl())}" style="width:100%" autocomplete="off"><label class="help" for="ana-key" style="display:block;margin:.8rem 0 .3rem">Clé secrète (la même que dans le script)</label><input id="ana-key" type="password" value="${esc(anaKey())}" style="width:100%" autocomplete="off"><div class="imp"><button id="ana-save" class="btn" type="button">Enregistrer</button><button id="ana-ref" class="btn alt" type="button">Actualiser</button></div><p class="help" id="ana-msg" role="status"></p><details><summary class="help" style="cursor:pointer">Comment installer le service (5 minutes)</summary><ol class="help"><li>Créez un Google Sheet vide, puis ouvrez Extensions, Apps Script.</li><li>Supprimez le code existant et collez le script ci-dessous. Changez la clé secrète (première ligne).</li><li>Cliquez sur Déployer, Nouveau déploiement, type Application Web. « Exécuter en tant que » : Moi. « Qui a accès » : Tout le monde. Autorisez l’accès demandé par Google.</li><li>Copiez l’adresse obtenue (elle se termine par /exec), collez-la ci-dessus avec la clé secrète, puis cliquez sur Enregistrer.</li><li>Cliquez ensuite sur « Publier sur GitHub » : les arbitres seront suivis dès qu’ils se connecteront.</li></ol><pre id="ana-code" style="white-space:pre-wrap;font-size:.78rem;max-height:18rem;overflow:auto;padding:.7rem;border:1px solid var(--bd,#ccc);border-radius:8px">${esc(ANA_GS)}</pre><div class="imp"><button id="ana-copy" class="btn alt" type="button">Copier le script</button></div></details></div><div class="cd"><h3>En ligne maintenant <span id="adm-oncount" class="help"></span></h3><div id="adm-on"><p class="help">Chargement…</p></div></div><div class="cd"><h3>Accès par jour</h3><div id="adm-days"><p class="help">Chargement…</p></div></div>`;
+}
+function admDraw(){
+const el=document.getElementById("adm-a");if(!el)return;
+el.innerHTML=admHtml();admFetch();
+clearInterval(ADM_TIMER);
+ADM_TIMER=setInterval(()=>{const p=document.getElementById("p-adm");if(!p||p.hidden){clearInterval(ADM_TIMER);return}admFetch()},30000);
+}
+function admMsg(t){const e=document.getElementById("ana-msg");if(e)e.textContent=t}
+function admBars(v,lab){
+const n=v.length,W=700,H=170,m=24,max=Math.max(1,...v),bw=(W-2*m)/n;
+return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Arbitres connectés par jour" style="width:100%;height:auto">${v.map((x,i)=>{const h=(H-50)*x/max,xx=m+i*bw;return `<rect x="${xx+2}" y="${H-28-h}" width="${Math.max(2,bw-4)}" height="${h}" rx="2" fill="#2fb585"/>${x?`<text x="${xx+bw/2}" y="${H-32-h}" text-anchor="middle" font-size="10" fill="currentColor">${x}</text>`:""}${i%5===0||i===n-1?`<text x="${xx+bw/2}" y="${H-10}" text-anchor="middle" font-size="10" fill="currentColor">${esc(lab[i])}</text>`:""}`}).join("")}</svg>`;
+}
+function admRender(d){
+const on=document.getElementById("adm-on"),dy=document.getElementById("adm-days"),oc=document.getElementById("adm-oncount");if(!on||!dy)return;
+const ago=s=>s<45?"à l’instant":"il y a "+Math.max(1,Math.round(s/60))+" min";
+const L=(d.online||[]).slice().sort((a,b)=>a.s-b.s);
+if(oc)oc.textContent="("+L.length+")";
+on.innerHTML=L.length?`<div class="tw"><table class="tbl"><thead><tr><th>Nom</th><th>Fonction</th><th>Ville</th><th>Page</th><th>Dernière activité</th></tr></thead><tbody>${L.map(x=>`<tr><td>${esc(x.n)}</td><td>${esc(ADM_ROLES[x.r]||x.r)}</td><td>${esc(x.v||"—")}</td><td>${esc(ADM_PAGES[x.p]||x.p||"—")}</td><td>${ago(x.s)}</td></tr>`).join("")}</tbody></table></div><p class="help">Est « en ligne » toute personne active depuis moins de 5 minutes. La liste se met à jour toutes les 30 secondes.</p>`:'<p class="help">Personne n’est en ligne pour le moment.</p>';
+const by={};(d.days||[]).forEach(x=>by[x.d]=x);
+const T=String(d.today||"").split("-").map(Number),days=[];
+if(T.length===3&&T[0]){for(let i=29;i>=0;i--){const t=new Date(Date.UTC(T[0],T[1]-1,T[2]-i)),k=t.getUTCFullYear()+"-"+String(t.getUTCMonth()+1).padStart(2,"0")+"-"+String(t.getUTCDate()).padStart(2,"0");days.push(by[k]||{d:k,log:0,arb:0,del:0,adm:0})}}
+if(!days.length){dy.innerHTML='<p class="help">Aucun accès enregistré pour le moment.</p>';return}
+const lab=days.map(x=>x.d.slice(8)+"/"+x.d.slice(5,7)),td=days[days.length-1],w7=days.slice(-7),avg=w7.reduce((n,x)=>n+x.arb,0)/7,tot=days.reduce((n,x)=>n+x.arb,0);
+const kp=([c,l,v,t])=>`<div class="kpi ${c}"><small>${esc(l)}</small><b>${v}</b><span>${esc(t)}</span></div>`;
+dy.innerHTML=`<div class="kpis">${[["k1","Arbitres aujourd’hui",td.arb,"Personnes distinctes"],["k2","Connexions aujourd’hui",td.log,"Tous profils"],["k3","Moyenne sur 7 jours",avg.toFixed(1).replace(".",","),"Arbitres par jour"],["k4","Total sur 30 jours",tot,"Arbitres (cumul des jours)"]].map(kp).join("")}</div>${admBars(days.map(x=>x.arb),lab)}<div class="tw"><table class="tbl"><thead><tr><th>Date</th><th>Arbitres</th><th>Délégués</th><th>Administrateur</th><th>Connexions</th></tr></thead><tbody>${days.slice(-14).reverse().map(x=>`<tr><td>${esc(x.d.slice(8)+"/"+x.d.slice(5,7)+"/"+x.d.slice(0,4))}</td><td><b>${x.arb}</b></td><td>${x.del}</td><td>${x.adm}</td><td>${x.log}</td></tr>`).join("")}</tbody></table></div><p class="help">Le tableau montre les 14 derniers jours, le graphique les 30 derniers. « Arbitres » compte chaque arbitre une seule fois par jour ; « Connexions » compte chaque ouverture de session.</p>`;
+}
+async function admFetch(){
+const on=document.getElementById("adm-on"),dy=document.getElementById("adm-days");if(!on||!dy)return;
+const u=anaUrl(),k=anaKey(),say=t=>{on.innerHTML=dy.innerHTML='<p class="help">'+esc(t)+'</p>'};
+if(!u){say("Service non configuré : collez l’adresse du service ci-dessus, puis cliquez sur Enregistrer.");return}
+if(!k){say("Saisissez la clé secrète ci-dessus pour afficher les statistiques.");return}
+try{
+const r=await fetch(u+(u.includes("?")?"&":"?")+"a=stats&k="+encodeURIComponent(k)+"&t="+Date.now(),{cache:"no-store"}),d=await r.json();
+if(d.error){say("Clé secrète incorrecte.");return}
+admRender(d);admMsg("");
+}catch(e){say("Impossible de joindre le service. Vérifiez l’adresse et que le déploiement est ouvert à « Tout le monde ».")}
+}
+document.addEventListener("click",e=>{
+const b=e.target.closest&&e.target.closest("#adm-a button");if(!b||!arAdmin())return;
+if(b.id==="ana-save"){
+const u=document.getElementById("ana-url").value.trim(),k=document.getElementById("ana-key").value.trim();
+if(u&&!/^https:\/\/script\.google\.com\/macros\/s\/[^\s]+\/exec$/i.test(u)){admMsg("L’adresse doit ressembler à https://script.google.com/macros/s/…/exec");return}
+ANA_LOC={url:u};try{localStorage.setItem("ana-cfg-v1",JSON.stringify(ANA_LOC));localStorage.setItem("ana-key-v1",k)}catch(_){}
+pendProg();admMsg(u?"✓ Enregistré. Cliquez sur « Publier sur GitHub » pour activer le suivi chez les arbitres.":"Service désactivé. Cliquez sur « Publier sur GitHub » pour l’appliquer.");
+admFetch();anaTick(true);
+}else if(b.id==="ana-ref"){admFetch()}
+else if(b.id==="ana-copy"){
+const t=ANA_GS;
+(navigator.clipboard&&navigator.clipboard.writeText?navigator.clipboard.writeText(t):Promise.reject()).then(()=>admMsg("✓ Script copié."),()=>{const pre=document.getElementById("ana-code");if(pre){const r=document.createRange();r.selectNodeContents(pre);const sl=getSelection();sl.removeAllRanges();sl.addRange(r)}admMsg("Sélectionné : faites Ctrl+C pour copier.")});
+}
+});
 /* Délégués d'arbitrage */
 const arAdminSafe=()=>{try{return arAdmin()}catch(_){return false}};
 let DELED=null,DELPH=undefined;
@@ -2034,10 +2128,10 @@ $("me-pt").textContent=T[p][0];$("me-ps").textContent=T[p][1];window.scrollTo(0,
 }
 document.querySelectorAll(".mi[data-m]").forEach(b=>b.addEventListener("click",()=>mpage(b.dataset.m)));
 function page(p){
-["home","cal","del","refs","prog","res","nom","rec","stat","regles","nouv","case","el","notes","imp"].forEach(k=>{$("p-"+k).hidden=k!==p});
+["home","cal","del","refs","prog","res","nom","rec","stat","regles","nouv","case","el","notes","adm","imp"].forEach(k=>{$("p-"+k).hidden=k!==p});
 document.querySelectorAll(".mi[data-p]").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.p===p)));
-const T={home:["Vue d'ensemble","Suivi des arbitres — FRMVB"],cal:["Calendrier des matchs","Calendriers des six compétitions"],el:["e-Learning","Vidéos d'accompagnement pour les arbitres"],del:["Délégués d'arbitrage","Coordonnées des délégués d'arbitrage"],refs:["Arbitres par ville","Choisissez une ville ou recherchez-la"],prog:["Programmes","Programmes des rencontres"],res:["Résultats et classements","Résultats des matchs et classements"],nom:["Nominations","Désignations de chaque arbitre par fonction"],rec:["Reçus d'arbitrage","Désignations, frais et reçus de chaque journée"],stat:["Statistiques","Chiffres clés des désignations"],regles:["Règles officielles 2025-2028","Règles officielles de volleyball de la FIVB"],nouv:["Nouvelles règles 2026","Règles testées par la FIVB en 2026"],case:["Casebook","Practical cases with official rulings"],notes:["Notes","Vos notes personnelles"],imp:["Importer et configuration","Fichier Excel, autorisations, désignations, photo de fond"]};
-$("pg-t").textContent=T[p][0];$("pg-s").textContent=T[p][1];if(p==="imp"){$("auth-box").innerHTML=renderAuth();if(arAdmin()&&updSheet())updFetch(true)}if(p==="home")drawHome();if(p==="del")delDraw();if(p==="el")elDraw();if(p==="cal")refreshProg();if(p==="rec"){renderDesig();renderRecus()}if(p==="res"){if(arAdmin())rimpSync(true);resLive()}window.scrollTo(0,0);
+const T={home:["Vue d'ensemble","Suivi des arbitres — FRMVB"],cal:["Calendrier des matchs","Calendriers des six compétitions"],el:["e-Learning","Vidéos d'accompagnement pour les arbitres"],del:["Délégués d'arbitrage","Coordonnées des délégués d'arbitrage"],refs:["Arbitres par ville","Choisissez une ville ou recherchez-la"],prog:["Programmes","Programmes des rencontres"],res:["Résultats et classements","Résultats des matchs et classements"],nom:["Nominations","Désignations de chaque arbitre par fonction"],rec:["Reçus d'arbitrage","Désignations, frais et reçus de chaque journée"],stat:["Statistiques","Chiffres clés des désignations"],regles:["Règles officielles 2025-2028","Règles officielles de volleyball de la FIVB"],nouv:["Nouvelles règles 2026","Règles testées par la FIVB en 2026"],case:["Casebook","Practical cases with official rulings"],notes:["Notes","Vos notes personnelles"],adm:["Administration","Personnes en ligne et accès par jour"],imp:["Importer et configuration","Fichier Excel, autorisations, désignations, photo de fond"]};
+$("pg-t").textContent=T[p][0];$("pg-s").textContent=T[p][1];if(p==="imp"){$("auth-box").innerHTML=renderAuth();if(arAdmin()&&updSheet())updFetch(true)}if(p==="home")drawHome();if(p==="adm")admDraw();if(p==="del")delDraw();if(p==="el")elDraw();if(p==="cal")refreshProg();if(p==="rec"){renderDesig();renderRecus()}if(p==="res"){if(arAdmin())rimpSync(true);resLive()}window.scrollTo(0,0);
 }
 document.querySelectorAll(".mi[data-p]").forEach(b=>b.addEventListener("click",()=>page(b.dataset.p)));
 document.getElementById("me-h").addEventListener("change",e=>{
@@ -2408,7 +2502,7 @@ if(JSON.parse(await aesDec(ADMKEY,adm.ct)).length!==pub.length)throw new Error("
 if(pend.some(x=>x.prog))PROGS.forEach(P=>P.matchs.forEach((mt,m)=>{const d=DESIG[P.id+m];if(!d)return;const e=mt[4]=mt[4]||{};const nm=v=>{if(!v)return"";if(String(v).startsWith("txt:"))return String(v).slice(4);const x=findP(v);return x?pname(x)+" ("+x.ville+")":""};["r1","r2","mq"].forEach(k=>{const n=nm(d[k]);if(n)e[k]=n});const jl=(e.jl||[]).slice();["jl1","jl2","jl3","jl4"].forEach((k,i)=>{const n=nm(d[k]);if(n)jl[i]=n});for(let i=0;i<jl.length;i++)if(!jl[i])jl[i]="";if(jl.length)e.jl=jl}));
 if(pend.some(x=>x.prog))PROGS.forEach(P=>P.matchs.forEach((mt,m)=>{const f=FEES[P.id+m];if(!f)return;const e=mt[4]=mt[4]||{},o={};["r1","r2","mq"].forEach(k=>{if(+f[k])o[k]=+f[k]});const jl=[1,2,3,4].map(i=>+f["jl"+i]||0);if(jl.some(Boolean))o.jl=jl;if(Object.keys(o).length)e.f=o}));
 let out=src;
-[{s:pe.start,e:pe.end,t:JSON.stringify(emb)},{s:pa.start,e:pa.end,t:JSON.stringify(adm)}].concat(pend.some(x=>x.prog)&&arrConst(src,"PROGS")?[(r=>({s:r.start,e:r.end,t:JSON.stringify(PROGS)}))(arrConst(src,"PROGS"))]:[]).concat(pend.some(x=>x.prog)&&arrConst(src,"RECUS")?[(r=>({s:r.start,e:r.end,t:JSON.stringify(allRecus())}))(arrConst(src,"RECUS"))]:[]).concat(pend.some(x=>x.prog)&&jsonConst(src,"RES_EMB")?[(r=>({s:r.start,e:r.end,t:JSON.stringify(Object.assign({},RES_EMB,RESULTS))}))(jsonConst(src,"RES_EMB"))]:[]).concat(pend.some(x=>x.prog)&&jsonConst(src,"SETS_EMB")?[(r=>({s:r.start,e:r.end,t:JSON.stringify(Object.assign({},SETS_EMB,SETS))}))(jsonConst(src,"SETS_EMB"))]:[]).concat(pend.some(x=>x.prog)&&jsonConst(src,"FEES_EMB")?[(r=>({s:r.start,e:r.end,t:JSON.stringify((()=>{const o={};new Set([...Object.keys(FEES_EMB),...Object.keys(FEES)]).forEach(k=>{o[k]=Object.assign({},FEES_EMB[k],FEES[k])});return o})())}))(jsonConst(src,"FEES_EMB"))]:[]).concat(pend.some(x=>x.prog)&&jsonConst(src,"DVILLE_EMB")?[(r=>({s:r.start,e:r.end,t:JSON.stringify(Object.assign({},DVILLE_EMB,DVILLE))}))(jsonConst(src,"DVILLE_EMB"))]:[]).concat(pend.some(x=>x.prog)&&jsonConst(src,"UPD_CFG")?[(r=>({s:r.start,e:r.end,t:JSON.stringify({form:updForm()})}))(jsonConst(src,"UPD_CFG"))]:[]).concat(pend.some(x=>x.prog)&&arrConst(src,"CDOCS")?[(r=>({s:r.start,e:r.end,t:JSON.stringify(allCdocs())}))(arrConst(src,"CDOCS"))]:[]).concat(pend.some(x=>x.prog)&&arrConst(src,"CALS")?[(r=>({s:r.start,e:r.end,t:JSON.stringify(COMPS.flatMap(c=>calRows(c.lg)))}))(arrConst(src,"CALS"))]:[]).concat(pend.some(x=>x.del)&&arrConst(src,"DELEGUES")?[(r=>({s:r.start,e:r.end,t:JSON.stringify(delList().map(({cin,...r})=>r))}))(arrConst(src,"DELEGUES"))]:[]).concat(pend.some(x=>x.el)&&arrConst(src,"ELEARN")?[(r=>({s:r.start,e:r.end,t:JSON.stringify(elList())}))(arrConst(src,"ELEARN"))]:[]).sort((x,y)=>y.s-x.s).forEach(p=>{out=out.slice(0,p.s)+p.t+out.slice(p.e)});
+[{s:pe.start,e:pe.end,t:JSON.stringify(emb)},{s:pa.start,e:pa.end,t:JSON.stringify(adm)}].concat(pend.some(x=>x.prog)&&arrConst(src,"PROGS")?[(r=>({s:r.start,e:r.end,t:JSON.stringify(PROGS)}))(arrConst(src,"PROGS"))]:[]).concat(pend.some(x=>x.prog)&&arrConst(src,"RECUS")?[(r=>({s:r.start,e:r.end,t:JSON.stringify(allRecus())}))(arrConst(src,"RECUS"))]:[]).concat(pend.some(x=>x.prog)&&jsonConst(src,"RES_EMB")?[(r=>({s:r.start,e:r.end,t:JSON.stringify(Object.assign({},RES_EMB,RESULTS))}))(jsonConst(src,"RES_EMB"))]:[]).concat(pend.some(x=>x.prog)&&jsonConst(src,"SETS_EMB")?[(r=>({s:r.start,e:r.end,t:JSON.stringify(Object.assign({},SETS_EMB,SETS))}))(jsonConst(src,"SETS_EMB"))]:[]).concat(pend.some(x=>x.prog)&&jsonConst(src,"FEES_EMB")?[(r=>({s:r.start,e:r.end,t:JSON.stringify((()=>{const o={};new Set([...Object.keys(FEES_EMB),...Object.keys(FEES)]).forEach(k=>{o[k]=Object.assign({},FEES_EMB[k],FEES[k])});return o})())}))(jsonConst(src,"FEES_EMB"))]:[]).concat(pend.some(x=>x.prog)&&jsonConst(src,"DVILLE_EMB")?[(r=>({s:r.start,e:r.end,t:JSON.stringify(Object.assign({},DVILLE_EMB,DVILLE))}))(jsonConst(src,"DVILLE_EMB"))]:[]).concat(pend.some(x=>x.prog)&&jsonConst(src,"UPD_CFG")?[(r=>({s:r.start,e:r.end,t:JSON.stringify({form:updForm()})}))(jsonConst(src,"UPD_CFG"))]:[]).concat(pend.some(x=>x.prog)&&jsonConst(src,"ANA_CFG")?[(r=>({s:r.start,e:r.end,t:JSON.stringify({url:anaUrl()})}))(jsonConst(src,"ANA_CFG"))]:[]).concat(pend.some(x=>x.prog)&&arrConst(src,"CDOCS")?[(r=>({s:r.start,e:r.end,t:JSON.stringify(allCdocs())}))(arrConst(src,"CDOCS"))]:[]).concat(pend.some(x=>x.prog)&&arrConst(src,"CALS")?[(r=>({s:r.start,e:r.end,t:JSON.stringify(COMPS.flatMap(c=>calRows(c.lg)))}))(arrConst(src,"CALS"))]:[]).concat(pend.some(x=>x.del)&&arrConst(src,"DELEGUES")?[(r=>({s:r.start,e:r.end,t:JSON.stringify(delList().map(({cin,...r})=>r))}))(arrConst(src,"DELEGUES"))]:[]).concat(pend.some(x=>x.el)&&arrConst(src,"ELEARN")?[(r=>({s:r.start,e:r.end,t:JSON.stringify(elList())}))(arrConst(src,"ELEARN"))]:[]).sort((x,y)=>y.s-x.s).forEach(p=>{out=out.slice(0,p.s)+p.t+out.slice(p.e)});
 if(mode==="github"){
 await ghPut(c,out,sha);pendSet([]);try{localStorage.removeItem("del-old-v1")}catch(_){}
 const t=new Date().toLocaleTimeString("fr-FR",{hour:"2-digit",minute:"2-digit"});
