@@ -571,7 +571,7 @@ body:not(.adm) :is(button[data-cdoc],button[data-pdf],button[data-cald],button[d
 <div class="cd" id="del-box"></div>
 </section>
 <section id="p-refs" class="pg" hidden>
-<div class="refs"><nav id="villes" aria-label="Villes"></nav><div><input id="q" type="search" placeholder="Rechercher une ville ou un arbitre" aria-label="Rechercher une ville ou un arbitre"><div class="ar-top"><button id="ar-open" class="btn" type="button" aria-expanded="false" aria-controls="ar-form">+ Ajouter un arbitre</button><button id="ar-pdf" class="btn alt" type="button">Liste PDF · internationaux et nationaux</button><button id="ar-pdf2" class="btn alt" type="button">Liste PDF · fédéraux, régionaux et stagiaires</button><button id="ar-xls" class="btn alt" type="button" title="Exporte la ville sélectionnée, ou toutes les villes (un onglet par ville)">Liste Excel · par ville</button><span class="help" id="ar-pdf-msg" role="status" aria-live="polite" style="margin-left:.6rem"></span></div><p class="help" id="pend-note" hidden></p><div id="ar-form" class="cd" hidden></div><h2 id="titre"></h2><div id="liste"></div></div></div>
+<div class="refs"><nav id="villes" aria-label="Villes"></nav><div><input id="q" type="search" placeholder="Rechercher une ville ou un arbitre" aria-label="Rechercher une ville ou un arbitre"><div class="ar-top"><button id="ar-open" class="btn" type="button" aria-expanded="false" aria-controls="ar-form">+ Ajouter un arbitre</button><button id="ar-pdf" class="btn alt" type="button">Liste PDF · internationaux et nationaux</button><button id="ar-pdf2" class="btn alt" type="button">Liste PDF · fédéraux, régionaux et stagiaires</button><button id="ar-xls" class="btn alt" type="button" title="Exporte la ville sélectionnée, ou toutes les villes (un onglet par ville)">Liste Excel · par ville</button><button id="ar-clean" class="btn alt" type="button" aria-expanded="false" aria-controls="cl-box">Doublons et inactifs</button><span class="help" id="ar-pdf-msg" role="status" aria-live="polite" style="margin-left:.6rem"></span></div><p class="help" id="pend-note" hidden></p><div id="ar-form" class="cd" hidden></div><div id="cl-box" class="cd" hidden></div><h2 id="titre"></h2><div id="liste"></div></div></div>
 </section>
 <section id="p-cal" class="pg" hidden>
 <div id="cal-a"></div>
@@ -946,7 +946,7 @@ return `<div class="fr"><span>Frais : ${esc(parts.join(" · "))}</span><span><b>
 function dsLine(pid,i){
 const n=matchNames(pid,i),p=[];
 if(n.r1)p.push("1er arbitre : "+n.r1);if(n.r2)p.push("2e arbitre : "+n.r2);if(n.mq)p.push("Marqueur : "+n.mq);if(n.jl.length)p.push("Juges de ligne : "+n.jl.join(", "));
-return (p.length?`<div class="ds">${p.map(x=>`<span>${esc(x)}</span>`).join("")}</div>`:"")+feeLine(pid,i);
+return (p.length?`<div class="ds">${p.map(x=>`<span>${esc(x)}</span>`).join("")}</div>`:"");
 }
 function desigHtml(){
 if(!ARBITRES.length)return '<div class="cd"><h3>Désigner les arbitres</h3><p class="help" style="margin-top:0">Importez d\'abord votre liste d\'arbitres (page « Importer et configuration »).</p></div>';
@@ -1142,7 +1142,7 @@ const l=ARBITRES.filter(a=>(!sel||a.ville===sel)&&matchQ(a)).sort((a,b)=>fr(a.vi
 const g={};l.forEach(a=>(g[a.ville]=g[a.ville]||[]).push(a));
 const vs=Object.keys(g),all=l.reduce((n,a)=>n+tot(a),0),pl=n=>n>1?"s":"";
 t.textContent=(sel||("Toutes les villes ("+vs.length+")"))+", "+all+" match"+(all>1?"s":"")+" au total";
-ul.innerHTML=vs.length?vs.map(v=>{const sm=g[v].reduce((n,a)=>n+tot(a),0);return `<section class="ville"><h3>${esc(v)}<span>${g[v].length} arbitre${pl(g[v].length)}, ${sm} match${sm>1?"s":""}</span></h3><ul>${g[v].map(a=>{const i=ARBITRES.indexOf(a);return `<li><span class="who"><label class="av-l" title="Ajouter ou changer la photo">${a.photo?`<img class="av" src="${esc(a.photo)}" alt="">`:`<span class="av ph">${esc(((a.prenom||"?")[0]+(a.nom||"")[0]).toUpperCase())}</span>`}<input type="file" accept="image/*" class="vh" data-ph="${i}"></label><span><small>N° ${esc(a.num||"-")}</small><br>${esc(a.nom)} ${esc(a.prenom)}</span></span><span class="contact"><span>CIN : ${esc(a.cin||"-")}</span><span>Ville : ${esc(a.ville)}</span>${a.dn&&ageOf(a.dn)!=null?`<span>Né(e) le ${esc(dnFr(a.dn))} · ${esc(ageTxt(a.dn))}</span>`:""}<a href="tel:${esc(a.gsm.replace(/\s/g,""))}">GSM : ${esc(a.gsm||"-")}</a>${a.email?`<a href="mailto:${esc(a.email)}">${esc(a.email)}</a>`:""}</span><label class="tag gsel">Grade : <select data-g="${i}" aria-label="Grade de ${esc(a.nom)} ${esc(a.prenom)}">${gradesList().concat(gradesList().includes(a.niveau)?[]:[a.niveau]).map(g=>`<option${g===a.niveau?" selected":""}>${esc(g)}</option>`).join("")}</select></label><button type="button" class="act${a.actif===false?" off":""}" data-t="${i}" aria-pressed="${a.actif!==false}" title="Cliquer pour changer le statut">● ${a.actif===false?"Inactif":"Actif"}</button><button type="button" class="btn alt" style="padding:.3rem .85rem;font-size:.8rem" data-ed="${i}">Modifier</button><span class="tot">Matchs : ${tot(a)}</span><span class="roles">${ROLES.map(([k,lab])=>`<span class="rl"><small>${lab}</small><span class="st"><button type="button" data-i="${i}" data-k="${k}" data-d="-1" aria-label="Retirer : ${lab}">−</button><b>${a[k]||0}</b><button type="button" data-i="${i}" data-k="${k}" data-d="1" aria-label="Ajouter : ${lab}">+</button></span></span>`).join("")}</span>${i===EDIDX?adminEditForm(a):""}</li>`}).join("")}</ul></section>`}).join(""):'<p class="empty">'+(ARBITRES.length?'Aucun arbitre trouvé.':'Aucun arbitre pour l\'instant : importez votre fichier Excel.')+'</p>';
+ul.innerHTML=vs.length?vs.map(v=>{const sm=g[v].reduce((n,a)=>n+tot(a),0);return `<section class="ville"><h3>${esc(v)}<span>${g[v].length} arbitre${pl(g[v].length)}, ${sm} match${sm>1?"s":""}</span></h3><ul>${g[v].map(a=>{const i=ARBITRES.indexOf(a);return `<li><span class="who"><label class="av-l" title="Ajouter ou changer la photo">${a.photo?`<img class="av" src="${esc(a.photo)}" alt="">`:`<span class="av ph">${esc(((a.prenom||"?")[0]+(a.nom||"")[0]).toUpperCase())}</span>`}<input type="file" accept="image/*" class="vh" data-ph="${i}"></label><span><small>N° ${esc(a.num||"-")}</small><br>${esc(a.nom)} ${esc(a.prenom)}</span></span><span class="contact"><span>CIN : ${esc(a.cin||"-")}</span><span>Ville : ${esc(a.ville)}</span>${a.dn&&ageOf(a.dn)!=null?`<span>Né(e) le ${esc(dnFr(a.dn))} · ${esc(ageTxt(a.dn))}</span>`:""}<a href="tel:${esc(a.gsm.replace(/\s/g,""))}">GSM : ${esc(a.gsm||"-")}</a>${a.email?`<a href="mailto:${esc(a.email)}">${esc(a.email)}</a>`:""}</span><label class="tag gsel">Grade : <select data-g="${i}" aria-label="Grade de ${esc(a.nom)} ${esc(a.prenom)}">${gradesList().concat(gradesList().includes(a.niveau)?[]:[a.niveau]).map(g=>`<option${g===a.niveau?" selected":""}>${esc(g)}</option>`).join("")}</select></label><button type="button" class="act${a.actif===false?" off":""}" data-t="${i}" aria-pressed="${a.actif!==false}" title="Cliquer pour changer le statut">● ${a.actif===false?"Inactif":"Actif"}</button><button type="button" class="btn alt" style="padding:.3rem .85rem;font-size:.8rem" data-ed="${i}">Modifier</button><button type="button" class="btn alt" style="padding:.3rem .85rem;font-size:.8rem" data-rm="${i}">Supprimer</button><span class="tot">Matchs : ${tot(a)}</span><span class="roles">${ROLES.map(([k,lab])=>`<span class="rl"><small>${lab}</small><span class="st"><button type="button" data-i="${i}" data-k="${k}" data-d="-1" aria-label="Retirer : ${lab}">−</button><b>${a[k]||0}</b><button type="button" data-i="${i}" data-k="${k}" data-d="1" aria-label="Ajouter : ${lab}">+</button></span></span>`).join("")}</span>${i===EDIDX?adminEditForm(a):""}</li>`}).join("")}</ul></section>`}).join(""):'<p class="empty">'+(ARBITRES.length?'Aucun arbitre trouvé.':'Aucun arbitre pour l\'instant : importez votre fichier Excel.')+'</p>';
 drawDash();delDraw();
 }
 ul.addEventListener("click",e=>{if(!arAdmin())return;
@@ -2496,6 +2496,10 @@ const i=emb.rec.findIndex(x=>x[0]===k.tag);if(i>=0)emb.rec[i]=rec;else emb.rec.p
 let olds=[];try{olds=JSON.parse(localStorage.getItem("del-old-v1")||"[]")}catch(_){}
 for(const o of olds){const cn=norm(o.cin);if(!cn)continue;for(const id of idsOf(o.nom,o.prenom)){const k=await derive(id,cn);if(!keepT.has(k.tag)){const j=emb.rec.findIndex(x=>x[0]===k.tag);if(j>=0)emb.rec.splice(j,1)}}}
 }
+{let dl=[];try{dl=JSON.parse(localStorage.getItem("arb-del-v1")||"[]")}catch(_){}
+for(const o of dl){const cn=norm(o.cin);if(!cn)continue;const oi=idsOf(o.nom,o.prenom);
+if(ARBITRES.some(x=>!x.pending&&norm(x.cin)===cn&&idsOf(x.nom,x.prenom).some(i=>oi.includes(i))))continue;
+for(const id of oi){const k=await derive(id,cn),j=emb.rec.findIndex(x=>x[0]===k.tag);if(j>=0)emb.rec.splice(j,1)}}}
 const pub=ARBITRES.filter(a=>!a.pending);
 adm.ct=await aesEnc(ADMKEY,JSON.stringify(pub.map(exportObj)));
 if(JSON.parse(await aesDec(ADMKEY,adm.ct)).length!==pub.length)throw new Error("Vérification de la liste échouée.");
@@ -2504,7 +2508,7 @@ if(pend.some(x=>x.prog))PROGS.forEach(P=>P.matchs.forEach((mt,m)=>{const f=FEES[
 let out=src;
 [{s:pe.start,e:pe.end,t:JSON.stringify(emb)},{s:pa.start,e:pa.end,t:JSON.stringify(adm)}].concat(pend.some(x=>x.prog)&&arrConst(src,"PROGS")?[(r=>({s:r.start,e:r.end,t:JSON.stringify(PROGS)}))(arrConst(src,"PROGS"))]:[]).concat(pend.some(x=>x.prog)&&arrConst(src,"RECUS")?[(r=>({s:r.start,e:r.end,t:JSON.stringify(allRecus())}))(arrConst(src,"RECUS"))]:[]).concat(pend.some(x=>x.prog)&&jsonConst(src,"RES_EMB")?[(r=>({s:r.start,e:r.end,t:JSON.stringify(Object.assign({},RES_EMB,RESULTS))}))(jsonConst(src,"RES_EMB"))]:[]).concat(pend.some(x=>x.prog)&&jsonConst(src,"SETS_EMB")?[(r=>({s:r.start,e:r.end,t:JSON.stringify(Object.assign({},SETS_EMB,SETS))}))(jsonConst(src,"SETS_EMB"))]:[]).concat(pend.some(x=>x.prog)&&jsonConst(src,"FEES_EMB")?[(r=>({s:r.start,e:r.end,t:JSON.stringify((()=>{const o={};new Set([...Object.keys(FEES_EMB),...Object.keys(FEES)]).forEach(k=>{o[k]=Object.assign({},FEES_EMB[k],FEES[k])});return o})())}))(jsonConst(src,"FEES_EMB"))]:[]).concat(pend.some(x=>x.prog)&&jsonConst(src,"DVILLE_EMB")?[(r=>({s:r.start,e:r.end,t:JSON.stringify(Object.assign({},DVILLE_EMB,DVILLE))}))(jsonConst(src,"DVILLE_EMB"))]:[]).concat(pend.some(x=>x.prog)&&jsonConst(src,"UPD_CFG")?[(r=>({s:r.start,e:r.end,t:JSON.stringify({form:updForm()})}))(jsonConst(src,"UPD_CFG"))]:[]).concat(pend.some(x=>x.prog)&&jsonConst(src,"ANA_CFG")?[(r=>({s:r.start,e:r.end,t:JSON.stringify({url:anaUrl()})}))(jsonConst(src,"ANA_CFG"))]:[]).concat(pend.some(x=>x.prog)&&arrConst(src,"CDOCS")?[(r=>({s:r.start,e:r.end,t:JSON.stringify(allCdocs())}))(arrConst(src,"CDOCS"))]:[]).concat(pend.some(x=>x.prog)&&arrConst(src,"CALS")?[(r=>({s:r.start,e:r.end,t:JSON.stringify(COMPS.flatMap(c=>calRows(c.lg)))}))(arrConst(src,"CALS"))]:[]).concat(pend.some(x=>x.del)&&arrConst(src,"DELEGUES")?[(r=>({s:r.start,e:r.end,t:JSON.stringify(delList().map(({cin,...r})=>r))}))(arrConst(src,"DELEGUES"))]:[]).concat(pend.some(x=>x.el)&&arrConst(src,"ELEARN")?[(r=>({s:r.start,e:r.end,t:JSON.stringify(elList())}))(arrConst(src,"ELEARN"))]:[]).sort((x,y)=>y.s-x.s).forEach(p=>{out=out.slice(0,p.s)+p.t+out.slice(p.e)});
 if(mode==="github"){
-await ghPut(c,out,sha);pendSet([]);try{localStorage.removeItem("del-old-v1")}catch(_){}
+await ghPut(c,out,sha);pendSet([]);try{localStorage.removeItem("del-old-v1");localStorage.removeItem("arb-del-v1")}catch(_){}
 const t=new Date().toLocaleTimeString("fr-FR",{hour:"2-digit",minute:"2-digit"});
 msg("✓ Publié sur GitHub à "+t+" ("+n+" fiche"+(n>1?"s":"")+" mise"+(n>1?"s":"")+" à jour). Les arbitres verront les changements dans 1 à 2 minutes.");
 }else{
@@ -2528,7 +2532,80 @@ if(auto&&tok&&pendGet().length)schedulePub();
 document.getElementById("gh-forget").addEventListener("click",()=>{if(!arAdmin())return;try{localStorage.removeItem("gh-tok");sessionStorage.removeItem("gh-tok");const c=ghCfg();localStorage.setItem("gh-cfg",JSON.stringify({repo:c.repo,br:c.br,auto:false,rem:false}))}catch(_){}clearTimeout(PUBTIMER);ghShow();pendShow();document.getElementById("pub-ok").textContent="Jeton oublié sur cet appareil."});
 document.getElementById("pub-gh").addEventListener("click",()=>{clearTimeout(PUBTIMER);pubBuild("github")});
 document.getElementById("pub-go").addEventListener("click",()=>pubBuild("download"));
-document.getElementById("pub-done").addEventListener("click",()=>{if(!arAdmin())return;pendSet([]);PUBMSG="";pendShow();document.getElementById("pub-err").textContent="";document.getElementById("pub-ok").textContent="Liste des modifications en attente vidée."});
+document.getElementById("pub-done").addEventListener("click",()=>{if(!arAdmin())return;pendSet([]);try{localStorage.removeItem("arb-del-v1")}catch(_){}PUBMSG="";pendShow();document.getElementById("pub-err").textContent="";document.getElementById("pub-ok").textContent="Liste des modifications en attente vidée."});
+/* --- Suppression des profils d’arbitres : doublons, inactifs, suppression individuelle, corbeille --- */
+const TRASH_KEY="arb-trash-v1",DELQ_KEY="arb-del-v1";
+const arbLs=(k,d)=>{try{const v=JSON.parse(localStorage.getItem(k)||"null");return v===null?d:v}catch(_){return d}};
+const arbLsSet=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch(_){}};
+function dupGroups(){
+const p=ARBITRES.map((_,i)=>i),f=i=>p[i]===i?i:(p[i]=f(p[i])),seen=new Map();
+ARBITRES.forEach((a,i)=>{const ks=[],c=norm(a.cin),x=norm(a.nom+a.prenom),y=norm(a.prenom+a.nom);
+if(c)ks.push("c:"+c);if(x)ks.push("n:"+[x,y].sort()[0]);
+ks.forEach(k=>{if(seen.has(k))p[f(i)]=f(seen.get(k));else seen.set(k,i)})});
+const g=new Map();ARBITRES.forEach((a,i)=>{const r=f(i);if(!g.has(r))g.set(r,[]);g.get(r).push(a)});
+return[...g.values()].filter(l=>l.length>1)}
+const arbScore=a=>(norm(a.cin)?8:0)+(a.email?1:0)+(a.gsm?1:0)+(a.dn?1:0)+(a.photo?1:0)+(a.actif===false?-4:0)+Math.min(tot(a),50)/100;
+function arbRemove(list,keep){
+const trash=arbLs(TRASH_KEY,[]),dq=arbLs(DELQ_KEY,[]),pl=pendGet();let n=0,des=0;
+list.forEach(a=>{const i=ARBITRES.indexOf(a);if(i<0)return;
+const oK=pkey(a),nK=keep&&keep!==a?pkey(keep):null,txt="txt:"+pname(a)+" ("+a.ville+")";
+Object.keys(DESIG).forEach(k=>{const d=DESIG[k];Object.keys(d).forEach(sl=>{if(d[sl]===oK){if(nK){if(nK!==oK)d[sl]=nK}else d[sl]=txt;des++}})});
+const t={...a,_at:Date.now()};if(t.photo&&t.photo.length>16000)delete t.photo;
+trash.unshift(t);if(norm(a.cin))dq.push({nom:a.nom,prenom:a.prenom,cin:a.cin});
+pl.push({k:norm(a.cin)||"rm"+Date.now().toString(36)+Math.random().toString(36).slice(2,6),rm:true});
+ARBITRES.splice(i,1);n++});
+if(!n)return{n:0,des:0};
+arbLsSet(TRASH_KEY,trash.slice(0,100));arbLsSet(DELQ_KEY,dq);pendSet(pl);saveDesig();
+EDIDX=-1;AEPH=undefined;save();drawNav();draw();pendShow();schedulePub();
+return{n,des}}
+function arbRestore(i){
+const tr=arbLs(TRASH_KEY,[]),t=tr[i];if(!t)return;
+const a={...t};delete a._at;ARBITRES.push(a);tr.splice(i,1);arbLsSet(TRASH_KEY,tr);
+arbLsSet(DELQ_KEY,arbLs(DELQ_KEY,[]).filter(o=>!(norm(o.cin)===norm(a.cin)&&norm(o.nom)===norm(a.nom))));
+markPend(a);save();drawNav();draw()}
+function clRender(msg){
+const box=document.getElementById("cl-box");if(!box)return;
+const G=dupGroups(),ina=ARBITRES.filter(a=>a.actif===false),tr=arbLs(TRASH_KEY,[]);
+const ln=a=>esc(pname(a))+" · "+esc(a.ville)+" · "+esc(a.niveau||"")+" · CIN "+esc(a.cin||"-")+(a.gsm?" · "+esc(a.gsm):"")+" · "+tot(a)+" match"+(tot(a)>1?"s":"")+(a.actif===false?" · inactif":"");
+box.innerHTML='<h3>Doublons et inactifs</h3><p class="help" style="margin-top:0">Choisissez les profils à supprimer. Les arbitres supprimés vont dans la corbeille ci-dessous (restaurables) ; ils disparaissent de la liste et de la connexion à la prochaine publication. Leurs désignations sont conservées : elles passent au profil gardé, ou restent écrites en texte.</p>'
++(msg?'<p class="ok" style="min-height:0">'+esc(msg)+'</p>':'')
++'<h4 class="dp">Doublons possibles ('+G.length+')</h4>'
++(G.length?G.map((l,gi)=>{const best=l.reduce((b,a)=>arbScore(a)>arbScore(b)?a:b,l[0]);
+return '<div class="mres">'+l.map(a=>'<label style="display:block;margin:.3rem 0"><input type="radio" name="kg'+gi+'" value="'+ARBITRES.indexOf(a)+'"'+(a===best?' checked':'')+'> <b>Garder</b> · '+ln(a)+'</label>').join("")+'<div class="imp"><button class="btn" type="button" data-cl="merge" data-g="'+gi+'">Supprimer les autres</button></div></div>'}).join(""):'<p class="help">Aucun doublon détecté (même CIN ou même nom).</p>')
++'<h4 class="dp">Arbitres inactifs ('+ina.length+')</h4>'
++(ina.length?'<div class="mres">'+ina.map(a=>'<label style="display:block;margin:.3rem 0"><input type="checkbox" data-cli="'+ARBITRES.indexOf(a)+'"> '+ln(a)+'</label>').join("")+'<div class="imp"><button class="btn alt" type="button" data-cl="all">Tout sélectionner</button><button class="btn" type="button" data-cl="inact">Supprimer la sélection</button></div></div>':'<p class="help">Aucun arbitre inactif.</p>')
++'<h4 class="dp">Corbeille ('+tr.length+')</h4>'
++(tr.length?'<div class="mres">'+tr.map((a,i)=>'<div style="display:flex;gap:.6rem;align-items:center;justify-content:space-between;margin:.3rem 0"><span>'+ln(a)+'</span><button class="btn alt" type="button" style="padding:.25rem .8rem;font-size:.8rem" data-cl="restore" data-i="'+i+'">Restaurer</button></div>').join("")+'<div class="imp"><button class="btn alt" type="button" data-cl="empty">Vider la corbeille</button></div></div>':'<p class="help">La corbeille est vide.</p>')}
+const armBtn=(b,txt)=>{if(b.dataset.armed)return true;b.dataset.armed="1";b.dataset.t0=b.textContent;b.textContent=txt;setTimeout(()=>{if(b.isConnected){delete b.dataset.armed;b.textContent=b.dataset.t0||b.textContent}},5000);return false};
+document.getElementById("ar-clean").addEventListener("click",()=>{
+if(!arAdmin())return;const bx=document.getElementById("cl-box"),b=document.getElementById("ar-clean");
+if(!bx.hidden){bx.hidden=true;b.setAttribute("aria-expanded","false");return}
+clRender();bx.hidden=false;b.setAttribute("aria-expanded","true")});
+document.getElementById("cl-box").addEventListener("click",e=>{
+const b=e.target.closest&&e.target.closest("button[data-cl]");if(!b||!arAdmin())return;
+const act=b.dataset.cl,box=document.getElementById("cl-box");
+if(act==="all"){box.querySelectorAll("input[data-cli]").forEach(x=>x.checked=true);return}
+if(act==="restore"){arbRestore(+b.dataset.i);clRender("✓ Arbitre restauré. Publiez pour qu’il retrouve sa connexion.");return}
+if(act==="empty"){if(!armBtn(b,"Confirmer : vider définitivement"))return;arbLsSet(TRASH_KEY,[]);clRender("Corbeille vidée.");return}
+if(act==="merge"){
+const g=dupGroups()[+b.dataset.g];if(!g)return;
+const r=box.querySelector('input[name="kg'+b.dataset.g+'"]:checked'),keep=r?ARBITRES[+r.value]:null;
+if(!keep||!g.includes(keep))return;
+const del=g.filter(a=>a!==keep);if(!armBtn(b,"Confirmer : supprimer "+del.length+" profil"+(del.length>1?"s":"")))return;
+const x=arbRemove(del,keep);clRender("✓ "+x.n+" profil"+(x.n>1?"s":"")+" supprimé"+(x.n>1?"s":"")+" ; "+x.des+" désignation"+(x.des>1?"s":"")+" rattachée"+(x.des>1?"s":"")+" au profil gardé. Publiez pour appliquer.");return}
+if(act==="inact"){
+const idx=[...box.querySelectorAll("input[data-cli]:checked")].map(x=>ARBITRES[+x.dataset.cli]).filter(Boolean);
+if(!idx.length){clRender("Cochez d’abord les arbitres à supprimer.");return}
+if(!armBtn(b,"Confirmer : supprimer "+idx.length+" arbitre"+(idx.length>1?"s":"")))return;
+const x=arbRemove(idx,null);clRender("✓ "+x.n+" arbitre"+(x.n>1?"s":"")+" inactif"+(x.n>1?"s":"")+" supprimé"+(x.n>1?"s":"")+(x.des?" ; "+x.des+" désignation"+(x.des>1?"s":"")+" conservée"+(x.des>1?"s":"")+" en texte":"")+". Publiez pour appliquer.")}
+});
+ul.addEventListener("click",e=>{
+const r=e.target.closest&&e.target.closest("button[data-rm]");if(!r||!arAdmin())return;
+const a=ARBITRES[+r.dataset.rm];if(!a)return;
+if(!armBtn(r,"Confirmer la suppression"))return;
+const x=arbRemove([a],null),m=document.getElementById("ar-pdf-msg");
+if(m)m.textContent="✓ "+pname(a)+" supprimé (corbeille)"+(x.des?" ; "+x.des+" désignation"+(x.des>1?"s":"")+" conservée"+(x.des>1?"s":"")+" en texte":"")+". Publiez pour appliquer.";
+const bx=document.getElementById("cl-box");if(bx&&!bx.hidden)clRender()});
 /* --- Résultat d’un match saisi par l’arbitre (1er ou 2e arbitre), validé ensuite par l’administrateur --- */
 const RESRX=/VBRES:([A-Za-z0-9+\/=_\-\s]+?)~/g;
 const resSent=()=>{try{return JSON.parse(localStorage.getItem("res-sent-v1")||"{}")}catch(_){return{}}};
