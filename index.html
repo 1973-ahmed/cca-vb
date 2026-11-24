@@ -674,7 +674,7 @@ const ew=()=>{const c=curWeek();if(c!==100)return c;const r=weeksList().filter(n
 const isBarView=()=>CSEL==="bar";
 const inComp=P=>isBarView()?(!!P.bar&&barN(P)===ew()):(!P.bar&&weekNum(P)===ew()&&lgOf(P)===curComp());
 function compBar(){const bv=isBarView();return `<div class="wkbar compbar" role="group" aria-label="Choisir la compétition">${COMPS.map(c=>`<button type="button" class="wkchip${!bv&&c.lg===curComp()?" on":""}" data-csel="${c.lg}" aria-pressed="${!bv&&c.lg===curComp()}">${c.titre}</button>`).join("")}<button type="button" class="wkchip${bv?" on":""}" data-csel="bar" aria-pressed="${bv}">Barrage</button></div>`}
-function pdfButtons(){const seen=[];PROGS.filter(inComp).forEach(P=>{if(!seen.some(x=>x.lg===lgOf(P)))seen.push({lg:lgOf(P),titre:P.titre})});return seen.map(x=>`<button class="btn alt" type="button" data-pdf="${x.lg}">Télécharger le PDF — ${x.titre}</button>`).join("")}
+function pdfButtons(){const seen=[];PROGS.filter(inComp).forEach(P=>{if(!seen.some(x=>x.lg===lgOf(P)))seen.push({lg:lgOf(P),titre:P.titre})});return seen.map(x=>`<button class="btn alt" type="button" data-pdf="${x.lg}" data-det="1">Export PDF avec détail — ${x.titre}</button><button class="btn alt" type="button" data-pdf="${x.lg}" data-det="0">Export PDF sans détail — ${x.titre}</button>`).join("")}
 function isAdmin(){try{return !(typeof ADMENC!=="undefined"&&ADMENC)||!!ADMKEY}catch(_){return false}}
 function weekBar(prog){const w=weeksList().filter(n=>n<100),cw=ew();return `<div class="wkbar" role="group" aria-label="Choisir la semaine">${w.map(n=>`<button type="button" class="wkchip${n===cw?" on":""}" data-wsel="${n}" aria-pressed="${n===cw}">Week ${n}</button>`).join("")}</div>`}
 /* Logos des équipes (extraits des fichiers Résultats Excellence J1 Hommes et Calendrier Excellence Dames J1) */
@@ -959,7 +959,7 @@ return (p.length?`<div class="ds">${p.map(x=>`<span>${esc(x)}</span>`).join("")}
 function desigHtml(){
 if(!ARBITRES.length)return '<div class="cd"><h3>Désigner les arbitres</h3><p class="help" style="margin-top:0">Importez d\'abord votre liste d\'arbitres (page « Importer et configuration »).</p></div>';
 const vil=[...new Set(ARBITRES.map(a=>a.ville))].sort(fr);
-return `<div class="cd"><h3>Désigner les arbitres</h3><p class="help" style="margin-top:0">Pour chaque fonction, choisissez la ville puis l'arbitre. Les compteurs de matchs se mettent à jour automatiquement. Indiquez aussi les frais de chaque fonction : le total et la part par équipe sont calculés pour le PDF.</p><div class="imp dtool"><label class="btn" for="dpdf-in">Importer un programme (PDF)</label><input id="dpdf-in" class="vh" type="file" accept="application/pdf,.pdf">${pdfButtons()}</div><div id="dpdf-msg" class="help" role="status">${esc(DPDFMSG)}</div><div class="imp dtool"><button class="btn alt" type="button" data-dx="open">Coller des désignations (texte)</button><button class="btn alt" type="button" data-go="stat">Statistiques des désignations →</button><button class="btn alt" type="button" data-go="nom">Nominations par arbitre →</button></div><div id="dtx2-box"${DTX2OPEN?"":" hidden"}><textarea id="dtx2" rows="8" style="width:100%" placeholder="Collez ici le texte des désignations (Excellence Hommes – Week 4 (date), Match 1 : A contre B (lieu, heure), 1er arbitre : NOM PRÉNOM (Ville)…)" aria-label="Texte des désignations"></textarea><div class="imp"><button class="btn" type="button" data-dx="go">Appliquer aux désignations et aux statistiques</button></div></div><div id="dtx2-msg" class="help" role="status">${DTX2MSG}</div><div id="ds-err" class="err" role="alert"></div>${PROGS.filter(inComp).map(P=>`<h4 class="dp">${esc(P.titre)} · ${esc(P.sous)} · ${esc(P.date)}</h4>${P.matchs.map(([h,a,b],m)=>`<div class="dm" id="dm-${P.id}${m}"><h4>${gTag(P,m)}Match ${mno(P,m)} · ${esc(a)} contre ${esc(b)}</h4>${slotsFor(P).map(([s,l])=>{
+return `<div class="cd"><h3>Désigner les arbitres</h3><p class="help" style="margin-top:0">Pour chaque fonction, choisissez la ville puis l'arbitre. Les compteurs de matchs se mettent à jour automatiquement. Indiquez aussi les frais de chaque fonction : le total et la part par équipe sont calculés pour le PDF.</p><div class="imp dtool"><label class="btn" for="dpdf-in">Importer désignations + frais (PDF, CSV, Excel)</label><input id="dpdf-in" class="vh" type="file" multiple accept="application/pdf,.pdf,.csv,.xlsx,.xls,text/csv">${pdfButtons()}</div><div id="dpdf-msg" class="help" role="status">${esc(DPDFMSG)}</div><div class="imp dtool"><button class="btn alt" type="button" data-dx="open">Coller des désignations (texte)</button><button class="btn alt" type="button" data-go="stat">Statistiques des désignations →</button><button class="btn alt" type="button" data-go="nom">Nominations par arbitre →</button></div><div id="dtx2-box"${DTX2OPEN?"":" hidden"}><textarea id="dtx2" rows="8" style="width:100%" placeholder="Collez ici le texte des désignations (Excellence Hommes – Week 4 (date), Match 1 : A contre B (lieu, heure), 1er arbitre : NOM PRÉNOM (Ville)…)" aria-label="Texte des désignations"></textarea><div class="imp"><button class="btn" type="button" data-dx="go">Appliquer aux désignations et aux statistiques</button></div></div><div id="dtx2-msg" class="help" role="status">${DTX2MSG}</div><div id="ds-err" class="err" role="alert"></div>${PROGS.filter(inComp).map(P=>`<h4 class="dp">${esc(P.titre)} · ${esc(P.sous)} · ${esc(P.date)}</h4>${P.matchs.map(([h,a,b],m)=>`<div class="dm" id="dm-${P.id}${m}"><h4>${gTag(P,m)}Match ${mno(P,m)} · ${esc(a)} contre ${esc(b)}</h4>${slotsFor(P).map(([s,l])=>{
 const key=P.id+m,k=(DESIG[key]||{})[s],cur=k?findP(k):null,es=k?null:embSlot(P,m,s),ck=key+"|"+s,city=DCITY[ck]!==undefined?DCITY[ck]:(cur?cur.ville:(es?es.city:"")),people=ARBITRES.filter(x=>x.ville===city).sort((x,y)=>fr(pname(x),pname(y)));
 return `<div class="dr"><span>${esc(l)}</span><select class="f" data-p="${P.id}" data-m="${m}" data-s="${s}" data-w="c" aria-label="Ville pour ${esc(l)}"><option value="">Ville…</option>${vil.map(v=>`<option${v===city?" selected":""}>${esc(v)}</option>`).join("")}</select><select class="f" data-p="${P.id}" data-m="${m}" data-s="${s}" data-w="p" aria-label="Arbitre pour ${esc(l)}"><option value="">Arbitre…</option>${k&&String(k).startsWith("txt:")?`<option value="${esc(k)}" selected>${esc(String(k).slice(4))} (à rattacher)</option>`:""}${es&&!es.a?`<option value="" selected>${esc(String(es.v).replace(/\s*\([^()]*\)\s*$/,""))} (non rattaché)</option>`:""}${people.map(x=>`<option value="${esc(pkey(x))}"${(k===pkey(x)||(es&&es.a&&pkey(es.a)===pkey(x)))?" selected":""}>${esc(pname(x))}</option>`).join("")}</select><input class="fee" type="number" min="0" step="10" inputmode="numeric" placeholder="Frais DH" value="${feeOf(key,s)||""}" data-fee="${key}" data-s="${s}" aria-label="Frais pour ${esc(l)}"></div>`}).join("")}<p class="dtot" data-tot="${P.id+m}">${totText(P,m)}</p><div class="imp"><button class="btn alt" type="button" data-calcm="${esc(P.id+"|"+m)}">Calculer les frais avec le calculateur →</button></div></div>`).join("")}`).join("")}<div class="imp" style="margin-top:1rem"><button class="btn" type="button" data-x="txt">Afficher le texte des désignations</button></div><div id="ds-txt"></div></div>`;
 }
@@ -1783,7 +1783,7 @@ const d=(DESIG[P.id+m]||{})[sl],a=d?findP(d):null,es=a?null:embSlot(P,m,sl);
 if(!a&&!es)return;
 const person=a||(es&&es.a)||null,name=person?pname(person):String(es.v).replace(/\s*\([^()]*\)\s*$/,""),from=fix(person?person.ville:es.city);
 let g=(person&&person.niveau)||gr.get(norm(name))||"";if(!CALC_GR.includes(g))g="Non précisé";
-rows.push({fn:sl.startsWith("jl")?"jl":sl,slot:sl,fixed:true,grade:g,from,km:null,manual:false,name,key:person?pkey(person):"",real:feeOf(P.id+m,sl)});
+rows.push({fn:sl.startsWith("jl")?"jl":sl,slot:sl,fixed:true,grade:g,from,km:null,manual:false,name,key:person?pkey(person):"",real:null});
 });
 CALCST.match=fix(String(mt[3]||"").split("·")[0].trim());
 CALCST.src=P.titre+" · "+P.sous+" · "+mt[1]+" contre "+mt[2];
@@ -1808,7 +1808,7 @@ return `<tr><td>${r.fixed?`<b>${esc((Object.fromEntries(CALC_FN)[r.fn]||r.fn)+(r
 const all=CALCST.rows.map(calcCalc),tot=all.reduce((n,c)=>n+c.tot,0),real=CALCST.rows.reduce((n,r)=>n+(r.real||0),0),miss=all.filter((c,i)=>c.km==null&&CALCST.rows[i].from&&CALCST.match).length;
 let sel='<option value="">Charger un match programmé…</option>';
 PROGS.forEach(P=>{sel+=`<optgroup label="${esc(P.titre+" · "+P.sous)}">`+P.matchs.map((m,i)=>`<option value="${esc(P.id+"|"+i)}">${esc(m[1]+" contre "+m[2]+" ("+m[0]+")")}</option>`).join("")+"</optgroup>"});
-let h=`<div class="calc" data-host="${host}"><style>.calc .tbl select{max-width:8.4rem;min-width:0}.calc .cbx{position:relative;display:inline-block;width:11rem;max-width:100%;text-align:left}.calc .cbx-b{all:unset;box-sizing:border-box;display:block;width:100%;padding:.5rem 1.6rem .5rem .7rem;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--fg);cursor:pointer;text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;position:relative}.calc .cbx-b::after{content:"▾";position:absolute;right:.6rem;top:50%;transform:translateY(-50%);opacity:.6}.calc .cbx-b:focus-visible{outline:3px solid var(--hi);outline-offset:2px}.calc .cbx-p{position:fixed;z-index:60;display:flex;flex-direction:column;background:var(--card);color:var(--fg);border:1px solid var(--line);border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,.25);overflow:hidden;text-align:left;white-space:normal}.calc .cbx-q{margin:.4rem;width:calc(100% - .8rem);padding:.5rem .6rem}.calc .cbx-l{overflow-y:auto;flex:1;padding:0 .3rem .4rem}.calc .cbx-o{all:unset;box-sizing:border-box;display:block;width:100%;padding:.4rem .6rem;border-radius:6px;cursor:pointer;font-size:.9rem}.calc .cbx-o small{display:block;color:var(--mut);font-size:.75rem}.calc .cbx-o:hover,.calc .cbx-o:focus-visible{background:var(--line)}.calc .cbx-o.on{font-weight:700}.calc .tbl td,.calc .tbl th{padding:.5rem .35rem}.calc .tbl input[type=number]{width:5rem!important}</style><div class="cd"><h3>Calculateur des frais</h3><p class="help">Frais = <b>distance aller/retour × 1,20 DH par km</b> + <b>frais de fonction</b>. Frais de fonction : 1er et 2e arbitre selon le grade (International 350 DH, National 300 DH, autres grades 250 DH) ; marqueur et juge de ligne 200 DH quel que soit le grade. Chaque ligne correspond à un poste (1er arbitre, 2e arbitre, marqueur, juges de ligne 1 à 4) : choisissez l’arbitre de ce poste, son grade et sa ville de départ sont renseignés automatiquement à partir de son profil (vous pouvez les corriger en cas d’exception). Le calculateur ne modifie aucune désignation : c’est une simulation.</p><label class="help" for="calc-load-${host}" style="display:block;margin-bottom:.3rem">Reprendre un match programmé (arbitres désignés, grades et frais déjà saisis)</label><select id="calc-load-${host}" data-cl="1" style="width:100%;max-width:34rem">${sel}</select>${CALCST.src?`<p class="help" style="margin-bottom:0">Simulation chargée : <b>${esc(CALCST.src)}</b>${CALCST.empty?" — aucune désignation enregistrée pour ce match, ajoutez les personnes à la main.":""}</p>`:""}<label class="help" for="calc-match-${host}" style="display:block;margin:.9rem 0 .3rem">Ville du match</label><select id="calc-match-${host}" data-cm="1" style="width:100%;max-width:22rem"><option value="">Choisir la ville du match…</option>${C.map(x=>opt(x,CALCST.match)).join("")}</select>${CALCST.match?"":'<p class="help">Choisissez d’abord la ville du match, puis la ville de départ de chaque personne.</p>'}<div class="tw" style="margin-top:1rem"><table class="tbl"><thead><tr><th>Fonction</th><th>Arbitre</th><th>Grade</th><th>Ville de départ</th><th>Distance aller (km)</th><th>Déplacement</th><th>Fonction</th><th>Total</th>${cmp?"<th>Saisi</th><th>Écart</th>":""}<th></th></tr></thead><tbody>${rows.join("")}</tbody></table></div><label class="help" style="display:flex;gap:.5rem;align-items:center;margin:.7rem 0"><input type="checkbox" data-cr5="1" style="width:auto;flex:none;margin:0"${CALCST.round5?" checked":""}> Arrondir chaque total au multiple de 5 DH le plus proche</label><div class="imp"><button type="button" class="btn alt" data-ca="add"${CALCST.rows.length>=10?" disabled":""}>+ Ajouter une personne</button><button type="button" class="btn alt" data-ca="team">Rétablir les 7 postes</button>${adm&&CALCST.pm?'<button type="button" class="btn" data-ca="apply">Appliquer ces frais aux reçus</button><button type="button" class="btn alt" data-ca="torec">Ouvrir les reçus →</button>':""}<button type="button" class="btn alt" data-ca="copy">Copier le récapitulatif</button><button type="button" class="btn alt" data-ca="reset">Réinitialiser</button></div><p class="help" data-cmsg="1" role="status"></p>${miss?`<p class="help">Distance inconnue pour ${miss} ligne${miss>1?"s":""} : saisissez-la dans la colonne « Distance aller ».</p>`:""}<div class="kpis"><div class="kpi k1"><small>Total des frais du match</small><b>${calcMoney(tot)}</b><span>${CALCST.rows.length} personne${CALCST.rows.length>1?"s":""}</span></div><div class="kpi k2"><small>Par équipe</small><b>${calcMoney(tot/2)}</b><span>Total ÷ 2</span></div>${cmp?`<div class="kpi k3"><small>Frais saisis dans la désignation</small><b>${calcMoney(real)}</b><span>Écart : ${real-tot>0?"+":""}${calcMoney(real-tot)}</span></div>`:""}</div><p class="help">Les distances sont des estimations routières (à vol d’oiseau, majorées de 10 à 20 %) tant qu’aucune distance officielle n’est enregistrée pour le trajet : elles peuvent s’écarter de la réalité, surtout en montagne. Vous pouvez corriger la distance ligne par ligne. Les grades viennent de la liste des arbitres ; « Non précisé » est compté au tarif des autres grades (250 DH).</p></div>`;
+let h=`<div class="calc" data-host="${host}"><style>.calc .tbl select{max-width:8.4rem;min-width:0}.calc .cbx{position:relative;display:inline-block;width:11rem;max-width:100%;text-align:left}.calc .cbx-b{all:unset;box-sizing:border-box;display:block;width:100%;padding:.5rem 1.6rem .5rem .7rem;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--fg);cursor:pointer;text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;position:relative}.calc .cbx-b::after{content:"▾";position:absolute;right:.6rem;top:50%;transform:translateY(-50%);opacity:.6}.calc .cbx-b:focus-visible{outline:3px solid var(--hi);outline-offset:2px}.calc .cbx-p{position:fixed;z-index:60;display:flex;flex-direction:column;background:var(--card);color:var(--fg);border:1px solid var(--line);border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,.25);overflow:hidden;text-align:left;white-space:normal}.calc .cbx-q{margin:.4rem;width:calc(100% - .8rem);padding:.5rem .6rem}.calc .cbx-l{overflow-y:auto;flex:1;padding:0 .3rem .4rem}.calc .cbx-o{all:unset;box-sizing:border-box;display:block;width:100%;padding:.4rem .6rem;border-radius:6px;cursor:pointer;font-size:.9rem}.calc .cbx-o small{display:block;color:var(--mut);font-size:.75rem}.calc .cbx-o:hover,.calc .cbx-o:focus-visible{background:var(--line)}.calc .cbx-o.on{font-weight:700}.calc .tbl td,.calc .tbl th{padding:.5rem .35rem}.calc .tbl input[type=number]{width:5rem!important}</style><div class="cd"><h3>Calculateur des frais</h3><p class="help">Frais = <b>distance aller/retour × 1,20 DH par km</b> + <b>frais de fonction</b>. Frais de fonction : 1er et 2e arbitre selon le grade (International 350 DH, National 300 DH, autres grades 250 DH) ; marqueur et juge de ligne 200 DH quel que soit le grade. Chaque ligne correspond à un poste (1er arbitre, 2e arbitre, marqueur, juges de ligne 1 à 4) : choisissez l’arbitre de ce poste, son grade et sa ville de départ sont renseignés automatiquement à partir de son profil (vous pouvez les corriger en cas d’exception). Le calculateur ne modifie aucune désignation : c’est une simulation.</p><label class="help" for="calc-load-${host}" style="display:block;margin-bottom:.3rem">Reprendre un match programmé (arbitres désignés, grades et frais déjà saisis)</label><select id="calc-load-${host}" data-cl="1" style="width:100%;max-width:34rem">${sel}</select>${CALCST.src?`<p class="help" style="margin-bottom:0">Simulation chargée : <b>${esc(CALCST.src)}</b>${CALCST.empty?" — aucune désignation enregistrée pour ce match, ajoutez les personnes à la main.":""}</p>`:""}<label class="help" for="calc-match-${host}" style="display:block;margin:.9rem 0 .3rem">Ville du match</label><select id="calc-match-${host}" data-cm="1" style="width:100%;max-width:22rem"><option value="">Choisir la ville du match…</option>${C.map(x=>opt(x,CALCST.match)).join("")}</select>${CALCST.match?"":'<p class="help">Choisissez d’abord la ville du match, puis la ville de départ de chaque personne.</p>'}<div class="tw" style="margin-top:1rem"><table class="tbl"><thead><tr><th>Fonction</th><th>Arbitre</th><th>Grade</th><th>Ville de départ</th><th>Distance aller (km)</th><th>Déplacement</th><th>Fonction</th><th>Total</th>${cmp?"<th>Saisi</th><th>Écart</th>":""}<th></th></tr></thead><tbody>${rows.join("")}</tbody></table></div><label class="help" style="display:flex;gap:.5rem;align-items:center;margin:.7rem 0"><input type="checkbox" data-cr5="1" style="width:auto;flex:none;margin:0"${CALCST.round5?" checked":""}> Arrondir chaque total au multiple de 5 DH le plus proche</label><div class="imp"><button type="button" class="btn alt" data-ca="add"${CALCST.rows.length>=10?" disabled":""}>+ Ajouter une personne</button><button type="button" class="btn alt" data-ca="team">Rétablir les 7 postes</button><button type="button" class="btn alt" data-ca="copy">Copier le récapitulatif</button><button type="button" class="btn alt" data-ca="reset">Réinitialiser</button></div><p class="help" data-cmsg="1" role="status"></p>${miss?`<p class="help">Distance inconnue pour ${miss} ligne${miss>1?"s":""} : saisissez-la dans la colonne « Distance aller ».</p>`:""}<div class="kpis"><div class="kpi k1"><small>Total des frais du match</small><b>${calcMoney(tot)}</b><span>${CALCST.rows.length} personne${CALCST.rows.length>1?"s":""}</span></div><div class="kpi k2"><small>Par équipe</small><b>${calcMoney(tot/2)}</b><span>Total ÷ 2</span></div>${cmp?`<div class="kpi k3"><small>Frais saisis dans la désignation</small><b>${calcMoney(real)}</b><span>Écart : ${real-tot>0?"+":""}${calcMoney(real-tot)}</span></div>`:""}</div><p class="help">Les distances sont des estimations routières (à vol d’oiseau, majorées de 10 à 20 %) tant qu’aucune distance officielle n’est enregistrée pour le trajet : elles peuvent s’écarter de la réalité, surtout en montagne. Vous pouvez corriger la distance ligne par ligne. Les grades viennent de la liste des arbitres ; « Non précisé » est compté au tarif des autres grades (250 DH).</p></div>`;
 if(adm){
 const ov=distPub(),keys=Object.keys(ov).sort();
 h+=`<div class="cd"><h3>Distances officielles</h3><p class="help">Enregistrez la distance aller simple entre deux villes : elle remplace l’estimation pour tout le monde après « Publier sur GitHub ».</p><div class="imp"><select data-do="a" aria-label="Première ville"><option value="">Ville A…</option>${C.map(x=>opt(x,"")).join("")}</select><select data-do="b" aria-label="Deuxième ville"><option value="">Ville B…</option>${C.map(x=>opt(x,"")).join("")}</select><input type="number" min="1" step="1" data-do="km" placeholder="km aller" style="width:7rem" aria-label="Distance aller simple en km"><button type="button" class="btn" data-ca="dsave">Enregistrer</button></div><details style="margin-top:.8rem"><summary class="help" style="cursor:pointer">Importer plusieurs distances d’un coup</summary><p class="help">Une ligne par trajet : <code>Ville A ; Ville B ; km</code> (collage possible depuis Excel).</p><textarea data-do="bulk" rows="5" style="width:100%" placeholder="Casablanca ; Rabat ; 87&#10;Rabat ; Fès ; 200"></textarea><div class="imp"><button type="button" class="btn alt" data-ca="dbulk">Importer</button></div></details><p class="help" data-do="msg" role="status"></p>${keys.length?`<div class="tw"><table class="tbl"><thead><tr><th>Trajet</th><th>Distance aller</th><th></th></tr></thead><tbody>${keys.map(k=>{const [a,b]=k.split("|"),nm=x=>(C.find(c=>norm(c)===x)||x);return `<tr><td>${esc(nm(a))} ↔ ${esc(nm(b))}</td><td>${ov[k]} km</td><td><button type="button" class="btn alt" data-ca="ddel" data-dk="${esc(k)}" aria-label="Supprimer">✕</button></td></tr>`}).join("")}</tbody></table></div>`:'<p class="help">Aucune distance officielle enregistrée.</p>'}</div>`;
@@ -3102,15 +3102,44 @@ pages.push(tc.items.filter(i=>i.str&&i.str.trim()).map(i=>({str:i.str,x:i.transf
 }
 return pages;
 }
+/* --- Fichier des désignations de la commission (CSV ou Excel) : désignations + détail des frais --- */
+const lev=(a,b)=>{const m=a.length,n=b.length;if(Math.abs(m-n)>2)return 9;let p=Array.from({length:n+1},(_,j)=>j);for(let i=1;i<=m;i++){const q=[i];for(let j=1;j<=n;j++)q[j]=Math.min(p[j]+1,q[j-1]+1,p[j-1]+(a[i-1]===b[j-1]?0:1));p=q}return p[n]};
+function cityFix(v){const t=String(v||"").trim();if(!t)return t;const k=norm(t),known=[...new Set(ARBITRES.map(a=>a.ville).concat(Object.values(DVILLE_EMB||{})).filter(Boolean))];
+const ex=known.find(x=>norm(x)===k);if(ex)return ex;
+const c=known.filter(x=>k.length>=5&&lev(norm(x),k)<=1);return c.length===1?c[0]:t}
+async function fileTables(f){
+const buf=await f.arrayBuffer(),nm=f.name.toLowerCase();
+if(/\.(csv|txt)$/.test(nm)){let t;try{t=new TextDecoder("utf-8",{fatal:true}).decode(buf)}catch(_){t=new TextDecoder("windows-1252").decode(buf)}
+t=t.replace(/^\uFEFF/,"");const h=t.split("\n",8).join("\n"),sep=(h.match(/;/g)||[]).length>=(h.match(/,/g)||[]).length?";":",";
+return[csvRows(t,sep)]}
+if(typeof XLSX==="undefined")throw new Error("Le lecteur Excel n’a pas pu se charger. Vérifiez la connexion internet et réessayez.");
+const wb=XLSX.read(buf,{type:"array"});return wb.SheetNames.map(n=>XLSX.utils.sheet_to_json(wb.Sheets[n],{header:1,raw:false,defval:""}))}
+function desigFromTable(rows){
+const R=rows.map(r=>(r||[]).map(x=>String(x==null?"":x).replace(/\u00a0/g," ").trim()));
+const hi=R.findIndex(r=>r.some(x=>/^total$/i.test(x))&&r.some(x=>/arbitre/i.test(x)));
+if(hi<0)return null;
+const H=R[hi],ti=H.findIndex(x=>/^total$/i.test(x));let c0=H.findIndex(x=>/^1\s*[°º]?\s*(er)?\s*arbitre/i.test(x));if(c0<0)c0=3;
+let ci=H.findIndex(x=>/rencontre|[ée]quipe/i.test(x));if(ci<0)ci=2;let vi=H.findIndex(x=>/^ville/i.test(x));if(vi<0)vi=1;
+const ALL=["r1","r2","mq","jl1","jl2","jl3","jl4"],text=R.slice(0,hi).map(r=>r.filter(Boolean).join(" ")).join(" "),out=[];
+const num=x=>{const v=Math.round(+String(x).replace(/\s/g,"").replace(",","."));return v>0?v:0};
+for(let i=hi+1;i<R.length-1;i++){
+const r=R[i],r2=R[i+1];if(!/^\d+$/.test(r[0]||"")||!r[ci]||!r2[ci])continue;
+const names={},fees={};
+for(let k=0;k<ti-c0&&k<ALL.length;k++){const nm=r[c0+k];if(nm)names[ALL[k]]=nm;const f=num(r2[c0+k]);if(f)fees[ALL[k]]=f}
+out.push({num:+r[0],ville:r[vi]||"",a:r[ci],b:r2[ci],names,fees,total:num(r[ti])});i++}
+return out.length?{text,rows:out}:null}
 function desigApply(r){
-const dm0=String(r.text).match(/(\d{2})\/(\d{2})\/(\d{4})/),cands=PROGS.filter(P=>norm(r.text).includes(norm(P.titre))),P=(dm0&&cands.find(P=>dateNum(P.date).txt===dm0[0]))||cands.find(inWeek)||cands[0];
+const dm0=String(r.text).match(/(\d{2})\/(\d{2})\/(\d{4})/),jn=String(r.text).match(/Journ[ée]e\s*N\s*[°º]?\s*(\d+)/i),cands=PROGS.filter(P=>norm(r.text).includes(norm(P.titre))),P=(dm0&&cands.find(P=>dateNum(P.date).txt===dm0[0]))||(jn&&cands.find(P=>!P.bar&&weekNum(P)===+jn[1]))||cands.find(inWeek)||cands[0];
 if(!P)throw new Error("Division non reconnue dans le PDF (attendu : "+PROGS.map(P=>P.titre).join(" ou ")+").");
-const byFull=new Map(),byNom=new Map();
+const byFull=new Map(),byNom=new Map(),near=[],warn=[];
 ARBITRES.forEach(a=>{[a.nom+a.prenom,a.prenom+a.nom].forEach(x=>byFull.set(norm(x),a));const k=norm(a.nom);if(!byNom.has(k))byNom.set(k,[]);byNom.get(k).push(a)});
-const resolve=name=>{const k=norm(name);if(byFull.has(k))return byFull.get(k);const l=byNom.get(k)||[];return l.length===1?l[0]:null};
+const resolve=name=>{const k=norm(name);if(byFull.has(k))return byFull.get(k);const l=byNom.get(k)||[];if(l.length===1)return l[0];if(l.length>1||k.length<5)return null;
+const p=ARBITRES.filter(a=>norm(a.nom).startsWith(k));if(p.length===1){near.push(name+" → "+pname(p[0])+" ("+p[0].ville+")");return p[0]}
+const d=k.length>=7?ARBITRES.filter(a=>lev(norm(a.nom),k)<=1):[];if(d.length===1){near.push(name+" → "+pname(d[0])+" ("+d[0].ville+")");return d[0]}return null};
 let ok=0,lie=0;const miss=[],skip=[],SL=slotsFor(P).map(x=>x[0]);
 r.rows.forEach(row=>{
-const m=P.matchs.findIndex(([h,a,b])=>norm(a)===norm(row.a)&&norm(b)===norm(row.b));
+const tm=(x,y)=>{const u=norm(x),v=norm(y);return u===v||(Math.min(u.length,v.length)>=3&&(u.endsWith(v)||v.endsWith(u)))};
+const m=P.matchs.findIndex(([h,a,b])=>tm(a,row.a)&&tm(b,row.b));
 if(m<0){skip.push(row.a+"–"+row.b);return}
 const dk=P.id+m;
 SL.forEach(s=>{if((DESIG[dk]||{})[s])assign(P.id,m,s,"")});
@@ -3121,11 +3150,12 @@ const a=resolve(name),key=a?pkey(a):"";
 if(key&&!Object.values(DESIG[dk]).includes(key)){assign(P.id,m,s,key);lie++}
 else{DESIG[dk][s]="txt:"+name;miss.push(name)}
 });
-if(row.ville)DVILLE[dk]=row.ville;FEES[dk]={};Object.entries(row.fees).forEach(([s,v])=>{if(v>0&&SL.includes(s))FEES[dk][s]=v});
+if(row.ville)DVILLE[dk]=cityFix(row.ville);FEES[dk]={};Object.entries(row.fees).forEach(([s,v])=>{if(v>0&&SL.includes(s))FEES[dk][s]=v});
+{const sum=Object.entries(row.fees).filter(([s])=>SL.includes(s)).reduce((n,[,v])=>n+v,0);if(row.total&&sum&&row.total!==sum)warn.push("Match "+(row.num||m+1)+" : total du fichier "+row.total+" ≠ somme des frais "+sum)}
 ok++;
 });
 saveDesig();saveFees();saveDville();renderDesig();refreshProg();draw();
-return{P,ok,lie,miss,skip};
+return{P,ok,lie,miss,skip,near,warn};
 }
 function dpdfSay(t){DPDFMSG=t;const el=document.getElementById("dpdf-msg");if(el)el.textContent=t}
 /* Génération du PDF (mise en page du modèle de la commission) */
@@ -3165,17 +3195,18 @@ c.font="700 9px "+FL;c.fillText(fmtN(tot/2),(b[4+rc]+b[5+rc])/2,y+h2-7.8);c.fill
 SL.forEach((s,j)=>{
 const cx=(b[3+j]+b[4+j])/2,w=b[4+j]-b[3+j]-6,nm=dName(P,m,s).toUpperCase(),fe=feeOf(k,s);
 if(nm){c.fillStyle="#333";fit(nm,w,8.5,"700");c.fillText(nm,cx,y+h2-7.8)}
-if(fe){c.fillStyle="#555";c.font="400 8.5px "+FL;c.fillText(String(fe),cx,y+BH-7.8)}
+if(fe&&PDFDET){c.fillStyle="#555";c.font="400 8.5px "+FL;c.fillText(String(fe),cx,y+BH-7.8)}
 });
 });
 const bot=T0+HH+Math.max(ch.length,1)*BH;
 c.strokeStyle="#c9ced6";c.lineWidth=.4;
 b.forEach((x,ix)=>{const top=(ix>6&&ix<3+rc)?T0+HH:T0;c.beginPath();c.moveTo(x,top);c.lineTo(x,bot);c.stroke()});
 c.strokeRect(X0,T0,R-X0,bot-T0);
-c.textAlign="center";c.fillStyle=TH.dark;c.font="700 10.5px "+FL;c.fillText("Commission Centrale d’arbitrage",215,486.4);c.fillText("Commission d’organisation des compétitions",626,486.4);
-c.fillStyle="#555";c.font="400 10px "+FL;c.fillText("Abdelouahab Belkaïd",215,505);c.fillText("Radouane El Haddad",626,505);
+const exc=/^excellence/i.test(P.titre);
+c.textAlign="center";c.fillStyle=TH.dark;c.font="700 10.5px "+FL;c.fillText(exc?"Direction Nationale d’Arbitrage":"Commission Centrale d’arbitrage",215,486.4);c.fillText("Commission d’organisation des compétitions",626,486.4);
+c.fillStyle="#555";c.font="400 10px "+FL;c.fillText(exc?"El Baz Moulay Ali":"Abdelouahab Belkaïd",215,505);c.fillText(exc?"Redouane El Haddad":"Radouane El Haddad",626,505);
 if(stamp)c.drawImage(stamp,387,470,67,59);
-c.fillStyle="#777";c.font="400 8.5px "+FL;c.textAlign="left";c.fillText("Commission Centrale d’arbitrage - Division "+P.titre+" - Journée N°"+jNum(P),X0,563);
+c.fillStyle="#777";c.font="400 8.5px "+FL;c.textAlign="left";c.fillText((exc?"Direction Nationale d’Arbitrage":"Commission Centrale d’arbitrage")+" - Division "+P.titre+" - Journée N°"+jNum(P),X0,563);
 c.textAlign="right";c.fillText("Page "+pageNo,X1,563);
 }
 async function pdfFromCanvases(cvs,W,H){
@@ -3199,38 +3230,50 @@ for(let i=1;i<total;i++)put(String(offs[i]).padStart(10,"0")+" 00000 n \n");
 put("trailer\n<< /Size "+total+" /Root 1 0 R >>\nstartxref\n"+xr+"\n%%EOF\n");
 return new Blob(chunks,{type:"application/pdf"});
 }
-async function desigPdf(L){
+let PDFDET=true;
+async function desigPdf(L,det){
 const ps=PROGS.filter(P=>lgOf(P)===L&&inWeek(P)&&!!P.bar===isBarView());if(!ps.length)return null;
 const dm=ps[0].cls==="dames",TH=dm?{main:"#5b1a4e",dark:"#3a0f33",tint:"#f4eaf2"}:{main:"#1f5fa8",dark:"#14284b",tint:"#e8f0fa"};
 const logo=await imgOf(LOGO),stamp=await imgOf(STAMP);
 try{await document.fonts.load("700 12px Lato");await document.fonts.load("400 12px Lato");await document.fonts.load("700 12px Amiri")}catch(_){}
 const S=2.5,W=841.89,H=595.28,cvs=[];
+PDFDET=det!==false;
 ps.forEach(P=>{
 const idx=P.matchs.map((_,i)=>i),chunks=[];for(let i=0;i<idx.length;i+=5)chunks.push(idx.slice(i,i+5));if(!chunks.length)chunks.push([]);
 chunks.forEach(ch=>{const cv=document.createElement("canvas");cv.width=Math.round(W*S);cv.height=Math.round(H*S);const c=cv.getContext("2d");c.scale(S,S);drawDesigPage(c,P,ch,cvs.length+1,TH,dm,logo,stamp);cvs.push(cv)});
 });
+PDFDET=true;
 return pdfFromCanvases(cvs,W,H);
 }
-const dpdfName=L=>{const P=PROGS.find(P=>lgOf(P)===L&&inWeek(P)&&!!P.bar===isBarView()),D=dateNum(P.date);return "Designations_"+P.titre.normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^A-Za-z0-9]+/g,"_").replace(/^_|_$/g,"")+"_"+D.txt.replace(/\//g,"-")+".pdf"};
+const dpdfName=(L,det)=>{const P=PROGS.find(P=>lgOf(P)===L&&inWeek(P)&&!!P.bar===isBarView()),D=dateNum(P.date);return "Designations_"+P.titre.normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^A-Za-z0-9]+/g,"_").replace(/^_|_$/g,"")+"_"+D.txt.replace(/\//g,"-")+(det===false?"_sans_detail":"")+".pdf"};
 const deskBox=document.getElementById("desig-a");
 deskBox.addEventListener("change",e=>{const t=e.target;if(t&&t.dataset&&t.dataset.fee&&arAdmin())setFee(t.dataset.fee,t.dataset.s,t.value)});
 deskBox.addEventListener("change",async e=>{
-const t=e.target;if(!t||t.id!=="dpdf-in"||!t.files||!t.files[0]||!arAdmin())return;
-const f=t.files[0];t.value="";
-dpdfSay("Lecture du PDF…");
+const t=e.target;if(!t||t.id!=="dpdf-in"||!t.files||!t.files.length||!arAdmin())return;
+const files=[...t.files];t.value="";dpdfSay("Lecture du fichier…");
 try{
-const buf=new Uint8Array(await f.arrayBuffer()),pages=await pdfItems(buf),res=pages.map(desigParse).filter(r=>r&&r.rows.length);
-if(!res.length)throw new Error("Aucun tableau de désignations reconnu dans ce PDF. Utilisez un fichier « Programme et frais d’arbitrage ».");
-const out=res.map(desigApply),ok=out.reduce((n,o)=>n+o.ok,0),lie=out.reduce((n,o)=>n+o.lie,0),miss=[...new Set(out.flatMap(o=>o.miss))],skip=out.flatMap(o=>o.skip);
-dpdfSay("✓ "+out.map(o=>o.P.titre).join(" et ")+" : "+ok+" match"+(ok>1?"s":"")+" importé"+(ok>1?"s":"")+", "+lie+" arbitre"+(lie>1?"s":"")+" rattaché"+(lie>1?"s":"")+" à votre liste"+(miss.length?". À rattacher (nom introuvable ou en double) : "+miss.join(", ")+"":"")+(skip.length?". Rencontres ignorées (absentes du programme) : "+skip.join(", "):"")+".");
+const out=[];
+for(const f of files){
+let res;
+if(/\.pdf$/i.test(f.name)){const buf=new Uint8Array(await f.arrayBuffer()),pages=await pdfItems(buf);res=pages.map(desigParse).filter(r=>r&&r.rows.length);
+if(!res.length)throw new Error("Aucun tableau de désignations reconnu dans « "+f.name+" ». Utilisez un fichier « Programme et frais d’arbitrage ».")}
+else{const tabs=await fileTables(f);res=tabs.map(desigFromTable).filter(Boolean);
+if(!res.length)throw new Error("Aucun tableau de désignations reconnu dans « "+f.name+" ». Attendu : la feuille de la commission (Match N°, Ville, Rencontre, 1° arbitre… Total, Par équipe).")}
+res.forEach(r=>out.push(desigApply(r)))}
+const ok=out.reduce((n,o)=>n+o.ok,0),lie=out.reduce((n,o)=>n+o.lie,0),miss=[...new Set(out.flatMap(o=>o.miss))],skip=out.flatMap(o=>o.skip),near=out.flatMap(o=>o.near),warn=out.flatMap(o=>o.warn);
+dpdfSay("✓ "+out.map(o=>o.P.titre+" · "+o.P.sous).join(" et ")+" : "+ok+" match"+(ok>1?"s":"")+" importé"+(ok>1?"s":"")+" avec le détail des frais, "+lie+" arbitre"+(lie>1?"s":"")+" rattaché"+(lie>1?"s":"")+" à votre liste"
++(near.length?". Rapprochés automatiquement (à vérifier) : "+near.join(" ; "):"")
++(miss.length?". À rattacher (nom introuvable ou en double) : "+miss.join(", "):"")
++(skip.length?". Rencontres ignorées (absentes du programme) : "+skip.join(", "):"")
++(warn.length?". ⚠ "+warn.join(" ; "):"")+". Publiez pour que les arbitres voient les frais.");
 }catch(err){dpdfSay("⚠ "+((err&&err.message)||"Import impossible."))}
 });
 deskBox.addEventListener("click",async e=>{
 const b=e.target.closest&&e.target.closest("button[data-pdf]");if(!b)return;
-const L=b.dataset.pdf;b.disabled=true;dpdfSay("Préparation du PDF…");
+const L=b.dataset.pdf,det=b.dataset.det!=="0";b.disabled=true;dpdfSay("Préparation du PDF…");
 try{
-const blob=await desigPdf(L);if(!blob){dpdfSay("Aucun programme à exporter.");return}
-await savePng(blob,dpdfName(L));dpdfSay("✓ PDF prêt : "+dpdfName(L));
+const blob=await desigPdf(L,det);if(!blob){dpdfSay("Aucun programme à exporter.");return}
+await savePng(blob,dpdfName(L,det));dpdfSay("✓ PDF prêt ("+(det?"avec":"sans")+" détail des frais) : "+dpdfName(L,det));
 }catch(err){dpdfSay(err&&err.code==="declined"?"":"⚠ Impossible de générer le PDF.")}
 finally{b.disabled=false}
 });
