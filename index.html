@@ -1976,7 +1976,7 @@ function delOldPush(x){try{const k="del-old-v1";let l=[];try{l=JSON.parse(localS
 function delSave(L){try{localStorage.setItem("del-v1",JSON.stringify(L))}catch(_){}const k=pendGet();if(!k.some(x=>x.del)){k.push({k:"__del",del:true});pendSet(k)}pendShow();schedulePub()}
 function delCard(d,i,edit){
 const bs='style="padding:.3rem .85rem;font-size:.8rem"';
-return `<li><span class="who"><span>${avHtml(d,d.photo)}</span><span><small>Délégué d'arbitrage</small><br>${esc(d.nom)} ${esc(d.prenom)}</span></span><span class="contact">${edit?`<span>Connexion : ${d.cin?"CIN enregistré ✓":"CIN à saisir"}</span>`:""}${d.ville?`<span>Ville : ${esc(d.ville)}</span>`:""}${d.gsm?`<a href="tel:${esc(String(d.gsm).replace(/\s/g,""))}">GSM : ${esc(d.gsm)}</a>`:""}${d.email?`<a href="mailto:${esc(d.email)}">${esc(d.email)}</a>`:""}</span><span class="tag">Délégué d'arbitrage</span>${edit?`<button type="button" class="btn alt" ${bs} data-dl="ed" data-i="${i}">Modifier</button><button type="button" class="btn alt" ${bs} data-dl="rm" data-i="${i}">Supprimer</button>`:""}</li>`;
+return `<li><span class="who"><span>${avHtml(d,d.photo)}</span><span><small>Délégué d'arbitrage</small><br>${esc(d.nom)} ${esc(d.prenom)}</span></span><span class="contact">${edit?`<span>${d.cin?"Connexion : CIN enregistré ✓ · identifiant « "+esc(d.nom)+" » ou « "+esc(d.prenom+" "+d.nom)+" » · mot de passe = CIN"+(ARBITRES.some(a=>!a.pending&&norm(a.cin)===norm(d.cin))?" · ⚠ ce CIN est aussi celui d’un arbitre : le délégué doit saisir son CIN comme identifiant ET comme mot de passe":""):"⚠ CIN à saisir : sans CIN, ce délégué ne peut pas se connecter"}</span>`:""}${d.ville?`<span>Ville : ${esc(d.ville)}</span>`:""}${d.gsm?`<a href="tel:${esc(String(d.gsm).replace(/\s/g,""))}">GSM : ${esc(d.gsm)}</a>`:""}${d.email?`<a href="mailto:${esc(d.email)}">${esc(d.email)}</a>`:""}</span><span class="tag">Délégué d'arbitrage</span>${edit?`<button type="button" class="btn alt" ${bs} data-dl="ed" data-i="${i}">Modifier</button><button type="button" class="btn alt" ${bs} data-dl="rm" data-i="${i}">Supprimer</button>`:""}</li>`;
 }
 function delForm(d){
 const f=(id,l,v,t)=>`<label for="${id}">${l}</label><input id="${id}" type="${t||"text"}" value="${esc(v||"")}">`;
@@ -2257,7 +2257,7 @@ if(!a&&LMODE!=="delegue"){const p=loadProfils().find(x=>norm(x.cin)===norm(pw)&&
 if(!a){lerr.textContent="Vérification…";a=await openEmb(id,pw);lerr.textContent="";
 if(a&&!!a._deleg!==(LMODE==="delegue")){lerr.textContent=LMODE==="delegue"?"Cet accès est réservé aux délégués d’arbitrage. Choisissez « Arbitre » pour vous connecter.":"Cet accès est réservé aux arbitres. Choisissez « Délégué d’arbitrage » pour vous connecter.";return}
 if(a)a=applyProfile(a)}
-if(!a){bad();return}
+if(!a){bad();if(LMODE==="delegue")lerr.textContent+=" Délégué : identifiant = nom de famille (ou « prénom nom »), mot de passe = CIN. Si le problème persiste, demandez à l’administrateur de vérifier que votre CIN est enregistré et publié.";return}
 lpw.value="";await granted();showMe(fix(a));
 }
 document.getElementById("lgo").addEventListener("click",doLogin);
@@ -2881,18 +2881,17 @@ const k=norm(a.nom+a.prenom),same=n=>norm(String(n).replace(/\(.*\)/,""))===k,o=
 PROGS.forEach(P=>P.matchs.forEach(([h,x,y,lieu,d],i)=>{
 if(!d)return;const role=d.r1&&same(d.r1)?"1er arbitre":d.r2&&same(d.r2)?"2e arbitre":"";if(!role)return;
 const m=dateNum(P.date).txt.match(/^(\d{2})\/(\d{2})\/(\d{4})$/),when=m?new Date(+m[3],+m[2]-1,+m[1]):null;
-if(when&&when>now)return;
 o.push({P,i,k:P.id+i,x,y,h,lieu,role,when:when?when.getTime():0})}));
 return o.sort((u,v)=>v.when-u.when)}
 function meResRender(a){
 const box=document.getElementById("me-resbox"),L=document.getElementById("me-reslist");if(!box||!L)return;
-const ms=a&&!a._deleg?myRoleMatches(a).slice(0,6):[];box.hidden=!ms.length;if(!ms.length){L.innerHTML="";return}
+const nowT=(()=>{const d=new Date();d.setHours(23,59,59,0);return d.getTime()})(),ms=a&&!a._deleg?myRoleMatches(a).slice(0,6):[];box.hidden=!ms.length;if(!ms.length){L.innerHTML="";return}
 const sent=resSent();
 L.innerHTML=ms.map(m=>{const r=getRes(m.k),sn=sent[m.k];
-return '<div class="mres" data-k="'+esc(m.k)+'"><p><b>'+esc(m.P.titre)+' · '+esc(m.P.sous)+'</b> : '+esc(m.x)+' contre '+esc(m.y)+'<br><small>'+esc(m.P.date)+' · '+esc(m.role)+'</small></p>'
-+(r?'<p class="ok" style="min-height:0;margin:.2rem 0">Résultat enregistré : '+esc(m.x)+' '+r[0]+' - '+r[1]+' '+esc(m.y)+'</p>':'')
+return '<div class="mres" data-k="'+esc(m.k)+'"><p><b>'+esc(m.P.titre)+' · '+esc(m.P.sous)+'</b> : '+esc(m.x)+' contre '+esc(m.y)+'<br><small>'+esc(m.P.date)+' · '+esc(m.role)+'</small></p>'+(m.when>nowT&&!r?'<p class="help" style="margin:.2rem 0">Match à venir : saisissez le résultat après la rencontre.</p>':'')
++(r?'<p class="ok" style="min-height:0;margin:.2rem 0">Résultat validé : '+esc(m.x)+' '+r[0]+' - '+r[1]+' '+esc(m.y)+'</p><p class="help" style="margin:.2rem 0">Ce résultat est verrouillé. Pour une correction, contactez la commission.</p>':'')
 +(sn?'<p class="help" style="margin:.2rem 0">Envoyé à la commission le '+esc(sn)+(r?'.':' : en attente de validation.')+'</p>':'')
-+'<div class="imp"><button class="btn alt" type="button" data-mr="open">'+(r?'Signaler une correction':'Saisir le résultat')+'</button></div><div class="mres-f"></div></div>'}).join("")}
++(r?'':'<div class="imp"><button class="btn alt" type="button" data-mr="open">Saisir le résultat</button></div><div class="mres-f"></div>')+'</div>'}).join("")}
 function meResForm(m){
 return '<div class="ef"><p class="help">Saisissez les points de chaque set : <b>'+esc(m.x)+'</b> à gauche, <b>'+esc(m.y)+'</b> à droite. Laissez vides les sets non joués ; le score en sets est calculé automatiquement.</p>'
 +[0,1,2,3,4].map(j=>'<div class="rs"><span class="sg">Set '+(j+1)+'<input type="number" min="0" max="99" inputmode="numeric" data-mrs="'+j+'" data-t="a" aria-label="Set '+(j+1)+' '+esc(m.x)+'"><b>-</b><input type="number" min="0" max="99" inputmode="numeric" data-mrs="'+j+'" data-t="b" aria-label="Set '+(j+1)+' '+esc(m.y)+'"></span></div>').join("")
@@ -2907,6 +2906,7 @@ if(sl){const sn=resSent();sn[sl.dataset.mrsent]=new Date().toLocaleDateString("f
 const b=e.target.closest&&e.target.closest("button[data-mr]");if(!b||!CURME)return;
 const box=b.closest(".mres"),f=box.querySelector(".mres-f"),m=myRoleMatches(CURME).find(x=>x.k===box.dataset.k);if(!m)return;
 const act=b.dataset.mr;
+if(getRes(m.k)){f.innerHTML='<p class="help">Résultat déjà validé : modification impossible. Contactez la commission.</p>';return}
 if(act==="open"){f.innerHTML=meResForm(m);return}
 if(act==="cancel"){f.innerHTML="";return}
 if(act!=="send")return;
@@ -2948,6 +2948,7 @@ if(!role)throw new Error(a2.nom+" "+a2.prenom+" n’est pas désigné 1er ou 2e 
 const R=resCheck(r.S);if(R.err)throw new Error(a2.nom+" "+a2.prenom+" : "+R.err);
 const cur=getRes(r.k),cs=getSets(r.k);
 if(cur&&cur[0]===R.sc[0]&&cur[1]===R.sc[1]&&JSON.stringify(cs||[])===JSON.stringify(r.S))return;
+if(cur)throw new Error("Résultat déjà validé pour "+mt[1]+" / "+mt[2]+" ("+cur[0]+"-"+cur[1]+") : la modification proposée par "+a2.nom+" "+a2.prenom+" est refusée. Pour corriger, modifiez-le directement dans « Résultats et classements ».");
 RESS.push({k:r.k,S:r.S,sc:R.sc,cur,P,i,x:mt[1],y:mt[2],a2,role,sig:sg})}
 catch(e){errs.push((codes.length>1?"Résultat "+(n+1)+" : ":"")+(e.message||"code invalide."))}});
 resRender(errs)}
