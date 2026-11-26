@@ -404,7 +404,7 @@ body:not(.adm) :is(button[data-cdoc],button[data-pdf],button[data-cald],button[d
 .lmode button.on{background:#1f8a4f;border-color:#1f8a4f;color:#fff}
 .lmode button:focus-visible{outline:2px solid #1f8a4f;outline-offset:2px}
 .sch .fr{display:flex;flex-direction:column;gap:.1rem;margin:.35rem 0 0;padding-top:.3rem;border-top:1px dashed rgba(255,255,255,.28);font-size:.74rem;color:#ffe9a8}.sch .fr b{font-weight:700}
-.mres{border:1px solid var(--line);border-radius:10px;padding:.8rem 1rem;margin:.7rem 0}.mres p{margin:.2rem 0}.mres small{color:var(--mut)}.mres .rs{margin:.35rem 0}.mres .rs input{width:56px;padding:.35rem .2rem;margin:0;text-align:center}#wk-box>.btn{margin:0 .4rem .5rem 0}.dm.ro .dr{display:grid;grid-template-columns:minmax(110px,150px) 1fr auto;gap:.6rem;align-items:center;padding:.35rem 0;border-bottom:1px solid var(--line)}.dm.ro .rn{font-weight:600}.dm.ro .rn.me{color:var(--red,#8f1d2c);text-decoration:underline}.dm.ro .fv{text-align:right;font-weight:700;white-space:nowrap}</style>
+.mres{border:1px solid var(--line);border-radius:10px;padding:.8rem 1rem;margin:.7rem 0}.mres p{margin:.2rem 0}.mres small{color:var(--mut)}.mres .rs{margin:.35rem 0}.mres .rs input{width:56px;padding:.35rem .2rem;margin:0;text-align:center}#wk-box>.btn{margin:0 .4rem .5rem 0}.dm.ro .dr{display:grid;grid-template-columns:minmax(110px,150px) 1fr auto;gap:.6rem;align-items:center;padding:.35rem 0;border-bottom:1px solid var(--line)}.dm.ro .rn{font-weight:600}.dm.ro .rn.me{color:var(--red,#8f1d2c);text-decoration:underline}.dm.ro .fv{text-align:right;font-weight:700;white-space:nowrap}.mres details{margin:.4rem 0}.mres summary{cursor:pointer;font-weight:700}</style>
 </head>
 <body>
 <div id="login">
@@ -2183,7 +2183,7 @@ g("me-info").innerHTML=rows.map(([k,v])=>`<dt>${k}</dt><dd>${esc(v)}</dd>`).join
 const cls=["k2","k3","k4","k2"];
 g("me-kpis").innerHTML=[["k1","Matchs désignés",t,"Toutes fonctions"],...ROLES.map(([k,l],i)=>[cls[i],l,a[k]||0,t?Math.round(100*(a[k]||0)/t)+" % du total":"Aucune désignation"])].map(([c,l,v,s])=>`<div class="kpi ${c}"><small>${esc(l)}</small><b>${v}</b><span>${esc(s)}</span></div>`).join("");
 g("me-bar").innerHTML=barSvg([["1er arbitre",a.r1||0],["2e arbitre",a.r2||0],["Marqueur",a.mq||0],["Juge ligne",a.jl||0]]);
-{const dl=!!a._deleg;document.querySelectorAll('button[data-m="recus"]').forEach(b=>b.hidden=dl);document.querySelectorAll('button[data-m="nominations"]').forEach(b=>b.hidden=false);dlgMode(dl);if(dl){g("me-actions").hidden=true;g("me-kpis").innerHTML="";g("me-bar").innerHTML="";g("me-desig").innerHTML='<p class="help" style="margin-top:0">Espace délégué d’arbitrage : calendriers, programmes, résultats, règles et coordonnées des délégués.</p>'}}
+{const dl=!!a._deleg;document.querySelectorAll('button[data-m="recus"]').forEach(b=>b.hidden=!dl);document.querySelectorAll('button[data-m="nominations"]').forEach(b=>b.hidden=false);dlgMode(dl);if(dl){g("me-actions").hidden=true;g("me-kpis").innerHTML="";g("me-bar").innerHTML="";g("me-desig").innerHTML='<p class="help" style="margin-top:0">Espace délégué d’arbitrage : calendriers, programmes, résultats, règles et coordonnées des délégués.</p>'}}
 meResRender(a);
 view("me");
 mpage("arbitres");
@@ -2375,6 +2375,7 @@ async function initDir(a){DIRD=await loadDir(a);dsel=a.ville;$("dq").value="";dr
 $("dir-nav").addEventListener("click",e=>{const b=e.target.closest("button[data-c]");if(!b)return;dsel=b.dataset.c;drawDir()});
 $("dq").addEventListener("input",drawDir);
 function mpage(p){
+if(p==="recus"&&!(CURME&&CURME._deleg))p="arbitres";
 if(p==="delegues")delDraw();if(p==="elearn")elDraw();if(p==="recus")setTimeout(renderRecus,0);if(p==="calc")calcDraw("calc-m");if(p==="cal")setTimeout(refreshProg,0);if(p==="res")resLive();
 ["cal","delegues","arbitres","programmes","res","nominations","calc","recus","stat","regles","nouv","case","elearn","notes"].forEach(k=>{$("m-"+k).hidden=k!==p});
 document.querySelectorAll(".mi[data-m]").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.m===p)));
@@ -2886,12 +2887,23 @@ return o.sort((u,v)=>v.when-u.when)}
 function meResRender(a){
 const box=document.getElementById("me-resbox"),L=document.getElementById("me-reslist");if(!box||!L)return;
 const nowT=(()=>{const d=new Date();d.setHours(23,59,59,0);return d.getTime()})(),ms=a&&!a._deleg?myRoleMatches(a).slice(0,6):[];box.hidden=!ms.length;if(!ms.length){L.innerHTML="";return}
-const sent=resSent();
+const sent=resSent(),knm=a?norm(a.nom+a.prenom):"";
 L.innerHTML=ms.map(m=>{const r=getRes(m.k),sn=sent[m.k];
 return '<div class="mres" data-k="'+esc(m.k)+'"><p><b>'+esc(m.P.titre)+' · '+esc(m.P.sous)+'</b> : '+esc(m.x)+' contre '+esc(m.y)+'<br><small>'+esc(m.P.date)+' · '+esc(m.role)+'</small></p>'+(m.when>nowT&&!r?'<p class="help" style="margin:.2rem 0">Match à venir : saisissez le résultat après la rencontre.</p>':'')
 +(r?'<p class="ok" style="min-height:0;margin:.2rem 0">Résultat validé : '+esc(m.x)+' '+r[0]+' - '+r[1]+' '+esc(m.y)+'</p><p class="help" style="margin:.2rem 0">Ce résultat est verrouillé. Pour une correction, contactez la commission.</p>':'')
 +(sn?'<p class="help" style="margin:.2rem 0">Envoyé à la commission le '+esc(sn)+(r?'.':' : en attente de validation.')+'</p>':'')
++feeBox(m,knm)
 +(r?'':'<div class="imp"><button class="btn alt" type="button" data-mr="open">Saisir le résultat</button></div><div class="mres-f"></div>')+'</div>'}).join("")}
+/* Détail des frais du match, affiché dans le profil du 1er / 2e arbitre */
+function feeMatchHtml(P,i,k){
+const e=(P.matchs[i][4])||{},same=n=>k&&norm(String(n).replace(/\(.*\)/,""))===k;
+return '<div class="dm ro">'+slotsFor(P).map(([sl,lab])=>{
+const v=sl.startsWith("jl")?(e.jl||[])[+sl.slice(2)-1]:e[sl],f=feeOf(P.id+i,sl);
+return '<div class="dr"><span>'+esc(lab)+'</span><span class="rn'+(v&&same(v)?' me':'')+'">'+(v?esc(v):'—')+'</span><span class="fv">'+(f?esc(fmtN(f))+' DH':'—')+'</span></div>'}).join("")+'<p class="dtot">'+esc(totText(P,i))+'</p></div>'}
+function feeBox(m,k){
+if(!slotTotal(m.P,m.i))return '<p class="help" style="margin:.2rem 0">Détail des frais : pas encore renseigné par la commission.</p>';
+const mine=feeOf(m.P.id+m.i,m.role==="1er arbitre"?"r1":"r2");
+return (mine?'<p class="ok" style="min-height:0;margin:.2rem 0">Vos frais ('+esc(m.role)+') : '+esc(fmtN(mine))+' DH</p>':'')+'<details><summary>Détail des frais du match</summary>'+feeMatchHtml(m.P,m.i,k)+'</details>'}
 function meResForm(m){
 return '<div class="ef"><p class="help">Saisissez les points de chaque set : <b>'+esc(m.x)+'</b> à gauche, <b>'+esc(m.y)+'</b> à droite. Laissez vides les sets non joués ; le score en sets est calculé automatiquement.</p>'
 +[0,1,2,3,4].map(j=>'<div class="rs"><span class="sg">Set '+(j+1)+'<input type="number" min="0" max="99" inputmode="numeric" data-mrs="'+j+'" data-t="a" aria-label="Set '+(j+1)+' '+esc(m.x)+'"><b>-</b><input type="number" min="0" max="99" inputmode="numeric" data-mrs="'+j+'" data-t="b" aria-label="Set '+(j+1)+' '+esc(m.y)+'"></span></div>').join("")
