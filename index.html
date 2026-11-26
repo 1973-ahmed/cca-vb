@@ -3790,7 +3790,7 @@ c.fillStyle="#fff";c.fillRect(0,0,W,H);
 c.save();c.translate(x0,Y[n]);c.drawImage(tpl,0,0,Wr,Hr);c.scale(k,k);
 c.textAlign="center";c.textBaseline="middle";
 const val=(t,cy,z,col)=>{let f=z;c.font="700 "+f+"px "+AR;while(c.measureText(t).width>600&&f>16){f--;c.font="700 "+f+"px "+AR}c.fillStyle=col||"#1a1a1a";c.fillText(t,683,cy)};
-val(date,478,30);val(rcSeason(P),534,30);val(team,591,30);val(P.titre,648,30);val(String(mno(P,i)),704,30);val("N° "+(P.bar?"B"+barN(P):weekNum(P)),761,30);val(mt,832,43,"#a31f2d");
+val(/^\d{2}\/\d{2}\/\d{4}$/.test(dateNum(P.date).txt)?dateNum(P.date).txt:date,478,30);val(rcSeason(P),534,30);val(team,591,30);val(P.titre,648,30);val(String(mno(P,i)),704,30);val("N° "+(P.bar?"B"+barN(P):weekNum(P)),761,30);val(mt,832,43,"#a31f2d");
 c.restore()});
 const ys=Y[0]+Hr+20;c.strokeStyle="#777";c.lineWidth=.8;c.setLineDash([4,3]);c.beginPath();c.moveTo(56,ys);c.lineTo(W-26,ys);c.stroke();c.setLineDash([]);
 c.strokeStyle="#555";c.lineWidth=1;c.beginPath();c.arc(32,ys-3.6,2.7,0,6.2832);c.moveTo(34.7,ys+3.6);c.arc(32,ys+3.6,2.7,0,6.2832);c.stroke();c.beginPath();c.moveTo(34.4,ys-2.4);c.lineTo(48,ys+4.6);c.moveTo(34.4,ys+2.4);c.lineTo(48,ys-4.6);c.stroke();
