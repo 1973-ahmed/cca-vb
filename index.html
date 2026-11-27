@@ -664,6 +664,14 @@ const lgOf=P=>P.lg||String(P.id).charAt(0);
 const compIdx=P=>{const i=COMPS.findIndex(c=>c.lg===lgOf(P));return i<0?99:i};
 function sortProgs(){PROGS.sort((a,b)=>weekNum(a)-weekNum(b)||compIdx(a)-compIdx(b)||(a.bar&&b.bar?barN(a)-barN(b):0))}
 PEXTRA.forEach(P=>{if(P&&P.id&&Array.isArray(P.matchs)&&!PROGS.some(x=>x.id===P.id))PROGS.push(P)});
+let PEDIT=(()=>{try{return JSON.parse(localStorage.getItem("progs-edit-v1")||"{}")||{}}catch(_){return {}}})();
+function savePedit(){try{localStorage.setItem("progs-edit-v1",JSON.stringify(PEDIT))}catch(_){}}
+(function(){let ch=false;Object.keys(PEDIT).forEach(id=>{const P=PROGS.find(x=>x.id===id),e=PEDIT[id];
+if(!P||!e||!e.o||!Array.isArray(e.h)){delete PEDIT[id];ch=true;return}
+const same=P.date===e.o.date&&P.matchs.every((m,i)=>m[0]===(e.o.h||[])[i]&&m[3]===(e.o.v||[])[i]);
+if(!same){delete PEDIT[id];ch=true;return}
+P.date=e.date;P.matchs.forEach((m,i)=>{if(e.h[i])m[0]=e.h[i];if(e.v[i]!==undefined&&e.v[i]!==null)m[3]=e.v[i]})});
+if(ch)savePedit()})();
 sortProgs();
 let WSEL=0;
 const weeksList=()=>[...new Set(PROGS.map(weekNum))].sort((a,b)=>a-b);
@@ -1035,7 +1043,7 @@ const st=standings(L),played=st.some(x=>x.p>0),bo=ps.every(P=>P.bar);
 return `<div class="rp ${ps[0].cls}"><h2>${esc(ps[0].titre)}</h2><h3>${bo?"Résultats des barrages":"Résultats des matchs"}</h3>${ps.map(P=>`<div class="wkl">${esc(P.sous)} · ${esc(P.date)}</div>${P.matchs.map(([h,a,b],i)=>{const r=getRes(P.id+i),s=r?getSets(P.id+i):null;return `<div class="mw"><div class="mt">${tcell(a,"tA")}<span class="nm">${esc(a)}</span><span class="vs">${r?r[0]+"-"+r[1]:"VS"}</span><span class="nm">${esc(b)}</span>${tcell(b,"tB")}</div>${s&&s.length?`<div class="ss">${forfeit(s)?"FORFAIT de "+esc(forfeit(s)===1?b:a)+" · ":""}${s.map(x=>x[0]+"-"+x[1]).join(" · ")}</div>`:""}</div>`}).join("")}`).join("")}${bo?"":`<div class="rp-sep"></div><h3>Classement</h3><table class="stt"><thead><tr><th></th><th>Équipe</th><th>J</th><th>V</th><th>D</th><th>Pts</th><th title="Sets gagnés / sets perdus">R. sets</th><th title="Points gagnés / points perdus">R. pts</th></tr></thead><tbody>${st.map((x,i)=>`<tr${played&&i===0?' class="ldr"':""}><td>${i+1}</td><td class="n">${esc(x.t)}</td><td>${x.p}</td><td>${x.w}</td><td>${x.l}</td><td>${x.pts}</td><td>${rt(x.sw,x.sl)}</td><td>${rt(x.pw,x.pl)}</td></tr>`).join("")}</tbody></table>`}<span class="mark"><img src="${LOGO}" alt="FRMVB"></span></div>`;
 }
 const actHtml=L=>PROGS.some(P=>lgOf(P)===L&&inWeek(P))?'<div class="pact"><button class="btn" type="button" data-pa="dl" data-l="'+L+'">Télécharger l’image</button><button class="btn alt" type="button" data-pa="sh" data-l="'+L+'">Partager</button><span class="pmsg" role="status" aria-live="polite"></span></div>':"";
-function resHtml(){return weekBar()+COMPS.map(c=>posterHtml(c.lg)+actHtml(c.lg)).join("")+'<p class="help ctr">Barème : victoire 3-0 ou 3-1 = 3 points ; victoire 3-2 = 2 points ; défaite 2-3 = 1 point ; défaite 0-3 ou 1-3 = 0 point.<br>R. sets = sets gagnés / sets perdus ; R. pts = points gagnés / points perdus (calculé à partir des scores de sets saisis).<br>En cas d’égalité de points : nombre de victoires, puis R. sets, puis R. pts.<br>Trois sets à 25-0 : forfait de l’équipe qui a marqué 0 (défaite 0-3). « MAX » = aucun set ou aucun point perdu.</p>'}
+function resHtml(){return weekBar()+rxBar()+COMPS.map(c=>posterHtml(c.lg)+actHtml(c.lg)).join("")+'<p class="help ctr">Barème : victoire 3-0 ou 3-1 = 3 points ; victoire 3-2 = 2 points ; défaite 2-3 = 1 point ; défaite 0-3 ou 1-3 = 0 point.<br>R. sets = sets gagnés / sets perdus ; R. pts = points gagnés / points perdus (calculé à partir des scores de sets saisis).<br>En cas d’égalité de points : nombre de victoires, puis R. sets, puis R. pts.<br>Trois sets à 25-0 : forfait de l’équipe qui a marqué 0 (défaite 0-3). « MAX » = aucun set ou aucun point perdu.</p>'}
 function refreshRes(){const h=resHtml(),a=document.getElementById("res-a"),m=document.getElementById("res-m");if(a)a.innerHTML=h;if(m)m.innerHTML=h}
 function resInHtml(){
 return `<div class="cd"><h3>Saisir les résultats</h3><p class="help" style="margin-top:0">Entrez le nombre de sets de chaque équipe (3 pour le vainqueur, 0, 1 ou 2 pour l'autre). Le classement est calculé automatiquement. Vous pouvez aussi saisir les points de chaque set (S1 à S5) : le score en sets est alors calculé automatiquement et les points alimentent le ratio de points.</p><div id="res-err" class="err" role="alert"></div>${PROGS.filter(inWeek).map(P=>`<h4 class="dp">${esc(P.titre)} · ${esc(P.sous)}</h4>${P.matchs.map(([h,a,b],i)=>{const k=P.id+i,r=getRes(k);const sv=getSets(k)||[];return `<div class="rm"><div class="ri"><span class="rn">${esc(a)}</span><input type="number" min="0" max="3" inputmode="numeric" data-k="${k}" data-t="a" value="${r?r[0]:""}" aria-label="Sets ${esc(a)}"><b>-</b><input type="number" min="0" max="3" inputmode="numeric" data-k="${k}" data-t="b" value="${r?r[1]:""}" aria-label="Sets ${esc(b)}"><span class="rn">${esc(b)}</span></div><div class="rs" role="group" aria-label="Scores des sets">${[0,1,2,3,4].map(j=>{const q=sv[j];return `<span class="sg">S${j+1}<input type="number" min="0" max="99" inputmode="numeric" data-k="${k}" data-s="${j}" data-t="a" value="${q?q[0]:""}" aria-label="Set ${j+1} points ${esc(a)}"><b>-</b><input type="number" min="0" max="99" inputmode="numeric" data-k="${k}" data-s="${j}" data-t="b" value="${q?q[1]:""}" aria-label="Set ${j+1} points ${esc(b)}"></span>`}).join("")}</div></div>`}).join("")}`).join("")}<div class="imp" style="margin-top:1rem"><button class="btn" type="button" data-x="rtxt">Afficher le texte des résultats</button></div><div id="res-txt"></div></div>`;
@@ -1604,8 +1612,9 @@ if(isAdmin()){
 h+=fam.filter(y=>y.n>1).map(y=>`<button class="btn" type="button" data-pp="F:${esc(y.f)}">Programme PDF · ${esc(y.f)} (Hommes et Dames) · ${esc(wl)}</button>`).join("");
 h+=lgs.map(x=>`<button class="btn alt" type="button" data-pp="${esc(x.lg)}">Programme PDF · ${esc(x.t)} · ${esc(wl)}</button>`).join("");
 }
+if(isAdmin())h+=ps.map(P=>`<button class="btn alt" type="button" data-pe="open" data-id="${esc(P.id)}">Modifier les horaires · ${esc(P.titre)} · ${esc(P.sous)}</button>`).join("");
 if(!bv){const c=COMPS.find(x=>x.lg===curComp());if(c)h+=`<button class="btn alt" type="button" data-gcal="${esc(c.lg)}">Calendrier général · ${esc(c.titre)} →</button>`}
-return h?`<div class="imp dtool">${h}</div><div id="pp-msg" class="help" role="status">${esc(PPMSG)}</div>`:"";
+return h?`<div class="imp dtool">${h}</div><div id="pp-msg" class="help" role="status">${esc(PPMSG||PE_MSG)}</div>${isAdmin()?peHtml(ps):""}`:"";
 }
 document.addEventListener("click",async e=>{
 const b=e.target.closest&&e.target.closest("button[data-pp]");if(!b||!isAdmin())return;
@@ -2015,6 +2024,100 @@ document.getElementById("wk-n").value=c.n;document.getElementById("wk-d").value=
 const box=document.getElementById("wk-rows");box.innerHTML=c.m.map((m,i)=>wkRow(i,m.h||hh)).join("");
 [...box.querySelectorAll(".wkr")].forEach((r,i)=>{const m=c.m[i],v=k=>r.querySelector('[data-wf="'+k+'"]');v("a").value=m.a;v("b").value=m.b;v("v").value=m.v||wkHome(m.a,L)});
 const er=document.getElementById("wk-err");if(er)er.textContent=c.iso?"":"Date non reconnue dans le calendrier : choisissez-la ci-dessus.";
+});
+
+/* ===== Modifier les horaires (date, heure, lieu) d'un programme : administrateur ===== */
+let PE_OPEN="",PE_MSG="";
+function peHtml(ps){
+const P=ps.find(x=>x.id===PE_OPEN);if(!P)return "";
+const venues=[...new Set(PROGS.filter(q=>lgOf(q)===lgOf(P)).flatMap(q=>q.matchs.map(m=>m[3])))].filter(Boolean).sort();
+return `<div class="cd" id="pe-box"><h3>Modifier le programme · ${esc(P.titre)} · ${esc(P.sous)}</h3><p class="help" style="margin-top:0">Changez la date, l’heure ou le lieu des matchs, puis enregistrez et cliquez sur « Publier sur GitHub ». Les désignations, les frais et les résultats déjà saisis ne sont pas modifiés.</p><label class="help" for="pe-d" style="display:block;margin-bottom:.3rem">Date</label><input id="pe-d" type="date" data-pe-f="date" value="${esc(wkIso(P.date))}"><datalist id="pe-v">${venues.map(v=>`<option value="${esc(v)}">`).join("")}</datalist><div class="tw" style="margin-top:1rem"><table class="tbl"><thead><tr><th>Match</th><th>Heure</th><th>Lieu</th></tr></thead><tbody>${P.matchs.map((m,i)=>`<tr><td>Match ${mno(P,i)} · ${esc(m[1])} contre ${esc(m[2])}</td><td><input type="time" data-pe-h="${i}" value="${esc(m[0])}" aria-label="Heure du match ${i+1}"></td><td><input list="pe-v" data-pe-v="${i}" value="${esc(m[3]||"")}" placeholder="Ville · Salle" aria-label="Lieu du match ${i+1}" style="min-width:16rem"></td></tr>`).join("")}</tbody></table></div><div class="imp"><label class="help" for="pe-all">Même heure pour tous les matchs</label><input id="pe-all" type="time" data-pe-f="all" style="width:8rem"><button class="btn alt" type="button" data-pe="all">Appliquer à tous</button></div><div class="imp"><button class="btn" type="button" data-pe="save">Enregistrer</button><button class="btn alt" type="button" data-pe="cancel">Annuler</button></div><p class="help" id="pe-msg" role="status">${esc(PE_MSG)}</p></div>`;
+}
+document.addEventListener("click",e=>{
+const b=e.target.closest&&e.target.closest("button[data-pe]");if(!b||!isAdmin())return;
+const a=b.dataset.pe;
+if(a==="open"){PE_OPEN=b.dataset.id;PE_MSG="";refreshProg();return}
+if(a==="cancel"){PE_OPEN="";PE_MSG="";refreshProg();return}
+const box=document.getElementById("pe-box");if(!box)return;
+if(a==="all"){const t=box.querySelector('[data-pe-f="all"]').value;if(t)box.querySelectorAll("[data-pe-h]").forEach(i=>{i.value=t});return}
+if(a==="save"){
+const P=PROGS.find(x=>x.id===PE_OPEN);if(!P)return;
+const say=t=>{const m=document.getElementById("pe-msg");if(m)m.textContent=t},iso=box.querySelector('[data-pe-f="date"]').value;
+const hs=[...box.querySelectorAll("[data-pe-h]")].map(i=>i.value.trim()),vs=[...box.querySelectorAll("[data-pe-v]")].map(i=>i.value.trim());
+if(!iso){say("Choisissez la date.");return}
+if(hs.some(h=>!/^\d{1,2}:\d{2}$/.test(h))){say("Indiquez l’heure de chaque match (format 17:00).");return}
+const orig={date:P.date,h:P.matchs.map(m=>m[0]),v:P.matchs.map(m=>m[3])};
+P.date=fmtDateFr(iso);P.matchs.forEach((m,i)=>{m[0]=hs[i];m[3]=vs[i]});
+if(PEXTRA.includes(P))savePextra();
+else{const prev=PEDIT[P.id];PEDIT[P.id]={date:P.date,h:P.matchs.map(m=>m[0]),v:P.matchs.map(m=>m[3]),o:prev?prev.o:orig};savePedit()}
+pendProg();PE_MSG="✓ Programme mis à jour. Cliquez sur « Publier sur GitHub » pour que les arbitres voient les nouveaux horaires.";PE_OPEN="";
+refreshProg();try{drawHome()}catch(_){}
+const m=document.getElementById("pp-msg");if(m)m.textContent=PE_MSG;
+}
+});
+
+/* ===== Résultats de chaque week : téléchargement Excel ===== */
+let RXMSG="";
+const RX_H=["Compétition","Week","Date","N° match","Heure","Équipe A","Sets A","Sets B","Équipe B","Vainqueur","Score des sets","Points A","Points B","Forfait","Lieu","Statut"];
+const RX_S=["Rang","Équipe","Joués","Victoires","Défaites","Points","Sets gagnés","Sets perdus","Ratio sets","Points gagnés","Points perdus","Ratio points"];
+function rxRows(P){
+return P.matchs.map(([h,a,b,v],i)=>{
+const k=P.id+i,r=getRes(k),st=r?(getSets(k)||[]):[],pa=st.length?st.reduce((n,x)=>n+x[0],0):"",pb=st.length?st.reduce((n,x)=>n+x[1],0):"",ff=st.length?forfeit(st):0;
+return [P.titre,P.sous,P.date,mno(P,i),h,a,r?r[0]:"",r?r[1]:"",b,r?(r[0]>r[1]?a:b):"",st.length?st.map(x=>x[0]+"-"+x[1]).join(" ; "):"",pa,pb,ff===1?"Forfait de "+b:(ff===2?"Forfait de "+a:""),v||"",r?"Joué":"À jouer"];
+});
+}
+function rxStand(L,n){
+const T={};
+PROGS.filter(P=>lgOf(P)===L&&!P.bar&&(n==null||weekNum(P)<=n)).forEach(P=>P.matchs.forEach(([h,a,b],i)=>{
+[a,b].forEach(t=>{T[t]=T[t]||{t,p:0,w:0,l:0,pts:0,sw:0,sl:0,pw:0,pl:0}});
+const r=getRes(P.id+i);if(!r)return;
+const [x,y]=r,A=T[a],B=T[b];
+A.p++;B.p++;A.sw+=x;A.sl+=y;B.sw+=y;B.sl+=x;
+(getSets(P.id+i)||[]).forEach(([u,v])=>{A.pw+=u;A.pl+=v;B.pw+=v;B.pl+=u});
+if(x>y){A.w++;B.l++;A.pts+=y<=1?3:2;B.pts+=y===2?1:0}else{B.w++;A.l++;B.pts+=x<=1?3:2;A.pts+=x===2?1:0}
+}));
+return Object.values(T).sort((m,n2)=>n2.pts-m.pts||n2.w-m.w||cmpR(n2.sw,n2.sl,m.sw,m.sl)||cmpR(n2.pw,n2.pl,m.pw,m.pl)||fr(m.t,n2.t));
+}
+function rxBook(scope){
+if(typeof XLSX==="undefined")throw new Error("Le lecteur Excel n’a pas pu se charger. Vérifiez votre connexion et rechargez la page.");
+const wn=ew(),wb=XLSX.utils.book_new(),used=new Set(),ratio=(a,b)=>b?Math.round(a/b*100)/100:(a?"MAX":"—");
+const add=(name,H,rows)=>{
+let n=String(name).replace(/[\\\/?*\[\]:]/g," ").trim().slice(0,31)||"Feuille";const base=n;let i=2;
+while(used.has(n.toLowerCase())){const suf=" ("+(i++)+")";n=base.slice(0,31-suf.length)+suf}
+used.add(n.toLowerCase());
+const ws=XLSX.utils.aoa_to_sheet([H].concat(rows));
+ws["!cols"]=H.map((h,c)=>({wch:Math.min(40,Math.max(String(h).length,...rows.map(r=>String(r[c]==null?"":r[c]).length))+2)}));
+ws["!autofilter"]={ref:"A1:"+XLSX.utils.encode_cell({r:rows.length,c:H.length-1})};
+XLSX.utils.book_append_sheet(wb,ws,n);
+};
+let nm=0;
+COMPS.forEach(c=>{
+const ps=PROGS.filter(P=>lgOf(P)===c.lg&&(scope==="all"||inWeek(P)));if(!ps.length)return;
+const rows=ps.flatMap(rxRows);nm+=rows.length;
+add(c.titre+(scope==="all"?" - Résultats":" - Week "+wn),RX_H,rows);
+if(!ps.every(P=>P.bar)){
+const st=rxStand(c.lg,scope==="all"?null:wn);
+add("Classement "+c.titre,RX_S,st.map((x,i)=>[i+1,x.t,x.p,x.w,x.l,x.pts,x.sw,x.sl,ratio(x.sw,x.sl),x.pw,x.pl,ratio(x.pw,x.pl)]));
+}
+});
+return nm?{wb,nm,wn}:null;
+}
+function rxBar(){
+const wn=ew();
+return `<div class="imp dtool"><button class="btn" type="button" data-rx="wk">Télécharger les résultats · Week ${wn} (Excel)</button><button class="btn alt" type="button" data-rx="all">Télécharger tous les résultats (Excel)</button></div><div id="rx-msg" class="help" role="status">${esc(RXMSG)}</div>`;
+}
+document.addEventListener("click",async e=>{
+const b=e.target.closest&&e.target.closest("button[data-rx]");if(!b)return;
+const say=t=>{RXMSG=t;document.querySelectorAll("#rx-msg").forEach(m=>{m.textContent=t})};
+b.disabled=true;say("Préparation du fichier Excel…");
+try{
+const r=rxBook(b.dataset.rx);
+if(!r){say("Aucun match à exporter pour cette semaine.");return}
+const out=XLSX.write(r.wb,{bookType:"xlsx",type:"array"}),bl=new Blob([out],{type:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"});
+await savePng(bl,b.dataset.rx==="all"?"resultats-toutes-les-weeks.xlsx":"resultats-week-"+r.wn+".xlsx");
+say("✓ Excel téléchargé : "+r.nm+" match"+(r.nm>1?"s":"")+(b.dataset.rx==="all"?" (toutes les semaines)":" (Week "+r.wn+")")+", avec une feuille de classement par compétition.");
+}catch(err){say(err&&err.code==="declined"?err.message:(err&&err.message)||"La génération du fichier Excel a échoué. Réessayez.")}
+finally{b.disabled=false}
 });
 /* Délégués d'arbitrage */
 const arAdminSafe=()=>{try{return arAdmin()}catch(_){return false}};
