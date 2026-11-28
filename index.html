@@ -3190,7 +3190,7 @@ return '<div class="dr"><span>'+esc(lab)+'</span><span class="rn'+(v&&same(v)?' 
 function feeBox(m,k){
 if(!slotTotal(m.P,m.i))return '<p class="help" style="margin:.2rem 0">Détail des frais : pas encore renseigné par la commission.</p>';
 const mine=feeOf(m.P.id+m.i,m.role==="1er arbitre"?"r1":"r2");
-return (mine?'<p class="ok" style="min-height:0;margin:.2rem 0">Vos frais ('+esc(m.role)+') : '+esc(fmtN(mine))+' DH</p>':'')+'<details><summary>Détail des frais du match</summary>'+feeMatchHtml(m.P,m.i,k)+'</details>'}
+return (mine?'<p class="ok" style="min-height:0;margin:.2rem 0">Vos frais ('+esc(m.role)+') : '+esc(fmtN(mine))+' DH</p>':'')+'<details open><summary>Détail des frais du match</summary>'+feeMatchHtml(m.P,m.i,k)+'</details>'}
 function meResForm(m){
 return '<div class="ef"><p class="help">Saisissez les points de chaque set : <b>'+esc(m.x)+'</b> à gauche, <b>'+esc(m.y)+'</b> à droite. Laissez vides les sets non joués ; le score en sets est calculé automatiquement.</p>'
 +[0,1,2,3,4].map(j=>'<div class="rs"><span class="sg">Set '+(j+1)+'<input type="number" min="0" max="99" inputmode="numeric" data-mrs="'+j+'" data-t="a" aria-label="Set '+(j+1)+' '+esc(m.x)+'"><b>-</b><input type="number" min="0" max="99" inputmode="numeric" data-mrs="'+j+'" data-t="b" aria-label="Set '+(j+1)+' '+esc(m.y)+'"></span></div>').join("")
